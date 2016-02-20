@@ -3,7 +3,11 @@
 	var p3js = window.p3js = (window.p3js || { });
 
 	p3js.pseudoInstructions = {
-		"orig": "0c", "equ": "0c", "word": "0c", "str": "s", "tab": "0c"
+		"orig": { type: "0c", requiresLabel: false },
+		"equ":  { type: "0c", requiresLabel: true  },
+		"word": { type: "0c", requiresLabel: true  },
+		"str":  { type: "s",  requiresLabel: true  },
+		"tab":  { type: "0c", requiresLabel: true  },
 	};
 
 	//   Name  Opcode   Type

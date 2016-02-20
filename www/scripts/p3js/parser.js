@@ -49,9 +49,9 @@
 				}
 			}
 		} else if (p3js.pseudoInstructions[data.i]) {
-			if (data.i == "equ" || data.i == "str") {
+			if (p3js.pseudoInstructions[data.i].requiresLabel) {
 				if (!data.l || matches[2]) {
-					throw "Syntax error, invalid label, on line " + n;
+					throw "Syntax error, invalid or missing label, on line " + n;
 				}
 			} else if (data.l) {
 				throw "Syntax error, '" + data.i + "' cannot have a label, on line " + n;

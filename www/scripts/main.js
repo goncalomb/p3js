@@ -9,16 +9,13 @@ $(window).ready(function() {
 	// Or use Firefox.
 	$.get("demos/Demo1.as", null, function(data) {
 		$code.val(data);
+		$run.click();
 	}, "text");
 
 	$run.click(function() {
 		try {
 			var data = p3js.parser.parseString($code.val());
-			var str = [];
-			for (var i = 0, l = data.length; i < l; i++) {
-				str.push(JSON.stringify(data[i]));
-			}
-			$output.val(str.join("\n") + "\n");
+			$output.val(data.join(""));
 		} catch (e) {
 			$output.val(e);
 		}

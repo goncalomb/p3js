@@ -4,6 +4,35 @@
 	var parser = p3js.parser = { };
 	eval(p3js.extractConstants());
 
+	parser.parseConstant = function(text) {
+		var match, i = null;
+		function tryParseInt(regex, base) {
+			if (match = text.match(regex)) {
+				i = parseInt(match[1], base);
+				if (match[0].charAt(0) == "-") {
+					i = -i;
+				}
+				return true;
+			}
+			return false;
+		}
+		if (
+			tryParseInt(/^[-+]?([01]{1,16})b$/i,     2) === false && // bin
+			tryParseInt(/^[-+]?([0-7]{1,6})o$/i,     8) === false && // oct
+			tryParseInt(/^[-+]?([0-9]{1,5})d?$/i,   10) === false && // dec
+			tryParseInt(/^[-+]?([0-9a-f]{1,4})h$/i, 16) === false && // hex
+			// If everything fails, try parse ASCII constant.
+			text.length == 3 && text.charAt(0) == "'" && text.charAt(2) == "'"
+		) {
+			i = text.charCodeAt(1);
+		}
+		return i;
+	}
+
+	parser.isValidLabel = function(value) {
+		return !!value.match(/^[a-z_]\w*$/i);
+	}
+
 	function process_operand(operand, n) {
 		operand = operand.trim();
 		if (!operand) {

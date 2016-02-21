@@ -29,8 +29,32 @@
 		return i;
 	}
 
+	parser.parseStringConstant = function(text) {
+		// TODO: improve this function (verify end, escape ' etc)
+		var str = "";
+		var l = text.length;
+		if (l > 3 && text.charAt(0) == "'" && text.charAt(l - 1) == "'") {
+			for (var i = 1; i < l - 1; i++) {
+				str += text.charAt(i);
+			}
+			return str;
+		}
+		return null;
+	}
+
 	parser.isValidLabel = function(value) {
 		return !!value.match(/^[a-z_]\w*$/i);
+	}
+
+	function process_constant_or_label(value, n) {
+		var w = parser.parseConstant(value);
+		if (w === null && parser.isValidLabel(value)) {
+			w = value;
+		}
+		if (w === null) {
+			throw "Syntax error, invalid operand constant, on line " + n;
+		}
+		return w;
 	}
 
 	function process_operand(operand, n) {
@@ -38,8 +62,41 @@
 		if (!operand) {
 			throw "Syntax error, invalid operand (empty?), on line " + n;
 		}
-		// TODO: finish parsing operand
-		return operand;
+		var lower = operand.toLowerCase();
+		var matches;
+		if (matches = operand.match(/^R([0-7])$/i)) {
+			return { type: OPRD_TYPE_REGISTER, r: matches[1].charCodeAt(0) - 48 };
+		} else if (lower == "sp") {
+			return { type: OPRD_TYPE_SP, r: "sp" };
+		} else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
+			if (matches[4]) {
+				var w = process_constant_or_label(matches[4], n);
+				return { type: OPRD_TYPE_DIRECT, w: w };
+			} else if (matches[1]) {
+				var op = { type: OPRD_TYPE_INDEXED, w: 0 }
+				if (matches[1].toLowerCase() == "sp") {
+					op.type = OPRD_TYPE_BASED;
+					op.r = "sp";
+				} else {
+					op.r = matches[1].charCodeAt(1) - 48;
+				}
+				if (matches[2]) {
+					op.s = matches[2];
+					op.w = process_constant_or_label(matches[3], n);
+				} else if (op.r != "sp") {
+					return { type: OPRD_TYPE_REGISTER_INDIRECT, r: op.r };
+				}
+				return op;
+			}
+		} else {
+			var w = parser.parseStringConstant(operand);
+			if (w) {
+				return { type: OPRD_TYPE_STRING, w: w };
+			}
+			w = process_constant_or_label(operand, n);
+			return { type: OPRD_TYPE_IMMEDIATE, w: w };
+		}
+		return null;
 	}
 
 	function process_line(text, n) {

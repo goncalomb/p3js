@@ -84,6 +84,7 @@
 	};
 
 	p3js.constants = {
+		OPRD_TYPE_STRING: -1,           // 'Test String'
 		OPRD_TYPE_REGISTER: 0,          // Rx
 		OPRD_TYPE_REGISTER_INDIRECT: 1, // M[Rx]
 		OPRD_TYPE_IMMEDIATE: 2,         // W

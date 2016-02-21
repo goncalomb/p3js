@@ -83,10 +83,31 @@
 		"z": 1, "nz": 1, "c": 1, "nc": 1, "n": 1, "nn": 1, "o": 1, "no": 1, "p": 1, "np": 1, "i": 1, "ni": 1
 	};
 
+	p3js.constants = {
+		OPRD_TYPE_REGISTER: 0,          // Rx
+		OPRD_TYPE_REGISTER_INDIRECT: 1, // M[Rx]
+		OPRD_TYPE_IMMEDIATE: 2,         // W
+		OPRD_TYPE_DIRECT: 3,            // M[W]
+		OPRD_TYPE_INDEXED: 4,           // M[Rx+W]
+		OPRD_TYPE_RELATIVE: 5,          // M[PC+W]
+		OPRD_TYPE_BASED: 6,             // M[SP+W]
+		OPRD_TYPE_PC: 7,                // PC
+		OPRD_TYPE_SP: 8                 // SP
+	};
+
+	p3js.extractConstants = function() {
+		var code = ["// use eval(p3js.extractConstants());\n"];
+		for (var key in p3js.constants) {
+			code.push("var " + key + " = p3js.constants[" + JSON.stringify(key) + "];\n");
+		}
+		return code.join("");
+	}
+
 	if (Object.freeze) {
 		Object.freeze(p3js.pseudoInstructions);
 		Object.freeze(p3js.conditions);
 		Object.freeze(p3js.instructions);
+		Object.freeze(p3js.constants);
 	}
 
 })();

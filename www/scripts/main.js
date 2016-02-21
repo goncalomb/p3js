@@ -7,7 +7,7 @@ $(window).ready(function() {
 	// Loading local files (file://) with jQuery may not work. Use:
 	// google-chrome --user-data-dir=$(mktemp -d) --incognito --allow-file-access-from-files --start-maximized
 	// Or use Firefox.
-	$.get("demos/Demo1.as", null, function(data) {
+	$.get("demos/Demo1-clean.as", null, function(data) {
 		$code.val(data);
 		$run.click();
 	}, "text");

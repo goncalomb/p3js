@@ -104,6 +104,17 @@
 		return code.join("");
 	}
 
+	p3js.writeObjectFormat = function(memory) {
+		var buffer = new ArrayBuffer(65536 * 2);
+		var view = new DataView(buffer);
+		view.setUint32(0, 936854375, true); // magic number 936854375 as a
+		view.setUint32(4, 0, true);         // 64bit integer (little-endian)
+
+		// TODO: finish this function (first we need the assembler)
+
+		return buffer;
+	}
+
 	if (Object.freeze) {
 		Object.freeze(p3js.pseudoInstructions);
 		Object.freeze(p3js.conditions);

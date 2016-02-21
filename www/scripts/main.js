@@ -3,6 +3,7 @@ $(window).ready(function() {
 	var $code = $("#code");
 	var $output = $("#output");
 	var $run = $("#run");
+	var $hex = $("#hex");
 
 	// Loading local files (file://) with jQuery may not work. Use:
 	// google-chrome --user-data-dir=$(mktemp -d) --incognito --allow-file-access-from-files --start-maximized
@@ -12,10 +13,24 @@ $(window).ready(function() {
 		$run.click();
 	}, "text");
 
+	function debug_write_hex(buffer) {
+		var str = [ ];
+		var data = new Uint8Array(buffer);
+		data.forEach(function(v) {
+			var s = v.toString(16);
+			if (s.length < 2) {
+				s = "0" + s;
+			}
+			str.push(s);
+		});
+		$hex.val(str.join(" "));
+	}
+
 	$run.click(function() {
 		try {
 			var data = p3js.parser.parseString($code.val());
 			$output.val(data.join(""));
+			debug_write_hex(p3js.writeObjectFormat(null));
 		} catch (e) {
 			$output.val(e);
 		}

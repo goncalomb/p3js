@@ -2,6 +2,16 @@
 
 	var p3js = window.p3js = (window.p3js || { });
 	var parser = p3js.parser = { };
+	eval(p3js.extractConstants());
+
+	function process_operand(operand, n) {
+		operand = operand.trim();
+		if (!operand) {
+			throw "Syntax error, invalid operand (empty?), on line " + n;
+		}
+		// TODO: finish parsing operand
+		return operand;
+	}
 
 	function process_line(text, n) {
 		var data = { n: n, l: null, i: null, c: null, o: [ ] };
@@ -61,8 +71,22 @@
 		}
 
 		// process operands
-		// TODO: do process the operands
-		data.o = (matches[5] ? matches[5] : null); // remove this
+		if (matches[5]) {
+			var inside_string = false;
+			for (var operand = "", i = 0, l = matches[5].length; i < l; i++) {
+				var c = matches[5].charAt(i);
+				if (c == "," && !inside_string) {
+					data.o.push(process_operand(operand, n));
+					operand = "";
+				} else {
+					if (c == "'") {
+						inside_string = !inside_string;
+					}
+					operand += c;
+				}
+			}
+			data.o.push(process_operand(operand, n));
+		}
 
 		// debug code
 		return text.trim() + "\n" + JSON.stringify(data, null, 2) + "\n";

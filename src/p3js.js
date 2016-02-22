@@ -84,6 +84,8 @@
 	};
 
 	p3js.constants = {
+		MEMORY_SIZE: (1 << 16),
+		MEMORY_SIZE_BYTES: (1 << 16) * 2,
 		OPRD_TYPE_STRING: -1,           // 'Test String'
 		OPRD_TYPE_REGISTER: 0,          // Rx
 		OPRD_TYPE_REGISTER_INDIRECT: 1, // M[Rx]

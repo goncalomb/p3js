@@ -29,9 +29,10 @@ $(window).ready(function() {
 	$run.click(function() {
 		try {
 			var data = p3js.parser.parseString($code.val());
+			var buffer = p3js.assembler.assembleData(data);
 			// debug
 			$output.val(JSON.stringify(data, null, 1));
-			debug_write_hex(p3js.writeObjectFormat(null));
+			debug_write_hex(buffer);
 		} catch (e) {
 			$hex.val(e);
 			$output.val(e);

@@ -173,10 +173,7 @@
 			}
 			data.o.push(process_operand(operand, n));
 		}
-
-		// debug code
-		return text.trim() + "\n" + JSON.stringify(data, null, 2) + "\n";
-		// return data;
+		return data;
 	}
 
 	parser.parseString = function(text) {

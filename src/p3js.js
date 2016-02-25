@@ -128,14 +128,38 @@
 	}
 
 	p3js.writeObjectFormat = function(memory) {
-		var buffer = new ArrayBuffer(65536 * 2);
+		var view_mem = new DataView(memory);
+		var buffer = new ArrayBuffer(memory.byteLength * 2);
 		var view = new DataView(buffer);
 		view.setUint32(0, 936854375, true); // magic number 936854375 as a
 		view.setUint32(4, 0, true);         // 64bit integer (little-endian)
-
-		// TODO: finish this function (first we need the assembler)
-
-		return buffer;
+		var p = 8; // position on the output buffer
+		for (var i = 0, l = memory.byteLength; i < l; i += 2) {
+			if (view_mem.getInt16(i, true) == 0) {
+				continue;
+			}
+			var length_pos = p;
+			p += 2;
+			// write address of block
+			view.setInt16(p, i/2, true);
+			p += 2;
+			// write data
+			var j = i;
+			for (; j < l; j += 2) {
+				var v = view_mem.getInt16(j, true);
+				if (v == 0) {
+					break;
+				}
+				view.setInt16(p, v, true);
+				p += 2;
+			}
+			// write length of block
+			view.setInt16(length_pos, (j - i)/2, true);
+			i = j;
+		}
+		view.setInt16(p, 0, true);
+		p += 2;
+		return buffer.slice(0, p);
 	}
 
 	if (Object.freeze) {

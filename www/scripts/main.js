@@ -32,10 +32,11 @@ $(window).ready(function() {
 			var buffer = p3js.assembler.assembleData(data);
 			// debug
 			$output.val(JSON.stringify(data, null, 1));
-			debug_write_hex(buffer);
+			debug_write_hex(p3js.writeObjectFormat(buffer));
 		} catch (e) {
 			$hex.val(e);
 			$output.val(e);
+			console.error(e);
 		}
 	});
 

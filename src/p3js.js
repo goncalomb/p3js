@@ -3,11 +3,11 @@
 	var p3js = window.p3js = (window.p3js || { });
 
 	p3js.pseudoInstructions = {
-		"orig": { type: "0c", requiresLabel: false },
-		"equ":  { type: "0c", requiresLabel: true  },
-		"word": { type: "0c", requiresLabel: true  },
-		"str":  { type: "s",  requiresLabel: true  },
-		"tab":  { type: "0c", requiresLabel: true  },
+		"ORIG": { type: "0c", requiresLabel: false },
+		"EQU":  { type: "0c", requiresLabel: true  },
+		"WORD": { type: "0c", requiresLabel: true  },
+		"STR":  { type: "s",  requiresLabel: true  },
+		"TAB":  { type: "0c", requiresLabel: true  }
 	};
 
 	//   Name  Opcode   Type
@@ -73,14 +73,25 @@
 	p3js.instructions = { };
 	for (var i = 0, l = instructions_raw.length; i < l; i++) {
 		var parts = instructions_raw[i].replace(/\s+/g, " ").split(" ");
-		p3js.instructions[parts[0].toLowerCase()] = {
+		p3js.instructions[parts[0].toUpperCase()] = {
 			opcode: parseInt(parts[1], 2),
 			type: parts[2]
 		};
 	}
 
 	p3js.conditions = {
-		"z": 1, "nz": 1, "c": 1, "nc": 1, "n": 1, "nn": 1, "o": 1, "no": 1, "p": 1, "np": 1, "i": 1, "ni": 1
+		"Z":  1,
+		"NZ": 1,
+		"C":  1,
+		"NC": 1,
+		"N":  1,
+		"NN": 1,
+		"O":  1,
+		"NO": 1,
+		"P":  1,
+		"NP": 1,
+		"I":  1,
+		"NI": 1
 	};
 
 	p3js.constants = {

@@ -76,25 +76,25 @@
 
 			// pseudo-instructions
 			if (
-				(inst.i == "orig" || inst.i == "equ" || inst.i == "word" || inst.i == "tab") &&
+				(inst.i == "ORIG" || inst.i == "EQU" || inst.i == "WORD" || inst.i == "TAB") &&
 				inst.o[0].type != OPRD_TYPE_IMMEDIATE
 			) {
 				throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 			}
 			// TODO: check if inst.o[0].w is a label!!!!!1
 			switch (inst.i) {
-				case "orig":
+				case "ORIG":
 					console.log("ORIG " + inst.o[0].w)
 					buffer.setPosition(inst.o[0].w);
 					continue;
-				case "equ":
+				case "EQU":
 					set_label(inst.l, inst.o[0].w);
 					continue;
-				case "word":
+				case "WORD":
 					set_label(inst.l, buffer.getPosition());
 					buffer.write(inst.o[0].w);
 					continue;
-				case "str":
+				case "STR":
 					inst.o.forEach(function(o) {
 						if (o.type == OPRD_TYPE_STRING) {
 							for (var i = 0, l = o.w.length; i < l; i++) {
@@ -107,7 +107,7 @@
 						}
 					});
 					continue;
-				case "tab":
+				case "TAB":
 					set_label(inst.l, buffer.getPosition());
 					for (var i = 0; i < inst.o[0].w; i++) {
 						buffer.write(0);

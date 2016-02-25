@@ -63,28 +63,27 @@
 		if (!operand) {
 			throw "Syntax error, invalid operand (empty?), on line " + n;
 		}
-		var lower = operand.toLowerCase();
 		var matches;
 		if (matches = operand.match(/^R([0-7])$/i)) {
 			return { type: OPRD_TYPE_REGISTER, r: matches[1].charCodeAt(0) - 48 };
-		} else if (lower == "sp") {
-			return { type: OPRD_TYPE_SP, r: "sp" };
+		} else if (operand.toUpperCase() == "SP") {
+			return { type: OPRD_TYPE_SP, r: "SP" };
 		} else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
 			if (matches[4]) {
 				var w = process_constant_or_label(matches[4], n);
 				return { type: OPRD_TYPE_DIRECT, w: w };
 			} else if (matches[1]) {
 				var op = { type: OPRD_TYPE_INDEXED, w: 0 }
-				if (matches[1].toLowerCase() == "sp") {
+				if (matches[1].toUpperCase() == "SP") {
 					op.type = OPRD_TYPE_BASED;
-					op.r = "sp";
+					op.r = "SP";
 				} else {
 					op.r = matches[1].charCodeAt(1) - 48;
 				}
 				if (matches[2]) {
 					op.s = matches[2];
 					op.w = process_constant_or_label(matches[3], n);
-				} else if (op.r != "sp") {
+				} else if (op.r != "SP") {
 					return { type: OPRD_TYPE_REGISTER_INDIRECT, r: op.r };
 				}
 				return op;
@@ -114,7 +113,7 @@
 
 		// process label
 		if (matches[1]) {
-			var lower = matches[1].toLowerCase();
+			var lower = matches[1].toUpperCase();
 			if (p3js.pseudoInstructions[lower] || p3js.instructions[lower]) {
 				// found label with instruction name, investigate
 				if (matches[2] || matches[4] || matches[5]) {
@@ -134,13 +133,13 @@
 		}
 
 		// process instruction
-		data.i = matches[3].toLowerCase() + (matches[4] ? "." : ""); // store instruction
+		data.i = matches[3].toUpperCase() + (matches[4] ? "." : ""); // store instruction
 		if (p3js.instructions[data.i]) {
 			if (data.l && !matches[2]) {
 				throw "Syntax error, invalid label (missing colon?), on line " + n;
 			} else if (matches[4]) {
 				// conditional instruction
-				data.c = matches[4].toLowerCase(); // store condition
+				data.c = matches[4].toUpperCase(); // store condition
 				if (!p3js.conditions[data.c]) {
 					throw "Syntax error, invalid condition, on line " + n;
 				}

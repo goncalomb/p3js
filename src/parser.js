@@ -26,6 +26,7 @@
 		) {
 			i = text.charCodeAt(1);
 		}
+		// TODO: check constant size
 		return i;
 	}
 

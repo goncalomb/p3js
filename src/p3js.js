@@ -106,6 +106,16 @@
 		return code.join("");
 	}
 
+	p3js.getNumOperands = function(type) {
+		if (type == "0")  return 0;
+		if (type == "0c") return 1;
+		if (type == "1")  return 1;
+		if (type == "1c") return 2;
+		if (type == "2")  return 2;
+		if (type.charAt(0) == "j") return 1;
+		return null
+	}
+
 	p3js.writeObjectFormat = function(memory) {
 		var buffer = new ArrayBuffer(65536 * 2);
 		var view = new DataView(buffer);

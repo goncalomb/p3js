@@ -25,6 +25,10 @@
 		this._position = pos;
 	}
 
+	BufferEx.prototype.movePosition = function(off) {
+		this._position += off;
+	}
+
 	BufferEx.prototype.write = function(value) {
 		if (this._position >= MEMORY_SIZE) {
 			throw "Internal Error: end of memory reached"
@@ -136,9 +140,7 @@
 			return operand.r;
 		}
 
-		// TODO: we need a second pass of the assembler!!!!!!!!
-		// the first pass collects de labels, the second assembles
-
+		// first pass, record labels
 		for (var i = 0, l = data.length; i < l; i++) {
 			var inst = data[i];
 			// inst.n: line #; inst.l: label; inst.i: instruction; inst.c: condition; inst.o: operands;
@@ -150,14 +152,15 @@
 				throw "Instruction " + inst.i + " expects " + num_operands + " operand(s), on line " + inst.n;
 			}
 
-			// pseudo-instructions
+			// process pseudo-instructions
 			if (
 				(inst.i == "ORIG" || inst.i == "EQU" || inst.i == "WORD" || inst.i == "TAB") &&
 				inst.o[0].type != OPRD_TYPE_IMMEDIATE
+				// TODO: check if inst.o[0].w is a label!!! don't allow labels.
 			) {
 				throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 			}
-			// TODO: check if inst.o[0].w is a label!!!!!1
+
 			switch (inst.i) {
 				case "ORIG":
 					buffer.setPosition(inst.o[0].w);
@@ -167,10 +170,78 @@
 					continue;
 				case "WORD":
 					set_label(inst.l, buffer.getPosition());
-					buffer.write(inst.o[0].w);
+					buffer.movePosition(1);
 					continue;
 				case "STR":
 					set_label(inst.l, buffer.getPosition());
+					inst.o.forEach(function(o) {
+						if (o.type == OPRD_TYPE_STRING) {
+							buffer.movePosition(o.w.length);
+						} else if (o.type == OPRD_TYPE_IMMEDIATE) {
+							buffer.movePosition(1);
+						} else {
+							throw "Invalid operand for STR, on line " + inst.n;
+						}
+					});
+					continue;
+				case "TAB":
+					set_label(inst.l, buffer.getPosition());
+					buffer.movePosition(inst.o[0].w);
+					continue;
+			}
+
+			if (inst.l) {
+				set_label(inst.l, buffer.getPosition());
+			}
+
+			// process instructions
+			var operand_0 = inst.o[0];
+			var operand_1 = inst.o[1];
+
+			switch (inst_dec.type) {
+				case "0":
+				case "0c":
+					buffer.movePosition(1);
+					continue;
+				case "1":
+				case "1c":
+					if (operand_0.w === undefined) { // TODO: don't check for w, use type
+						buffer.movePosition(1);
+					} else {
+						buffer.movePosition(2);
+					}
+					continue;
+				case "2":
+					if (operand_0.w === undefined && operand_1.w === undefined) { // TODO: don't check for w, use type
+						buffer.movePosition(1);
+					} else {
+						buffer.movePosition(2);
+					}
+					continue;
+			}
+		}
+
+		buffer.setPosition(0);
+
+		// second pass, assemble
+		for (var i = 0, l = data.length; i < l; i++) {
+			var inst = data[i];
+			// inst.n: line #; inst.l: label; inst.i: instruction; inst.c: condition; inst.o: operands;
+			var inst_dec = (p3js.instructions[inst.i] ? p3js.instructions[inst.i] : p3js.pseudoInstructions[inst.i]);
+			// no need to recheck number of operands
+
+			// process pseudo-instructions
+			switch (inst.i) {
+				case "ORIG":
+					buffer.setPosition(inst.o[0].w);
+					continue;
+				case "EQU":
+					// done on first pass
+					continue;
+				case "WORD":
+					buffer.write(inst.o[0].w);
+					continue;
+				case "STR":
 					inst.o.forEach(function(o) {
 						if (o.type == OPRD_TYPE_STRING) {
 							for (var i = 0, l = o.w.length; i < l; i++) {
@@ -184,21 +255,23 @@
 					});
 					continue;
 				case "TAB":
-					set_label(inst.l, buffer.getPosition());
 					for (var i = 0; i < inst.o[0].w; i++) {
 						buffer.write(0);
 					}
 					continue;
 			}
 
+			// check if the labels are correctly placed
 			if (inst.l) {
-				set_label(inst.l, buffer.getPosition());
+				if (labels[inst.l] === undefined || labels[inst.l] != buffer.getPosition()) {
+					throw "Assembler Error: first pass failed"
+				}
 			}
 
+			// process instructions
 			var operand_0 = inst.o[0];
 			var operand_1 = inst.o[1];
 
-			// instructions
 			switch (inst_dec.type) {
 				case "0":
 					buffer.writeInstZero(inst_dec.opcode);

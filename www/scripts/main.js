@@ -16,13 +16,13 @@ $(window).ready(function() {
 	function debug_write_hex(buffer) {
 		var str = [ ];
 		var data = new Uint8Array(buffer);
-		data.forEach(function(v) {
-			var s = v.toString(16);
+		for (var i = 0, l = data.byteLength; i < l; i++) {
+			var s = data[i].toString(16);
 			if (s.length < 2) {
 				s = "0" + s;
 			}
 			str.push(s);
-		});
+		}
 		$hex.val(str.join(" "));
 	}
 

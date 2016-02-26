@@ -78,18 +78,18 @@
 	}
 
 	p3js.conditions = {
-		"Z":  1,
-		"NZ": 1,
-		"C":  1,
-		"NC": 1,
-		"N":  1,
-		"NN": 1,
-		"O":  1,
-		"NO": 1,
-		"P":  1,
-		"NP": 1,
-		"I":  1,
-		"NI": 1
+		"Z":  { code: 0 },
+		"NZ": { code: 1 },
+		"C":  { code: 2 },
+		"NC": { code: 3 },
+		"N":  { code: 4 },
+		"NN": { code: 5 },
+		"O":  { code: 6 },
+		"NO": { code: 7 },
+		"P":  { code: 8 },
+		"NP": { code: 9 },
+		"I":  { code: 10 },
+		"NI": { code: 11 }
 	};
 
 	p3js.constants = {

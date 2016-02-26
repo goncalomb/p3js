@@ -201,10 +201,14 @@
 			switch (inst_dec.type) {
 				case "0":
 				case "0c":
+				case "jr":
+				case "jrc":
 					buffer.movePosition(1);
 					continue;
 				case "1":
 				case "1c":
+				case "j":
+				case "jc":
 					if (operand_0.w === undefined) { // TODO: don't check for w, use type
 						buffer.movePosition(1);
 					} else {
@@ -285,6 +289,7 @@
 					buffer.writeInstConstant(inst_dec.opcode, w);
 					continue;
 				case "1":
+				case "j":
 					var m = get_m(operand_0);
 					var r = get_r(operand_0);
 					var w = get_w(operand_0);
@@ -328,6 +333,30 @@
 					var r = get_r(other_operand);
 					var w = get_w(other_operand);
 					buffer.writeInstTwo(inst_dec.opcode, s, reg, m, r, w);
+					continue;
+				case "jc":
+					var m = get_m(operand_0);
+					var c = p3js.conditions[inst.c].code;
+					var r = get_r(operand_0);
+					var w = get_w(operand_0);
+					buffer.writeJumpC(inst_dec.opcode, c, m, r, w);
+					continue;
+				case "jr":
+					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
+						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
+					}
+					var d = get_w(operand_0) - buffer.getPosition() - 1;
+					// TODO: check jump distance
+					buffer.writeJumpR(inst_dec.opcode, d);
+					continue;
+				case "jrc":
+					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
+						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
+					}
+					var c = p3js.conditions[inst.c].code;
+					var d = get_w(operand_0) - buffer.getPosition() - 1;
+					// TODO: check jump distance
+					buffer.writeJumpRC(inst_dec.opcode, c, d);
 					continue;
 			}
 			console.log(inst.i);

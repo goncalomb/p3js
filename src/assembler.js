@@ -12,29 +12,29 @@
 	}
 
 	BufferEx.prototype.getPosition = function() {
-		if (this._position >= MEMORY_SIZE_BYTES) {
+		if (this._position >= MEMORY_SIZE) {
 			throw "Internal Error: invalid memory position"
 		}
-		return this._position / 2;
+		return this._position;
 	}
 
 	BufferEx.prototype.setPosition = function(pos) {
-		if (pos >= MEMORY_SIZE_BYTES) {
+		if (pos >= MEMORY_SIZE) {
 			throw "Internal Error: invalid memory position"
 		}
-		this._position = pos * 2;
+		this._position = pos;
 	}
 
 	BufferEx.prototype.write = function(value) {
-		if (this._position >= MEMORY_SIZE_BYTES) {
+		if (this._position >= MEMORY_SIZE) {
 			throw "Internal Error: end of memory reached"
 		}
 		if (this._usedAddresses[this._position]) {
 			throw "Internal Error: overlapping memory"
 		}
-		this._view.setInt16(this._position, value, true);
+		this._view.setInt16(this._position * 2, value, true);
 		this._usedAddresses[this._position] = 1;
-		this._position += 2;
+		this._position++;
 	}
 
 	BufferEx.prototype.writeInstZero = function(op) {
@@ -89,22 +89,22 @@
 		var buffer = new BufferEx();
 		var labels = { };
 
-		var set_label = function(label, value, n) {
+		var set_label = function(label, value) {
 			if (labels[label] !== undefined) {
 				throw "Label " + label + " already defined, on line " + inst.n;
 			}
 			labels[label] = value;
 		}
 
-		var get_w = function(d, n) {
-			if (d.w !== undefined) {
-				if (typeof d.w.valueOf() == "string") {
-					if (labels[d.w] === undefined) {
-						throw "Undefined label " + d.w + ", on line " + inst.n;
+		var get_w = function(operand) {
+			if (operand.w !== undefined) { // TODO: don't check for w, use type
+				if (typeof operand.w.valueOf() == "string") {
+					if (labels[operand.w] === undefined) {
+						throw "Undefined label " + operand.w + ", on line " + inst.n;
 					}
-					return labels[d.w];
+					return labels[operand.w];
 				}
-				return d.w;
+				return operand.w;
 			}
 			return 0;
 		}
@@ -125,7 +125,15 @@
 				case OPRD_TYPE_BASED:
 					return 3;
 			}
-			return null;
+			throw "Invalid operand for " + inst.i + ", on line " + inst.n;
+		}
+
+		// call get_r after a successful get_m
+		var get_r = function(operand) {
+			if (operand.type == OPRD_TYPE_IMMEDIATE || operand.type == OPRD_TYPE_DIRECT) {
+				return REGISTER_0
+			}
+			return operand.r;
 		}
 
 		// TODO: we need a second pass of the assembler!!!!!!!!
@@ -199,34 +207,29 @@
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
 						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 					}
+					var w = get_w(operand_0);
 					// TODO: check constant size, these constants are 10 bit long
-					buffer.writeInstConstant(inst_dec.opcode, get_w(operand_0));
+					buffer.writeInstConstant(inst_dec.opcode, w);
 					continue;
 				case "1":
 					var m = get_m(operand_0);
-					if (m === null) {
-						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
-					}
+					var r = get_r(operand_0);
+					var w = get_w(operand_0);
 					// XXX: some instructions may not accept OPRD_TYPE_IMMEDIATE
 					// XXX: do some tests with OPRD_TYPE_SP and OPRD_TYPE_BASED
-					if (operand_0.type == OPRD_TYPE_IMMEDIATE || operand_0.type == OPRD_TYPE_DIRECT) {
-						buffer.writeInstOne(inst_dec.opcode, m, REGISTER_0, get_w(operand_0));
-					} else {
-						buffer.writeInstOne(inst_dec.opcode, m, operand_0.r, get_w(operand_0));
-					}
+					buffer.writeInstOne(inst_dec.opcode, m, r, w);
 					continue;
 				case "1c":
 					var m = get_m(operand_0);
-					if (m === null || operand_1.type != OPRD_TYPE_IMMEDIATE) {
+					if (operand_1.type != OPRD_TYPE_IMMEDIATE) {
 						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 					}
+					var c = get_w(operand_1);
+					var r = get_r(operand_0);
+					var w = get_w(operand_0);
 					// TODO: don't accept OPRD_TYPE_IMMEDIATE
 					// TODO: check constant size, these constants are 4 bit long
-					if (operand_0.type == OPRD_TYPE_IMMEDIATE || operand_0.type == OPRD_TYPE_DIRECT) {
-						buffer.writeInstOneC(inst_dec.opcode, get_w(operand_1), m, REGISTER_0, get_w(operand_0));
-					} else {
-						buffer.writeInstOneC(inst_dec.opcode, get_w(operand_1), m, operand_0.r, get_w(operand_0));
-					}
+					buffer.writeInstOneC(inst_dec.opcode, c, m, r, w);
 					continue;
 				case "2":
 					if (operand_0.type == OPRD_TYPE_IMMEDIATE) {
@@ -249,14 +252,9 @@
 					}
 					// XXX: test other special cases (SP etc.)
 					var m = get_m(other_operand);
-					if (m === null) {
-						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
-					}
-					if (operand_0.type == OPRD_TYPE_IMMEDIATE || operand_0.type == OPRD_TYPE_DIRECT) {
-						buffer.writeInstTwo(inst_dec.opcode, s, reg, m, REGISTER_0, get_w(other_operand));
-					} else {
-						buffer.writeInstTwo(inst_dec.opcode, s, reg, m, other_operand.r, get_w(other_operand));
-					}
+					var r = get_r(other_operand);
+					var w = get_w(other_operand);
+					buffer.writeInstTwo(inst_dec.opcode, s, reg, m, r, w);
 					continue;
 			}
 			console.log(inst.i);

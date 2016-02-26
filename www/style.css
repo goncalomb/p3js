@@ -1,0 +1,28 @@
+body {
+	font-size: 16px;
+	overflow-y: scroll;
+}
+
+.container-fluid {
+	max-width: 950px;
+}
+
+header, footer {
+	text-align: center;
+}
+
+header h1 {
+	font-weight: bold;
+}
+
+textarea {
+	font-family: monospace;
+	font-size: 13px;
+	width: 100%;
+	resize: none;
+	overflow-y: scroll;
+}
+
+#code {
+	height: 500px;
+}

@@ -2,45 +2,33 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<script src="https://cdn.jsdelivr.net/jquery/2.2.0/jquery.min.js"></script>
-		<title>P3 Parser Test</title>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/bootswatch/3.3.6/flatly/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/fontawesome/4.5.0/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/2.2.0/jquery.min.js"></script>
 		<script type="text/javascript" src="../src/p3js.js"></script>
 		<script type="text/javascript" src="../src/parser.js"></script>
 		<script type="text/javascript" src="../src/assembler.js"></script>
 		<script type="text/javascript" src="scripts/main.js"></script>
-		<style>
-			body {
-				width: 1000px;
-				margin: 20px auto;
-				overflow-y: scroll;
-			}
-			table {
-				width: 100%;
-			}
-			#code-td {
-				width: 60%;
-			}
-			textarea {
-				font-family: monospace;
-				font-size: 12px;
-				width: 100%;
-				height: 400px;
-				resize: none;
-				overflow-y: scroll;
-			}
-			button {
-				padding: 5px 20px;
-			}
-		</style>
+		<title>P3 CPU Assembler and Simulator</title>
 	</head>
-	<body>
-		<table>
-		<tr>
-			<td id="code-td"><textarea id="code"></textarea></td>
-			<td><textarea id="output" readonly></textarea></td>
-		</tr>
-		<tr><td colspan="2"><button id="run">Parse</button></td></tr>
-		<tr><td colspan="2"><textarea id="hex" readonly></textarea></td></tr>
-		</table>
+	<body class="container-fluid">
+		<header class="row">
+			<h1>P3 CPU Assembler and Simulator</h1>
+			<p>A Javascript assembler and simulator for the P3 educational CPU.</p>
+		</header>
+		<div class="row">
+			<div class="col-md-9"><textarea id="code"></textarea></div>
+			<div class="col-md-3">
+				<div class="form-group">
+					<label for="load-demo">Load Demo:</label>
+					<select id="load-demo" class="form-control"></select>
+				</div>
+				<button id="assemble" class="btn btn-default btn-sm btn-block">Assemble</button>
+				<button id="assemble-run" class="btn btn-default btn-sm btn-block">Assemble and Run</button>
+				<button id="assemble-dl" class="btn btn-default btn-sm btn-block">Assemble and Download</button>
+				<textarea id="output" style="margin-top: 20px; height: 200px;" readonly></textarea>
+			</div>
+		</div>
 	</body>
 </html>

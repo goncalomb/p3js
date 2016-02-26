@@ -2,8 +2,9 @@ $(window).ready(function() {
 
 	var $code = $("#code");
 	var $output = $("#output");
-	var $run = $("#run");
-	var $hex = $("#hex");
+	var $assemble = $("#assemble");
+	var $assemble_run = $("#assemble-run");
+	var $assemble_dl = $("#assemble-dl");
 
 	// Loading local files (file://) with jQuery may not work. Use:
 	// google-chrome --user-data-dir=$(mktemp -d) --incognito --allow-file-access-from-files --start-maximized
@@ -13,33 +14,31 @@ $(window).ready(function() {
 		$run.click();
 	}, "text");
 
-	function debug_write_hex(buffer) {
-		var str = [ ];
-		var data = new Uint8Array(buffer);
-		for (var i = 0, l = data.byteLength; i < l; i++) {
-			var s = data[i].toString(16);
-			if (s.length < 2) {
-				s = "0" + s;
-			}
-			str.push(s);
-		}
-		$hex.val(str.join(" "));
-	}
-
-	$run.click(function() {
+	function try_assemble() {
 		try {
 			var data = p3js.parser.parseString($code.val());
 			var buffer = p3js.assembler.assembleData(data);
-			// debug
-			$output.val(JSON.stringify(data, null, 1));
-			debug_write_hex(p3js.writeObjectFormat(buffer));
+			$output.val("Done.");
+			return buffer;
 		} catch (e) {
-			$hex.val(e);
 			$output.val(e);
 			console.error(e);
 		}
+		return null;
+	}
+
+	$assemble.click(function() {
+		try_assemble()
 	});
 
-	$output.val("Initialized\n");
+	$assemble_run.click(function() {
+		alert("Not Implemented");
+	});
+
+	$assemble_dl.click(function() {
+		alert("Not Implemented");
+	});
+
+	$output.val("Initialized.\n");
 
 });

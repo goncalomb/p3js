@@ -58,11 +58,9 @@
 		"XCH   101110   2",
 		// jump
 		"JMP   110000   j",
-		// jump conditional
-		"JMP.  110001   jc",
-		// jump
 		"CALL  110010   j",
 		// jump conditional
+		"JMP.  110001   jc",
 		"CALL. 110011   jc",
 		// jump relative
 		"BR    111000   jr",
@@ -97,6 +95,9 @@
 	p3js.constants = {
 		MEMORY_SIZE: (1 << 16),
 		MEMORY_SIZE_BYTES: (1 << 16) * 2,
+		REGISTER_0: 0,
+		REGISTER_SP: 14,
+		REGISTER_PC: 15,
 		OPRD_TYPE_STRING: -1,           // 'Test String'
 		OPRD_TYPE_REGISTER: 0,          // Rx
 		OPRD_TYPE_REGISTER_INDIRECT: 1, // M[Rx]

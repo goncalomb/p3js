@@ -67,7 +67,7 @@
 		if (matches = operand.match(/^R([0-7])$/i)) {
 			return { type: OPRD_TYPE_REGISTER, r: matches[1].charCodeAt(0) - 48 };
 		} else if (operand.toUpperCase() == "SP") {
-			return { type: OPRD_TYPE_SP, r: "SP" };
+			return { type: OPRD_TYPE_SP, r: REGISTER_SP };
 		} else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
 			if (matches[4]) {
 				var w = process_constant_or_label(matches[4], n);
@@ -76,14 +76,14 @@
 				var op = { type: OPRD_TYPE_INDEXED, w: 0 }
 				if (matches[1].toUpperCase() == "SP") {
 					op.type = OPRD_TYPE_BASED;
-					op.r = "SP";
+					op.r = REGISTER_SP;
 				} else {
 					op.r = matches[1].charCodeAt(1) - 48;
 				}
 				if (matches[2]) {
 					op.s = matches[2];
 					op.w = process_constant_or_label(matches[3], n);
-				} else if (op.r != "SP") {
+				} else if (op.r != REGISTER_SP) {
 					return { type: OPRD_TYPE_REGISTER_INDIRECT, r: op.r };
 				}
 				return op;

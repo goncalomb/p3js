@@ -93,6 +93,8 @@
 	};
 
 	p3js.constants = {
+		P3AS_MAGIC_NUMBER: 56347333,
+		P3AS_MAGIC_NUMBER_OLD: 936854375,
 		MEMORY_SIZE: (1 << 16),
 		MEMORY_SIZE_BYTES: (1 << 16) * 2,
 		REGISTER_0: 0,
@@ -118,6 +120,8 @@
 		return code.join("");
 	}
 
+	eval(p3js.extractConstants());
+
 	p3js.getNumOperands = function(type) {
 		if (type == "0")  return 0;
 		if (type == "0c") return 1;
@@ -128,13 +132,19 @@
 		return null
 	}
 
-	p3js.writeObjectFormat = function(memory) {
+	p3js.writeObjectFormat = function(memory, oldFormat) {
 		var view_mem = new DataView(memory);
 		var buffer = new ArrayBuffer(memory.byteLength * 2);
 		var view = new DataView(buffer);
-		view.setUint32(0, 936854375, true); // magic number 936854375 as a
-		view.setUint32(4, 0, true);         // 64bit integer (little-endian)
-		var p = 8; // position on the output buffer
+		var p = 0; // position on the output buffer
+		if (!oldFormat) {
+			view.setUint32(0, P3AS_MAGIC_NUMBER, true); // 32bit integer
+			p = 4;
+		} else {
+			view.setUint32(0, P3AS_MAGIC_NUMBER_OLD, true); // 64bit integer
+			view.setUint32(4, 0, true);
+			p = 8
+		}
 		for (var i = 0, l = memory.byteLength; i < l; i += 2) {
 			if (view_mem.getInt16(i, true) == 0) {
 				continue;

@@ -1,6 +1,5 @@
 $(window).ready(function() {
 
-	var $code = $("#code");
 	var $load_demo = $("#load-demo")
 	var $output = $("#output");
 	var $assemble = $("#assemble");
@@ -31,6 +30,17 @@ $(window).ready(function() {
 		}
 	});
 
+	// editor
+	var $code = $("#code");
+	var code_mirror = CodeMirror.fromTextArea($code[0], {
+		lineNumbers: true,
+		rulers: [
+			{ column: 16 },
+			{ column: 24 },
+			{ column: 80 }
+		]
+	});
+
 	var demos = [
 		// "welcome.as",
 		"Demo1-clean.as"
@@ -43,7 +53,7 @@ $(window).ready(function() {
 		// google-chrome --user-data-dir=$(mktemp -d) --incognito --allow-file-access-from-files --start-maximized
 		// Or use Firefox.
 		$.get("demos/" + demo, null, function(data) {
-			$code.val(data);
+			code_mirror.setValue(data);
 		}, "text");
 	}
 	$load_demo.change(function() {
@@ -70,7 +80,7 @@ $(window).ready(function() {
 
 	function try_assemble() {
 		try {
-			var data = p3js.parser.parseString($code.val());
+			var data = p3js.parser.parseString(code_mirror.getValue());
 			var buffer = p3js.assembler.assembleData(data);
 			$output.val("Done.");
 			return buffer;

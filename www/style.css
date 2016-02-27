@@ -4,7 +4,7 @@ body {
 }
 
 .container-fluid {
-	max-width: 950px;
+	max-width: 1050px;
 }
 
 header, footer {
@@ -23,6 +23,8 @@ textarea {
 	overflow-y: scroll;
 }
 
-#code {
+.CodeMirror {
+	font-size: 14px;
+	line-height: 1.2em;
 	height: 500px;
 }

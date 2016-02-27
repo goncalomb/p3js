@@ -28,6 +28,22 @@ $(window).ready(function() {
 	});
 	load_demo(demos[0]);
 
+	function download_buffer(buffer, name) {
+		var blob = new Blob([buffer], { type: "application/octet-stream" });
+		var url = URL.createObjectURL(blob);
+		var a = document.createElement("a");
+		if ("download" in a) {
+			a.href = url;
+			a.download = (name ? name : "file");
+			a.dispatchEvent(new MouseEvent("click"));
+		} else {
+			window.location = url;
+		}
+		setTimeout(function() {
+			URL.revokeObjectURL(url);
+		});
+	}
+
 	function try_assemble() {
 		try {
 			var data = p3js.parser.parseString($code.val());
@@ -50,7 +66,11 @@ $(window).ready(function() {
 	});
 
 	$assemble_dl.click(function() {
-		alert("Not Implemented");
+		var buffer = try_assemble();
+		var obj_buffer = p3js.writeObjectFormat(buffer);
+		if (buffer) {
+			download_buffer(obj_buffer, "code.exe");
+		}
 	});
 
 	$output.val("Initialized.\n");

@@ -15,9 +15,14 @@
 	<body class="container-fluid">
 		<header class="row">
 			<h1>P3 CPU Assembler and Simulator</h1>
-			<p>A Javascript assembler and simulator for the P3 educational CPU.</p>
+			<p>A JavaScript assembler and simulator for the P3 educational CPU. <a href="#about">More Information</a>.</p>
 		</header>
-		<div class="row">
+		<ul class="nav nav-tabs" style="margin-bottom: 20px;">
+			<li><a href="#assembler"><i class="fa fa-code"></i> Assembler</a></li>
+			<li><a href="#simulator"><i class="fa fa-cogs"></i> Simulator</a></li>
+			<li><a href="#about"><i class="fa fa-question-circle"></i> About P3JS</a></li>
+		</ul>
+		<div class="row tab-page tab-page-assembler">
 			<div class="col-md-9"><textarea id="code"></textarea></div>
 			<div class="col-md-3">
 				<div class="form-group">
@@ -29,6 +34,12 @@
 				<button id="assemble-dl" class="btn btn-default btn-sm btn-block">Assemble and Download</button>
 				<textarea id="output" style="margin-top: 20px; height: 200px;" readonly></textarea>
 			</div>
+		</div>
+		<div class="row tab-page tab-page-simulator hidden">
+			<p>TODO: Simulator</p>
+		</div>
+		<div class="row tab-page tab-page-about hidden">
+			<p>TODO: About P3JS</p>
 		</div>
 	</body>
 </html>

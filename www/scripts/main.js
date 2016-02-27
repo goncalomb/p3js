@@ -7,6 +7,30 @@ $(window).ready(function() {
 	var $assemble_run = $("#assemble-run");
 	var $assemble_dl = $("#assemble-dl");
 
+	// tabs
+	var $all_tab_lis = $(".nav-tabs li");
+	var $all_tabs = $(".tab-page");
+	$(window).on("load hashchange", function() {
+		var hash = window.location.hash.substr(1);
+		if (hash == "assembler") {
+			if (history.replaceState !== undefined) {
+				history.replaceState({ }, document.title, window.location.pathname);
+			} else {
+				window.location.hash = "";
+				return;
+			}
+		} else if (hash == "") {
+			hash = "assembler";
+		}
+		var $tab = $(".tab-page-" + hash);
+		if ($tab.length > 0) {
+			$all_tabs.addClass("hidden");
+			$tab.removeClass("hidden");
+			$all_tab_lis.removeClass("active");
+			$("a[href=\"#" + hash + "\"]", $all_tab_lis).parent().addClass("active");
+		}
+	});
+
 	var demos = [
 		// "welcome.as",
 		"Demo1-clean.as"

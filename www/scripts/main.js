@@ -1,10 +1,47 @@
 $(window).ready(function() {
 
+	var $document = $(document);
+	var $body = $(document.body);
+
 	var $load_demo = $("#load-demo")
 	var $output = $("#output");
 	var $assemble = $("#assemble");
 	var $assemble_run = $("#assemble-run");
 	var $assemble_dl = $("#assemble-dl");
+
+	// fullscreen
+	function request_fullscreen(elem) {
+		var fn = (
+			elem.requestFullscreen || elem.msRequestFullscreen ||
+			elem.mozRequestFullScreen || elem.webkitRequestFullscreen
+		);
+		if (fn) fn.apply(elem);
+	}
+	function exit_fullscreen() {
+		var fn = (
+			document.exitFullscreen || document.msExitFullscreen ||
+			document.mozCancelFullScreen || document.webkitExitFullscreen
+		);
+		if (fn) fn.apply(document);
+	}
+	$("#fullscr").click(function() {
+		if ($body.hasClass("fullscreen")) {
+			exit_fullscreen();
+		} else {
+			request_fullscreen(document.documentElement);
+		}
+		return false;
+	});
+	var $code_mirror = null;
+	$(document).on("webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange", function() {
+		if ($body.hasClass("fullscreen")) {
+			$body.removeClass("fullscreen");
+			$document.trigger("fullscreenoff");
+		} else {
+			$body.addClass("fullscreen");
+			$document.trigger("fullscreenon");
+		}
+	});
 
 	// tabs
 	var $all_tab_lis = $(".nav-tabs li");
@@ -39,6 +76,12 @@ $(window).ready(function() {
 			{ column: 24 },
 			{ column: 80 }
 		]
+	});
+	var $code_mirror = $(code_mirror.getWrapperElement());
+	$document.on("fullscreenon", function() {
+		$code_mirror.height($(window).height() - $code_mirror.offset().top - 20);
+	}).on("fullscreenoff", function() {
+		$code_mirror.css("height", "");
 	});
 
 	var demos = [

@@ -15,6 +15,22 @@ header h1 {
 	font-weight: bold;
 }
 
+.fullscreen header h1 {
+	font-size: 25px;
+}
+
+.fullscreen header p, .fullscreen footer {
+	display: none;
+}
+
+.fullscreen #fullscr {
+	color: maroon;
+}
+
+.fullscreen #fullscr .fa-arrows-alt:before {
+	content: "\f10c";
+}
+
 textarea {
 	font-family: monospace;
 	font-size: 13px;
@@ -26,5 +42,5 @@ textarea {
 .CodeMirror {
 	font-size: 14px;
 	line-height: 1.2em;
-	height: 500px;
+	height: 600px;
 }

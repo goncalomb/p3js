@@ -32,7 +32,6 @@ $(window).ready(function() {
 		}
 		return false;
 	});
-	var $code_mirror = null;
 	$(document).on("webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange", function() {
 		if ($body.hasClass("fullscreen")) {
 			$body.removeClass("fullscreen");
@@ -71,10 +70,28 @@ $(window).ready(function() {
 	var $code = $("#code");
 	var code_mirror = CodeMirror.fromTextArea($code[0], {
 		lineNumbers: true,
+		indentUnit: 4,
+		extraKeys: {
+			Tab: function(cm) {
+				var selections = cm.listSelections();
+				var strings = [];
+				for (var i = 0, l = selections.length; i < l; i++) {
+					var p = selections[i].from().ch;
+					if (p < 16) {
+						strings.push(Array(16 - p + 1).join(" "));
+					} else if (p < 24) {
+						strings.push(Array(24 - p + 1).join(" "));
+					} else {
+						strings.push(Array(cm.getOption("indentUnit") + 1).join(" "));
+					}
+				}
+				cm.replaceSelections(strings);
+			}
+		},
 		rulers: [
-			{ column: 16 },
-			{ column: 24 },
-			{ column: 80 }
+			{ column: 16, color: "#dedede" },
+			{ column: 24, color: "#dedede" },
+			{ column: 80, color: "#dedede" }
 		]
 	});
 	var $code_mirror = $(code_mirror.getWrapperElement());
@@ -97,6 +114,7 @@ $(window).ready(function() {
 		// Or use Firefox.
 		$.get("demos/" + demo, null, function(data) {
 			code_mirror.setValue(data);
+			code_mirror.clearHistory();
 		}, "text");
 	}
 	$load_demo.change(function() {

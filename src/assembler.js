@@ -248,8 +248,8 @@
 				case "STR":
 					inst.o.forEach(function(o) {
 						if (o.type == OPRD_TYPE_STRING) {
-							for (var i = 0, l = o.w.length; i < l; i++) {
-								buffer.write(o.w.charCodeAt(i));
+							for (var j = 0, l = o.w.length; j < l; j++) {
+								buffer.write(o.w.charCodeAt(j));
 							}
 						} else if (o.type == OPRD_TYPE_IMMEDIATE) {
 							buffer.write(get_w(o));
@@ -259,7 +259,7 @@
 					});
 					continue;
 				case "TAB":
-					for (var i = 0; i < inst.o[0].w; i++) {
+					for (var j = 0; j < inst.o[0].w; j++) {
 						buffer.write(0);
 					}
 					continue;

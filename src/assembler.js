@@ -5,7 +5,7 @@
 	eval(p3js.extractConstants());
 
 	var BufferEx = function(size) {
-		this.buffer = new ArrayBuffer(MEMORY_SIZE_BYTES);
+		this.buffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
 		this._view = new DataView(this.buffer);
 		this._usedAddresses = Array.apply(null, Array(MEMORY_SIZE)).map(Number.prototype.valueOf, 0);
 		this._position = 0;

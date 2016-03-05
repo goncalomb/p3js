@@ -7,6 +7,10 @@
 		if (!(this instanceof simulator)) {
 			return new simulator();
 		}
+		this._memory = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		this._romA = new ArrayBuffer(ROM_A_SIZE * ROM_A_WORD_SIZE);
+		this._romB = new ArrayBuffer(ROM_B_SIZE * ROM_B_WORD_SIZE);
+		this._romC = new ArrayBuffer(ROM_C_SIZE * ROM_C_WORD_SIZE);
 		this._registers = [      // R0    = 0
 			0, 0, 0, 0, 0, 0, 0, // R1-7  general use
 			0, 0, 0,             // R8-10 restricted use

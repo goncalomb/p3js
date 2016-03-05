@@ -95,11 +95,20 @@
 	p3js.constants = {
 		P3AS_MAGIC_NUMBER: 56347333,
 		P3AS_MAGIC_NUMBER_OLD: 936854375,
-		MEMORY_SIZE: (1 << 16),
-		MEMORY_SIZE_BYTES: (1 << 16) * 2,
+
+		MEMORY_SIZE: (1 << 16), // 65536 positions
+		MEMORY_WORD_SIZE: 2,    // 16 bits
+		ROM_A_SIZE: (1 << 6),   // 64 positions
+		ROM_A_WORD_SIZE: 2,     // 16 bits (only 9 are used)
+		ROM_B_SIZE: (1 << 2),   // 16 positions
+		ROM_B_WORD_SIZE: 2,     // 16 bits (only 9 are used)
+		ROM_C_SIZE: (1 << 9),   // 512 positions
+		ROM_C_WORD_SIZE: 4,     // 32 bits
+
 		REGISTER_0: 0,
 		REGISTER_SP: 14,
 		REGISTER_PC: 15,
+
 		OPRD_TYPE_STRING: -1,           // 'Test String'
 		OPRD_TYPE_REGISTER: 0,          // Rx
 		OPRD_TYPE_REGISTER_INDIRECT: 1, // M[Rx]

@@ -127,8 +127,22 @@ $(window).ready(function() {
 	var $code_wrapper = $("#code-wrapper")
 	var $program_info = $("#program-info");
 	var $program_summary = $("#program-summary");
+	var $memory_footprint = $("#memory-footprint");
+	// XXX: refactor canvas code
+	var mem_footprint_ctx = $memory_footprint[0].getContext("2d");
+	mem_footprint_ctx.textBaseline = "top";
+	mem_footprint_ctx.font = "12px monospace";
+	var mfl_dy = 10;
+	function draw_canvas_label(name, color) {
+		mem_footprint_ctx.fillStyle = color;
+		mem_footprint_ctx.fillRect(516, mfl_dy + 1, 10, 10);
+		mem_footprint_ctx.fillStyle = "#222";
+		mem_footprint_ctx.fillText(name, 530, mfl_dy);
+		mfl_dy += 18;
+	}
 	function clear_program_info() {
 		$program_summary.html("<em>Assemble program first!</em>\n");
+		mem_footprint_ctx.clearRect(0, 0, 512, 512);
 	}
 	function build_program_info(data) {
 		var memory_percent = Math.floor(data.memoryUsage*10000/p3js.constants.MEMORY_SIZE)/100;
@@ -139,6 +153,24 @@ $(window).ready(function() {
 			"Memory Usage: " + data.memoryUsage + ", " +
 			memory_percent + "% (max: " + p3js.constants.MEMORY_SIZE + ")\n"
 		);
+		data.usedAddresses.forEach(function(value, i) {
+			var x = (i%256);
+			var y = Math.floor(i/256);
+			if (value == 1) {
+				mem_footprint_ctx.fillStyle = "#222";
+			} else if (value == 2) {
+				mem_footprint_ctx.fillStyle = "#12d";
+			} else if (value == 3) {
+				mem_footprint_ctx.fillStyle = "#2d1";
+			} else if (value == 4) {
+				mem_footprint_ctx.fillStyle = "#d21";
+			} else if (i%2 == y%2) {
+				mem_footprint_ctx.fillStyle = "#ddd";
+			} else {
+				mem_footprint_ctx.fillStyle = "#eee";
+			}
+			mem_footprint_ctx.fillRect(x*2, y*2, 2, 2);
+		});
 	}
 	$("#show-program-info").click(function() {
 		if ($program_info.hasClass("hidden")) {
@@ -152,6 +184,11 @@ $(window).ready(function() {
 		}
 	});
 	clear_program_info();
+	draw_canvas_label("Empty Memory", "#d7d7d7");
+	draw_canvas_label("WORD", "#12d");
+	draw_canvas_label("STR", "#2d1");
+	draw_canvas_label("TAB", "#d21");
+	draw_canvas_label("Instructions", "#222");
 
 	function download_buffer(buffer, name) {
 		var blob = new Blob([buffer], { type: "application/octet-stream" });

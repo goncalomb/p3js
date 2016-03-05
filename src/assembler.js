@@ -33,7 +33,7 @@
 		return this._usedAddresses;
 	};
 
-	BufferEx.prototype.write = function(value) {
+	BufferEx.prototype.write = function(value, t) {
 		if (this._position >= MEMORY_SIZE) {
 			throw "Internal Error: end of memory reached"
 		}
@@ -41,7 +41,7 @@
 			throw "Internal Error: overlapping memory"
 		}
 		this._view.setInt16(this._position * 2, value, true);
-		this._usedAddresses[this._position] = 1;
+		this._usedAddresses[this._position] = (t || 1);
 		this._position++;
 	}
 
@@ -259,16 +259,16 @@
 					// done on first pass
 					continue;
 				case "WORD":
-					buffer.write(inst.o[0].w);
+					buffer.write(inst.o[0].w, 2);
 					continue;
 				case "STR":
 					inst.o.forEach(function(o) {
 						if (o.type == OPRD_TYPE_STRING) {
 							for (var j = 0, l = o.w.length; j < l; j++) {
-								buffer.write(o.w.charCodeAt(j));
+								buffer.write(o.w.charCodeAt(j), 3);
 							}
 						} else if (o.type == OPRD_TYPE_IMMEDIATE) {
-							buffer.write(get_w(o));
+							buffer.write(get_w(o), 3);
 						} else {
 							throw "Invalid operand for STR, on line " + inst.n;
 						}
@@ -276,7 +276,7 @@
 					continue;
 				case "TAB":
 					for (var j = 0; j < inst.o[0].w; j++) {
-						buffer.write(0);
+						buffer.write(0, 4);
 					}
 					continue;
 			}

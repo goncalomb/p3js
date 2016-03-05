@@ -22,6 +22,7 @@
 		</header>
 		<ul class="nav nav-tabs" style="margin-bottom: 20px;">
 			<li><a href="#assembler"><i class="fa fa-code"></i> Assembler</a></li>
+			<li><a href="#program"><i class="fa fa-area-chart"></i> Program Info</a></li>
 			<li><a href="#simulator"><i class="fa fa-cogs"></i> Simulator</a></li>
 			<li><a href="#io"><i class="fa fa-laptop"></i> Input/Output</a></li>
 			<li><a href="#about"><i class="fa fa-question-circle"></i> About P3JS</a></li>
@@ -31,14 +32,6 @@
 			<div class="col-md-9">
 				<div id="code-wrapper">
 					<textarea id="code"></textarea>
-				</div>
-				<div id="program-info" class="hidden">
-					<h2>Program Info</h2>
-					<pre id="program-summary" class="well"></pre>
-					<h3>Memory Footprint</h3>
-					<canvas id="memory-footprint" width="650" height="512"></canvas>
-					<h3>Labels / References</h3>
-					<pre id="program-references" class="well"></pre>
 				</div>
 			</div>
 			<div class="col-md-3">
@@ -50,8 +43,15 @@
 				<button id="assemble-run" class="btn btn-primary btn-sm btn-block">Assemble and Run</button>
 				<button id="assemble-dl" class="btn btn-primary btn-sm btn-block">Assemble and Download</button>
 				<textarea id="output" style="margin-top: 20px; height: 200px;" readonly></textarea>
-				<button id="show-program-info" class="btn btn-default btn-sm btn-block">Program Info</button>
 			</div>
+		</div>
+		<div class="row tab-page tab-page-program hidden">
+			<h2>Program Info</h2>
+			<pre id="program-summary" class="well"></pre>
+			<h3>Memory Footprint</h3>
+			<canvas id="memory-footprint" width="650" height="512"></canvas>
+			<h3>Labels / References</h3>
+			<pre id="program-references" class="well"></pre>
 		</div>
 		<div class="row tab-page tab-page-simulator hidden">
 			<p>TODO: Simulator</p>

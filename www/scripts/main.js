@@ -186,17 +186,6 @@ $(window).ready(function() {
 			mem_footprint_ctx.fillRect(x*2, y*2, 2, 2);
 		});
 	}
-	$("#show-program-info").click(function() {
-		if ($program_info.hasClass("hidden")) {
-			$code_wrapper.addClass("hidden");
-			$program_info.removeClass("hidden");
-			$(this).text("Hide Program Info");
-		} else {
-			$program_info.addClass("hidden");
-			$code_wrapper.removeClass("hidden");
-			$(this).text("Program Info");
-		}
-	});
 	clear_program_info();
 	draw_canvas_label("Empty Memory", "#d7d7d7");
 	draw_canvas_label("WORD", "#12d");

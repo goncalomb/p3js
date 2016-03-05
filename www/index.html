@@ -28,16 +28,27 @@
 			<li class="pull-right"><a id="fullscr" href="#"><i class="fa fa-arrows-alt"></i> Fullscreen Mode</a></li>
 		</ul>
 		<div class="row tab-page tab-page-assembler">
-			<div class="col-md-9"><textarea id="code"></textarea></div>
+			<div class="col-md-9">
+				<div id="code-wrapper">
+					<textarea id="code"></textarea>
+				</div>
+				<div id="program-info" class="hidden">
+					<h2>Program Info</h2>
+					<pre id="program-summary" class="well"></pre>
+					<h3>Memory Footprint</h3>
+					<canvas id="memory-footprint" width="514" height="514"></canvas>
+				</div>
+			</div>
 			<div class="col-md-3">
 				<div class="form-group">
 					<label for="load-demo">Load Demo:</label>
 					<select id="load-demo" class="form-control"></select>
 				</div>
-				<button id="assemble" class="btn btn-default btn-sm btn-block">Assemble</button>
-				<button id="assemble-run" class="btn btn-default btn-sm btn-block">Assemble and Run</button>
-				<button id="assemble-dl" class="btn btn-default btn-sm btn-block">Assemble and Download</button>
+				<button id="assemble" class="btn btn-primary btn-sm btn-block">Assemble</button>
+				<button id="assemble-run" class="btn btn-primary btn-sm btn-block">Assemble and Run</button>
+				<button id="assemble-dl" class="btn btn-primary btn-sm btn-block">Assemble and Download</button>
 				<textarea id="output" style="margin-top: 20px; height: 200px;" readonly></textarea>
+				<button id="show-program-info" class="btn btn-default btn-sm btn-block">Program Info</button>
 			</div>
 		</div>
 		<div class="row tab-page tab-page-simulator hidden">

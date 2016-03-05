@@ -29,6 +29,10 @@
 		this._position += off;
 	}
 
+	BufferEx.prototype.getUsedAddresses = function() {
+		return this._usedAddresses;
+	};
+
 	BufferEx.prototype.write = function(value) {
 		if (this._position >= MEMORY_SIZE) {
 			throw "Internal Error: end of memory reached"
@@ -93,11 +97,22 @@
 		var buffer = new BufferEx();
 		var labels = { };
 
+		var result = {
+			buffer: buffer.buffer,
+			usedAddresses: null,
+			labels: labels,
+			labelCount: 0,
+			pseudoCount: 0,
+			instructionCount: 0,
+			memoryUsage: 0
+		}
+
 		var set_label = function(label, value) {
 			if (labels[label] !== undefined) {
 				throw "Label " + label + " already defined, on line " + inst.n;
 			}
 			labels[label] = value;
+			result.labelCount++;
 		}
 
 		var get_w = function(operand) {
@@ -235,6 +250,7 @@
 			// no need to recheck number of operands
 
 			// process pseudo-instructions
+			result.pseudoCount++;
 			switch (inst.i) {
 				case "ORIG":
 					buffer.setPosition(inst.o[0].w);
@@ -264,6 +280,7 @@
 					}
 					continue;
 			}
+			result.pseudoCount--; // smart way to count pseudo instructions
 
 			// check if the labels are correctly placed
 			if (inst.l) {
@@ -276,6 +293,7 @@
 			var operand_0 = inst.o[0];
 			var operand_1 = inst.o[1];
 
+			result.instructionCount++;
 			switch (inst_dec.type) {
 				case "0":
 					buffer.writeInstZero(inst_dec.opcode);
@@ -362,7 +380,13 @@
 			console.log(inst.i);
 		}
 
-		return buffer.buffer;
+		result.usedAddresses = buffer.getUsedAddresses();
+		result.usedAddresses.forEach(function(v) {
+			if (v) {
+				result.memoryUsage++;
+			}
+		});
+		return result;
 	};
 
 })();

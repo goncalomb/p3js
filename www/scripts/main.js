@@ -123,6 +123,36 @@ $(window).ready(function() {
 	});
 	load_demo(demos[0]);
 
+	// program information
+	var $code_wrapper = $("#code-wrapper")
+	var $program_info = $("#program-info");
+	var $program_summary = $("#program-summary");
+	function clear_program_info() {
+		$program_summary.html("<em>Assemble program first!</em>\n");
+	}
+	function build_program_info(data) {
+		var memory_percent = Math.floor(data.memoryUsage*10000/p3js.constants.MEMORY_SIZE)/100;
+		$program_summary.text(
+			"Labels: " + data.labelCount + "\n" +
+			"Pseudo Instructions: " + data.pseudoCount + "\n" +
+			"Instructions: " + data.instructionCount + "\n" +
+			"Memory Usage: " + data.memoryUsage + ", " +
+			memory_percent + "% (max: " + p3js.constants.MEMORY_SIZE + ")\n"
+		);
+	}
+	$("#show-program-info").click(function() {
+		if ($program_info.hasClass("hidden")) {
+			$code_wrapper.addClass("hidden");
+			$program_info.removeClass("hidden");
+			$(this).text("Hide Program Info");
+		} else {
+			$program_info.addClass("hidden");
+			$code_wrapper.removeClass("hidden");
+			$(this).text("Program Info");
+		}
+	});
+	clear_program_info();
+
 	function download_buffer(buffer, name) {
 		var blob = new Blob([buffer], { type: "application/octet-stream" });
 		var url = URL.createObjectURL(blob);
@@ -140,12 +170,18 @@ $(window).ready(function() {
 	}
 
 	function try_assemble() {
+		var t = Date.now();
+		function get_ms() {
+			return (Date.now() - t);
+		}
 		try {
 			var data = p3js.parser.parseString(code_mirror.getValue());
-			var buffer = p3js.assembler.assembleData(data);
-			$output.val("Done.");
-			return buffer;
+			var result = p3js.assembler.assembleData(data);
+			$output.val("Done (" + get_ms() + " ms).");
+			build_program_info(result);
+			return result.buffer;
 		} catch (e) {
+			clear_program_info();
 			$output.val(e);
 			console.error(e);
 		}

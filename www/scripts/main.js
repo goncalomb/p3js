@@ -128,6 +128,7 @@ $(window).ready(function() {
 	var $program_info = $("#program-info");
 	var $program_summary = $("#program-summary");
 	var $memory_footprint = $("#memory-footprint");
+	var $program_references = $("#program-references");
 	// XXX: refactor canvas code
 	var mem_footprint_ctx = $memory_footprint[0].getContext("2d");
 	mem_footprint_ctx.textBaseline = "top";
@@ -142,6 +143,7 @@ $(window).ready(function() {
 	}
 	function clear_program_info() {
 		$program_summary.html("<em>Assemble program first!</em>\n");
+		$program_references.html("<em>Assemble program first!</em>\n");
 		mem_footprint_ctx.clearRect(0, 0, 512, 512);
 	}
 	function build_program_info(data) {
@@ -150,9 +152,21 @@ $(window).ready(function() {
 			"Labels: " + data.labelCount + "\n" +
 			"Pseudo Instructions: " + data.pseudoCount + "\n" +
 			"Instructions: " + data.instructionCount + "\n" +
-			"Memory Usage: " + data.memoryUsage + ", " +
-			memory_percent + "% (max: " + p3js.constants.MEMORY_SIZE + ")\n"
+			"Memory Usage: " + data.memoryUsage + "/" +p3js.constants.MEMORY_SIZE + "% (max: " + memory_percent + ")\n"
 		);
+		var references = [];
+		for (var label in data.labels) {
+			var l = label + " ";
+			if (l.length < 24) {
+				l += Array(24 - l.length + 1).join(" ");
+			}
+			var v = data.labels[label].toString(16);
+			if (v.length < 4) {
+				v = Array(4 - v.length + 1).join("0") + v;
+			}
+			references.push(l + v + "\n");
+		}
+		$program_references.text(references.join(""));
 		data.usedAddresses.forEach(function(value, i) {
 			var x = (i%256);
 			var y = Math.floor(i/256);

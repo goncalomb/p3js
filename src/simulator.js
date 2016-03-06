@@ -1,6 +1,5 @@
-(function() {
+module.exports = function(p3js) {
 
-	var p3js = window.p3js = (window.p3js || { });
 	eval(p3js.extractConstants());
 
 	var simulator = p3js.Simulator = function() {
@@ -26,4 +25,4 @@
 		this._sbr = 0;           // SBR   (subroutine branch register)
 	};
 
-})();
+};

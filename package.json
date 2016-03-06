@@ -1,0 +1,16 @@
+{
+  "name": "p3js",
+  "version": "0.0.0",
+  "description": "P3 CPU Assembler and Simulator",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "webpack": "~1.12.14"
+  },
+  "scripts": {
+    "start": "webpack --watch",
+    "install": "webpack -p"
+  },
+  "repository": { },
+  "author": "goncalomb",
+  "license": "All rights reserved"
+}

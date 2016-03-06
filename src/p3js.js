@@ -1,6 +1,6 @@
-(function() {
+module.exports = (function() {
 
-	var p3js = window.p3js = (window.p3js || { });
+	var p3j3 = window.p3js = { };
 
 	p3js.pseudoInstructions = {
 		"ORIG": { type: "0c", requiresLabel: false },
@@ -182,11 +182,10 @@
 		return buffer.slice(0, p);
 	}
 
-	if (Object.freeze) {
-		Object.freeze(p3js.pseudoInstructions);
-		Object.freeze(p3js.conditions);
-		Object.freeze(p3js.instructions);
-		Object.freeze(p3js.constants);
-	}
+	p3js.parser = require("./parser.js")(p3js);
+	p3js.assembler = require("./assembler.js")(p3js);
+	require("./simulator.js")(p3js);
+
+	return p3js;
 
 })();

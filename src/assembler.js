@@ -1,7 +1,6 @@
-(function() {
+module.exports = function(p3js) {
 
-	var p3js = window.p3js = (window.p3js || { });
-	var assembler = p3js.assembler = { };
+	var assembler = { };
 	eval(p3js.extractConstants());
 
 	var BufferEx = function(size) {
@@ -389,4 +388,6 @@
 		return result;
 	};
 
-})();
+	return assembler;
+
+}

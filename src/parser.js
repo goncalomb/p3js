@@ -1,7 +1,6 @@
-(function() {
+module.exports = function(p3js) {
 
-	var p3js = window.p3js = (window.p3js || { });
-	var parser = p3js.parser = { };
+	var parser = { };
 	eval(p3js.extractConstants());
 
 	parser.parseConstant = function(text) {
@@ -208,4 +207,6 @@
 		return data;
 	};
 
-})();
+	return parser;
+
+};

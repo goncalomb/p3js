@@ -246,4 +246,48 @@ $(window).ready(function() {
 
 	$output.val("Initialized.\n");
 
+	// simulator
+	var p3sim = new p3js.Simulator();
+	var $sim_registers = $("#sim-registers");
+	var $sim_memory = $("#sim-memory");
+	var $sim_status = $("#sim-status");
+	var $sim_start = $("#sim-start");
+	var $sim_step_i = $("#sim-step-i");
+	var $sim_step_c = $("#sim-step-c");
+	var $sim_reset = $("#sim-reset");
+
+	function sim_update_registers() {
+		function hex(n) {
+			return ("000" + n.toString(16)).substr(-4);
+		}
+		var text = [ "R0:  0000" ];
+		for (var i = 0; i < 6; i++) {
+			text.push("R" + (i + 1) + ":  " + hex(p3sim._registers[i]));
+		}
+		text.push("", "SP:  " + hex(p3sim._registers[13]));
+		text.push("PC:  " + hex(p3sim._registers[14]));
+		text.push("RE:  " + hex(p3sim._re), "");
+		for (var i = 6; i < 15; i++) {
+			text.push("R" + (i + 1) + ": " + (i < 9 ? " " : "" ) + hex(p3sim._registers[i]));
+		}
+		text.push("", "CAR: " + hex(p3sim._car));
+		text.push("SBR: " + hex(p3sim._sbr));
+		text.push("RI:  " + hex(p3sim._ri));
+		$sim_registers.val(text.join("\n"));
+	}
+
+	function sim_update_status(c, i) {
+		$sim_status.html(
+			"Clock: " + c + "\n" +
+			"Instructions: " + i + "\n"
+		);
+	}
+
+	$("#sim-start, #sim-step-i, #sim-step-c, #sim-reset").click(function(){
+		alert("Not Implemented");
+	});
+
+	sim_update_registers();
+	sim_update_status(0, 0);
+
 });

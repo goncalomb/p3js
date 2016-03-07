@@ -51,7 +51,19 @@
 			<pre id="program-references" class="well"></pre>
 		</div>
 		<div class="row tab-page tab-page-simulator hidden">
-			<p>TODO: Simulator</p>
+			<div class="col-md-2">
+				<textarea id="sim-registers" rows="25" readonly></textarea>
+			</div>
+			<div class="col-md-7">
+				<textarea id="sim-memory" rows="25" readonly></textarea>
+			</div>
+			<div class="col-md-3">
+				<pre id="sim-status" class="well well-sm"></pre>
+				<button id="sim-start" class="btn btn-primary btn-sm btn-block">Start</button>
+				<button id="sim-step-i" class="btn btn-primary btn-sm btn-block">Step (Instruction)</button>
+				<button id="sim-step-c" class="btn btn-primary btn-sm btn-block">Step (Clock)</button>
+				<button id="sim-reset" class="btn btn-primary btn-sm btn-block">Reset</button>
+			</div>
 		</div>
 		<div class="row tab-page tab-page-about hidden">
 			<p>TODO: About P3JS</p>

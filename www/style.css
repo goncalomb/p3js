@@ -36,7 +36,6 @@ textarea {
 	font-size: 13px;
 	width: 100%;
 	resize: none;
-	overflow-y: scroll;
 }
 
 .CodeMirror {

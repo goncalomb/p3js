@@ -133,18 +133,19 @@ $(window).ready(function() {
 	var mem_footprint_ctx = $memory_footprint[0].getContext("2d");
 	mem_footprint_ctx.textBaseline = "top";
 	mem_footprint_ctx.font = "12px monospace";
-	var mfl_dy = 10;
+	var mfl_dx = 5;
 	function draw_canvas_label(name, color) {
 		mem_footprint_ctx.fillStyle = color;
-		mem_footprint_ctx.fillRect(516, mfl_dy + 1, 10, 10);
+		mem_footprint_ctx.fillRect(mfl_dx, 256 + 5, 10, 10);
 		mem_footprint_ctx.fillStyle = "#222";
-		mem_footprint_ctx.fillText(name, 530, mfl_dy);
-		mfl_dy += 18;
+		mem_footprint_ctx.fillText(name, mfl_dx + 12, 256 + 4);
+		mfl_dx += mem_footprint_ctx.measureText(name).width + 30;
 	}
 	function clear_program_info() {
 		$program_summary.html("<em>Assemble program first!</em>\n");
 		$program_references.html("<em>Assemble program first!</em>\n");
-		mem_footprint_ctx.clearRect(0, 0, 512, 512);
+		mem_footprint_ctx.clearRect(0, 0, 1024, 256);
+		mem_footprint_ctx.fillText("Assemble program first!", 5, 5);
 	}
 	function build_program_info(data) {
 		var memory_percent = Math.floor(data.memoryUsage*10000/p3js.constants.MEMORY_SIZE)/100;
@@ -152,7 +153,7 @@ $(window).ready(function() {
 			"Labels: " + data.labelCount + "\n" +
 			"Pseudo Instructions: " + data.pseudoCount + "\n" +
 			"Instructions: " + data.instructionCount + "\n" +
-			"Memory Usage: " + data.memoryUsage + "/" +p3js.constants.MEMORY_SIZE + "% (max: " + memory_percent + ")\n"
+			"Memory Usage: " + data.memoryUsage + "/" + p3js.constants.MEMORY_SIZE + " (" + memory_percent + "%)\n"
 		);
 		var references = [];
 		for (var label in data.labels) {
@@ -168,8 +169,8 @@ $(window).ready(function() {
 		}
 		$program_references.text(references.join(""));
 		data.usedAddresses.forEach(function(value, i) {
-			var x = (i%256);
-			var y = Math.floor(i/256);
+			var x = (i%512);
+			var y = Math.floor(i/512);
 			if (value == 1) {
 				mem_footprint_ctx.fillStyle = "#222";
 			} else if (value == 2) {
@@ -187,7 +188,7 @@ $(window).ready(function() {
 		});
 	}
 	clear_program_info();
-	draw_canvas_label("Empty Memory", "#d7d7d7");
+	draw_canvas_label("Empty", "#d7d7d7");
 	draw_canvas_label("WORD", "#12d");
 	draw_canvas_label("STR", "#2d1");
 	draw_canvas_label("TAB", "#d21");

@@ -220,6 +220,7 @@ $(window).ready(function() {
 			var result = p3js.assembler.assembleData(data);
 			$output.val("Done (" + get_ms() + " ms).");
 			build_program_info(result);
+			p3sim.loadMemory(result.buffer);
 			return result.buffer;
 		} catch (e) {
 			clear_program_info();
@@ -230,11 +231,15 @@ $(window).ready(function() {
 	}
 
 	$assemble.click(function() {
-		try_assemble()
+		try_assemble();
 	});
 
 	$assemble_run.click(function() {
-		alert("Not Implemented");
+		var buffer = try_assemble();
+		if (buffer) {
+			p3sim.start();
+			window.location.hash = "#simulator";
+		}
 	});
 
 	$assemble_dl.click(function() {
@@ -248,7 +253,7 @@ $(window).ready(function() {
 	$output.val("Initialized.\n");
 
 	// simulator
-	var p3sim = new p3js.Simulator();
+	var p3sim = window.p3sim = new p3js.Simulator();
 	var $sim_registers = $("#sim-registers");
 	var $sim_memory = $("#sim-memory");
 	var $sim_status = $("#sim-status");
@@ -284,8 +289,33 @@ $(window).ready(function() {
 		);
 	}
 
-	$("#sim-start, #sim-step-i, #sim-step-c, #sim-reset").click(function(){
+	$sim_start.click(function() {
+		if (p3sim.isRunning()) {
+			p3sim.stop();
+		} else {
+			p3sim.start();
+		}
+	});
+
+	$sim_reset.click(function() {
+		p3sim.reset();
+	});
+
+	$("#sim-step-i, #sim-step-c").click(function(){
 		alert("Not Implemented");
+	});
+
+	p3sim.registerEventHandler("start", function() {
+		$body.addClass("sim-running");
+		$sim_start.text("Stop");
+	});
+	p3sim.registerEventHandler("stop", function() {
+		$body.removeClass("sim-running");
+		$sim_start.text("Start");
+	});
+	p3sim.registerEventHandler("clock", sim_update_status);
+	p3sim.registerEventHandler("reset", function() {
+		sim_update_status(0, 0);
 	});
 
 	sim_update_registers();

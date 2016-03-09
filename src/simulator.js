@@ -6,7 +6,8 @@ module.exports = function(p3js) {
 		if (!(this instanceof simulator)) {
 			return new simulator();
 		}
-		this._memory = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		// processor variables
+		this._memory = null;
 		this._romA = this._romB = this._romC = null;
 		this.resetRomA();
 		this.resetRomB();
@@ -24,6 +25,72 @@ module.exports = function(p3js) {
 		this._re = 0;            // RE    (status register)
 		this._car = 0;           // CAR   (control address register)
 		this._sbr = 0;           // SBR   (subroutine branch register)
+		// simulation variables
+		this._eventHandlers = { };
+		this._interval = 0;
+		this._clockCount = 0;
+		this._instructionCount = 0;
+	};
+
+	simulator.prototype._fireEvent = function(name, args) {
+		if (this._eventHandlers[name]) {
+			var sim = this;
+			this._eventHandlers[name].forEach(function(fn) {
+				fn.apply(sim, args);
+			});
+		}
+	};
+
+	simulator.prototype._clock = function(first_argument) {
+		// XXX: make stuff happen
+		this._clockCount++;
+		this._fireEvent("clock", [this._clockCount, this._instructionCount]);
+	};
+
+	simulator.prototype.registerEventHandler = function(name, fn) {
+		if (typeof fn == "function") {
+			if (!this._eventHandlers[name]) {
+				this._eventHandlers[name] = [];
+			}
+			this._eventHandlers[name].push(fn);
+		}
+	};
+
+	simulator.prototype.loadMemory = function(buffer) {
+		this.reset();
+		this._memory = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		(new Uint8Array(this._memory)).set(new Uint8Array(buffer));
+		this._fireEvent("load");
+	};
+
+	simulator.prototype.start = function(speed) {
+		speed = speed || 100;
+		var sim = this;
+		this._interval = setInterval(function() {
+			sim._clock();
+		}, 1000/speed);
+		this._fireEvent("start");
+	};
+
+	simulator.prototype.isRunning = function() {
+		return !!this._interval;
+	};
+
+	simulator.prototype.stop = function() {
+		if (this._interval) {
+			clearInterval(this._interval);
+			this._interval = 0;
+			this._fireEvent("stop");
+		}
+	};
+
+	simulator.prototype.reset = function() {
+		this.stop();
+		this._registers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		this._ri = this._re = this._car = this._sbr = 0;
+		this._clockCount = 0;
+		this._instructionCount = 0;
+		this._fireEvent("reset");
 	};
 
 	simulator.prototype.resetRomA = function() {

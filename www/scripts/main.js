@@ -282,8 +282,17 @@ $(window).ready(function() {
 		$sim_registers.val(text.join("\n"));
 	}
 
-	function sim_update_status(c, i) {
+	function sim_update_status(c, i, s) {
+		var s_str;
+		if (s >= 1000000) {
+			s_str = Math.round(s/100000)/10 + " MHz";
+		} else if (s >= 1000) {
+			s_str = Math.round(s/100)/10 + " kHz";
+		} else {
+			s_str = Math.round(s*10)/10 + " Hz";
+		}
 		$sim_status.html(
+			"Speed: " + s_str + "\n" +
 			"Clock: " + c + "\n" +
 			"Instructions: " + i + "\n"
 		);
@@ -313,16 +322,20 @@ $(window).ready(function() {
 		$body.addClass("sim-running");
 		$sim_start.text("Stop");
 	});
-	p3sim.registerEventHandler("stop", function() {
+	p3sim.registerEventHandler("stop", function(c, i, s) {
+		sim_update_status(c, i, s);
 		$body.removeClass("sim-running");
 		$sim_start.text("Start");
 	});
-	p3sim.registerEventHandler("clock", sim_update_status);
+	p3sim.registerEventHandler("clock", function(c, i, s) {
+		sim_update_registers();
+		sim_update_status(c, i, s);
+	});
 	p3sim.registerEventHandler("reset", function() {
-		sim_update_status(0, 0);
+		sim_update_status(0, 0, 0);
 	});
 
 	sim_update_registers();
-	sim_update_status(0, 0);
+	sim_update_status(0, 0, 0);
 
 });

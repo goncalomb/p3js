@@ -28,6 +28,7 @@ module.exports = function(p3js) {
 		// simulation variables
 		this._eventHandlers = { };
 		this._interval = 0;
+		this._speed = 0;
 		this._clockCount = 0;
 		this._instructionCount = 0;
 	};
@@ -39,6 +40,10 @@ module.exports = function(p3js) {
 				fn.apply(sim, args);
 			});
 		}
+	};
+
+	simulator.prototype._fireStatusEvent = function(name) {
+		this._fireEvent(name, [this._clockCount, this._instructionCount, this._speed]);
 	};
 
 	simulator.prototype._unpackIntruction = function(i) {
@@ -84,7 +89,7 @@ module.exports = function(p3js) {
 		}
 	}
 
-	simulator.prototype._clock = function(first_argument) {
+	simulator.prototype._clock = function() {
 		var inst = this._unpackIntruction(this._ri);
 		var micro = this._unpackMicro(this._romC[this._car]);
 		// control unit
@@ -114,7 +119,6 @@ module.exports = function(p3js) {
 		// data circuit
 		// XXX: make stuff happen
 		this._clockCount++;
-		this._fireEvent("clock", [this._clockCount, this._instructionCount]);
 	};
 
 	simulator.prototype.registerEventHandler = function(name, fn) {
@@ -133,18 +137,41 @@ module.exports = function(p3js) {
 		this._fireEvent("load");
 	};
 
-	simulator.prototype.start = function(speed) {
-		speed = speed || 100;
-		var sim = this;
-		this._interval = setInterval(function() {
-			sim._clock();
-		}, 1000/speed);
-		this._fireEvent("start");
+	simulator.prototype.start = function() {
+		if (!this._interval) {
+			var sim = this;
+			var m = 1;
+			var s = ss = 0;
+			var t0 = Date.now();
+			this._interval = setInterval(function() {
+				for (var i = 0; i < m; i++) {
+					sim._clock();
+				}
+				// find time
+				var t1 = Date.now();
+				var td = t1 - t0 + 1; // + 1 to avoid divide by zero
+				t0 = t1;
+				// calculate speed with 20 samples
+				if (s == 20) {
+					ss -= ss/s; // remove mean
+				} else {
+					s++;
+				}
+				ss += (m*1000)/td; // add speed
+				sim._speed = ss/s;
+				// fire clock event
+				sim._fireStatusEvent("clock");
+				// ajust m to keep loop within 30ms
+				m += Math.max(1, Math.floor((30 - td) * 0.8 / (td/m)));
+			}, 5);
+			this._fireStatusEvent("start");
+		}
 	};
 
 	simulator.prototype.stepClock = function() {
 		this.stop();
 		this._clock();
+		this._fireStatusEvent("clock");
 	}
 
 	simulator.prototype.isRunning = function() {
@@ -155,7 +182,8 @@ module.exports = function(p3js) {
 		if (this._interval) {
 			clearInterval(this._interval);
 			this._interval = 0;
-			this._fireEvent("stop");
+			this._speed = 0;
+			this._fireStatusEvent("stop");
 		}
 	};
 

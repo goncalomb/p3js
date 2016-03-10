@@ -41,7 +41,77 @@ module.exports = function(p3js) {
 		}
 	};
 
+	simulator.prototype._unpackIntruction = function(i) {
+		return {
+			op:  (i >> 10 & 0x3f),
+			s:   (i >>  9 & 0x1),
+			ir2: (i >>  6 & 0x7),
+			m:   (i >>  4 & 0x3),
+			ir1: (i >>  0 & 0xf),
+			c:   (i >>  6 & 0xf),
+			d:   (i >>  0 & 0x3f)
+		}
+	}
+
+	simulator.prototype._unpackMicro = function(i) {
+		return {
+			f:     (i >> 31 & 0x01),
+			// f = 0 or 1
+			rad:   (i >>  0 & 0xf),
+			mad:   (i >>  4 & 0x1),
+			md:    (i >>  5 & 0x3),
+			wr:    (i >>  7 & 0x1),
+			sr2:   (i >> 27 & 0x1),
+			sr1:   (i >> 28 & 0x1),
+			m5:    (i >> 29 & 0x3),
+			// f = 0
+			wm:    (i >>  8 & 0x1),
+			rb:    (i >>  9 & 0xf),
+			mrb:   (i >> 13 & 0x1),
+			m2:    (i >> 14 & 0x1),
+			mb:    (i >> 15 & 0x1),
+			ma:    (i >> 16 & 0x1),
+			cula:  (i >> 17 & 0x1f),
+			fm:    (i >> 22 & 0xf),
+			aik:   (i >> 26 & 0x1),
+			// f = 1
+			const: (i >>  8 & 0xfff),
+			lf:    (i >> 20 & 0x1),
+			li:    (i >> 21 & 0x1),
+			cc:    (i >> 22 & 0x1),
+			mcond: (i >> 23 & 0x7),
+			ls:    (i >> 26 & 0x1)
+		}
+	}
+
 	simulator.prototype._clock = function(first_argument) {
+		var inst = this._unpackIntruction(this._ri);
+		var micro = this._unpackMicro(this._romC[this._car]);
+		// control unit
+		if (micro.f && micro.ls) {
+			this._sbr = (this._car + 1) & 0xffff;
+		}
+		if (micro.m5 == 0) {
+			var c = 0;
+			if (micro.f) {
+				// XXX: compute c
+				c = 1;
+			}
+			if (micro.f && c) {
+				this._car = micro.const & 0xffff;
+			} else {
+				this._car = (this._car + 1) & 0xffff;
+			}
+		} else if (micro.m5 == 1) {
+			this._car = this._sbr;
+		} else if (micro.m5 == 2) {
+			this._car = this._romA[inst.op];
+		} else if (micro.m5 == 3) {
+			this._car = this._romB[(micro.sr2 << 2) & ((micro.sr2 ? inst.s : micro.sr1) << 2) & inst.m];
+		}
+		var sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1))
+		var sel_ad = (micro.mad ? micro.rad : ((micro.m2 ^ inst.s) && (inst.op & 0x20) ? inst.ir2 : inst.ir1))
+		// data circuit
 		// XXX: make stuff happen
 		this._clockCount++;
 		this._fireEvent("clock", [this._clockCount, this._instructionCount]);

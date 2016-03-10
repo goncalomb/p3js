@@ -19,7 +19,7 @@
 		</header>
 		<ul class="nav nav-tabs" style="margin-bottom: 20px;">
 			<li><a href="#assembler"><i class="fa fa-code"></i> Assembler</a></li>
-			<li><a href="#program"><i class="fa fa-area-chart"></i> Program Info</a></li>
+			<li><a href="#program"><i class="fa fa-area-chart"></i> Program</a></li>
 			<li><a href="#simulator"><i class="fa fa-cogs"></i> Simulator</a></li>
 			<li><a href="#io"><i class="fa fa-laptop"></i> Input/Output</a></li>
 			<li><a href="#about"><i class="fa fa-question-circle"></i> About P3JS</a></li>
@@ -43,12 +43,10 @@
 			</div>
 		</div>
 		<div class="row tab-page tab-page-program hidden">
-			<h2>Program Info</h2>
-			<pre id="program-summary" class="well"></pre>
-			<h3>Memory Footprint</h3>
-			<canvas id="memory-footprint" style="border: 1px solid #ccc" width="1024" height="276"></canvas>
-			<h3>Labels / References</h3>
-			<pre id="program-references" class="well"></pre>
+			<h3>Memory Footprint <small id="prog-mem-info"></small></h3>
+			<canvas id="prog-memory-footprint" style="border: 1px solid #ccc" width="1024" height="276"></canvas>
+			<h3>Labels / References <small id="prog-label-info"></small></h3>
+			<pre id="prog-labels" class="well"></pre>
 		</div>
 		<div class="row tab-page tab-page-simulator hidden">
 			<div class="col-md-2">

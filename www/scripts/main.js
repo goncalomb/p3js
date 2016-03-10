@@ -124,13 +124,12 @@ $(window).ready(function() {
 	load_demo(demos[0]);
 
 	// program information
-	var $code_wrapper = $("#code-wrapper")
-	var $program_info = $("#program-info");
-	var $program_summary = $("#program-summary");
-	var $memory_footprint = $("#memory-footprint");
-	var $program_references = $("#program-references");
+	var $prog_mem_info = $("#prog-mem-info");
+	var $prog_memory_footprint = $("#prog-memory-footprint");
+	var $prog_label_info = $("#prog-label-info");
+	var $prog_labels = $("#prog-labels");
 	// XXX: refactor canvas code
-	var mem_footprint_ctx = $memory_footprint[0].getContext("2d");
+	var mem_footprint_ctx = $prog_memory_footprint[0].getContext("2d");
 	mem_footprint_ctx.textBaseline = "top";
 	mem_footprint_ctx.font = "12px monospace";
 	var mfl_dx = 5;
@@ -142,19 +141,16 @@ $(window).ready(function() {
 		mfl_dx += mem_footprint_ctx.measureText(name).width + 30;
 	}
 	function clear_program_info() {
-		$program_summary.html("<em>Assemble program first!</em>\n");
-		$program_references.html("<em>Assemble program first!</em>\n");
+		$prog_mem_info.text("");
+		$prog_label_info.text("");
+		$prog_labels.html("<em>Assemble a program first.</em>\n");
 		mem_footprint_ctx.clearRect(0, 0, 1024, 256);
-		mem_footprint_ctx.fillText("Assemble program first!", 5, 5);
+		mem_footprint_ctx.fillText("Assemble a program first.", 5, 5);
 	}
 	function build_program_info(data) {
 		var memory_percent = Math.floor(data.memoryUsage*10000/p3js.constants.MEMORY_SIZE)/100;
-		$program_summary.text(
-			"Labels: " + data.labelCount + "\n" +
-			"Pseudo Instructions: " + data.pseudoCount + "\n" +
-			"Instructions: " + data.instructionCount + "\n" +
-			"Memory Usage: " + data.memoryUsage + "/" + p3js.constants.MEMORY_SIZE + " (" + memory_percent + "%)\n"
-		);
+		$prog_mem_info.text(data.memoryUsage + "/" + p3js.constants.MEMORY_SIZE + " (" + memory_percent + "%) used");
+		$prog_label_info.text(data.labelCount);
 		var references = [];
 		for (var label in data.labels) {
 			var l = label + " ";
@@ -167,7 +163,7 @@ $(window).ready(function() {
 			}
 			references.push(l + v + "\n");
 		}
-		$program_references.text(references.join(""));
+		$prog_labels.text(references.join(""));
 		data.usedAddresses.forEach(function(value, i) {
 			var x = (i%512);
 			var y = Math.floor(i/512);

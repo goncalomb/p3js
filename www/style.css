@@ -7,6 +7,10 @@ body {
 	max-width: 1050px;
 }
 
+div > *:first-child {
+	margin-top: 0;
+}
+
 header, footer {
 	text-align: center;
 }

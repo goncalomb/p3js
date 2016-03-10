@@ -297,11 +297,15 @@ $(window).ready(function() {
 		}
 	});
 
+	$sim_step_c.click(function() {
+		p3sim.stepClock();
+	});
+
 	$sim_reset.click(function() {
 		p3sim.reset();
 	});
 
-	$("#sim-step-i, #sim-step-c").click(function(){
+	$("#sim-step-i").click(function(){
 		alert("Not Implemented");
 	});
 

@@ -142,6 +142,11 @@ module.exports = function(p3js) {
 		this._fireEvent("start");
 	};
 
+	simulator.prototype.stepClock = function() {
+		this.stop();
+		this._clock();
+	}
+
 	simulator.prototype.isRunning = function() {
 		return !!this._interval;
 	};

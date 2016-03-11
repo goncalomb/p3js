@@ -27,6 +27,7 @@ module.exports = function(p3js) {
 		this._sbr = 0;           // SBR   (subroutine branch register)
 		// simulation variables
 		this._eventHandlers = { };
+		this._cachedMicro = [];
 		this._interval = 0;
 		this._speed = 0;
 		this._clockCount = 0;
@@ -91,7 +92,7 @@ module.exports = function(p3js) {
 
 	simulator.prototype._clock = function() {
 		var inst = this._unpackIntruction(this._ri);
-		var micro = this._unpackMicro(this._romC[this._car]);
+		var micro = this._cachedMicro[this._car];
 		// control unit
 		if (micro.f && micro.ls) {
 			this._sbr = (this._car + 1) & 0xffff;
@@ -140,6 +141,12 @@ module.exports = function(p3js) {
 	simulator.prototype.start = function() {
 		if (!this._interval) {
 			var sim = this;
+			// pre cache micro instructions
+			this._cachedMicro = [];
+			this._romC.forEach(function(i) {
+				sim._cachedMicro.push(sim._unpackMicro(i));
+			});
+			// start loop
 			var m = 1;
 			var s = ss = 0;
 			var t0 = Date.now();

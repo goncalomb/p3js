@@ -30,7 +30,7 @@ module.exports = function(p3js) {
 		this._int = 0;           // interrupt flag
 		// simulation variables
 		this._eventHandlers = { };
-		this._cachedMicro = [];
+		this._cachedMicro = null;
 		this._interval = 0;
 		this._speed = 0;
 		this._clockCount = 0;
@@ -90,6 +90,16 @@ module.exports = function(p3js) {
 			cc:    (i >> 22 & 0x1),
 			mcond: (i >> 23 & 0x7),
 			ls:    (i >> 26 & 0x1)
+		}
+	}
+
+	simulator.prototype._preCacheMicro = function() {
+		if (!this._cachedMicro) {
+			this._cachedMicro = [];
+			var sim = this;
+			this._romC.forEach(function(i) {
+				sim._cachedMicro.push(sim._unpackMicro(i));
+			});
 		}
 	}
 
@@ -225,11 +235,7 @@ module.exports = function(p3js) {
 	simulator.prototype.start = function() {
 		if (!this._interval) {
 			var sim = this;
-			// pre cache micro instructions
-			this._cachedMicro = [];
-			this._romC.forEach(function(i) {
-				sim._cachedMicro.push(sim._unpackMicro(i));
-			});
+			this._preCacheMicro();
 			// start loop
 			var m = 1;
 			var s = ss = 0;
@@ -261,6 +267,7 @@ module.exports = function(p3js) {
 
 	simulator.prototype.stepClock = function() {
 		this.stop();
+		this._preCacheMicro();
 		this._clock();
 		this._fireStatusEvent("clock");
 	}
@@ -283,6 +290,7 @@ module.exports = function(p3js) {
 		this._registers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		this._ri = this._re = this._car = this._sbr = 0;
 		this._int = 0;
+		this._cachedMicro = null;
 		this._clockCount = 0;
 		this._instructionCount = 0;
 		this._fireEvent("reset");

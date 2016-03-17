@@ -32,6 +32,7 @@ module.exports = function(p3js) {
 		this._eventHandlers = { };
 		this._cachedMicro = null;
 		this._interval = 0;
+		this._oneInstruction = false;
 		this._speed = 0;
 		this._clockCount = 0;
 		this._instructionCount = 0;
@@ -211,8 +212,10 @@ module.exports = function(p3js) {
 		if (micro.f && micro.li) {
 			this._ri = this._readMemory(a);
 			this._instructionCount++;
+			return true; // just finished an instruction
 		}
 		this._clockCount++;
+		return false;
 	};
 
 	simulator.prototype.registerEventHandler = function(name, fn) {
@@ -242,7 +245,13 @@ module.exports = function(p3js) {
 			var t0 = Date.now();
 			this._interval = setInterval(function() {
 				for (var i = 0; i < m; i++) {
-					sim._clock();
+					var finst = sim._clock();
+					if (finst && sim._oneInstruction) {
+						// stop simulation if just running one instruction
+						sim._fireStatusEvent("clock");
+						sim.stop();
+						return;
+					}
 				}
 				// find time
 				var t1 = Date.now();
@@ -265,6 +274,11 @@ module.exports = function(p3js) {
 		}
 	};
 
+	simulator.prototype.stepInstruction = function() {
+		this._oneInstruction = true;
+		this.start();
+	}
+
 	simulator.prototype.stepClock = function() {
 		this.stop();
 		this._preCacheMicro();
@@ -280,6 +294,7 @@ module.exports = function(p3js) {
 		if (this._interval) {
 			clearInterval(this._interval);
 			this._interval = 0;
+			this._oneInstruction = false;
 			this._speed = 0;
 			this._fireStatusEvent("stop");
 		}

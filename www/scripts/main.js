@@ -302,16 +302,16 @@ $(window).ready(function() {
 		}
 	});
 
+	$sim_step_i.click(function() {
+		p3sim.stepInstruction();
+	});
+
 	$sim_step_c.click(function() {
 		p3sim.stepClock();
 	});
 
 	$sim_reset.click(function() {
 		p3sim.reset();
-	});
-
-	$("#sim-step-i").click(function(){
-		alert("Not Implemented");
 	});
 
 	p3sim.registerEventHandler("start", function() {

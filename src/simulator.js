@@ -7,12 +7,14 @@ module.exports = function(p3js) {
 			return new simulator();
 		}
 		// processor variables
-		this._memory = null;
+		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		this._memoryView = new DataView(this._memoryBuffer);
 		this._romA = this._romB = this._romC = null;
 		this.resetRomA();
 		this.resetRomB();
 		this.resetRomC();
-		this._registers = [      // R0    = 0
+		this._registers = [
+			0,                   // R0    = 0
 			0, 0, 0, 0, 0, 0, 0, // R1-7  general use
 			0, 0, 0,             // R8-10 restricted use
 			0,                   // R11   = SD (source data)
@@ -25,6 +27,7 @@ module.exports = function(p3js) {
 		this._re = 0;            // RE    (status register)
 		this._car = 0;           // CAR   (control address register)
 		this._sbr = 0;           // SBR   (subroutine branch register)
+		this._int = 0;           // interrupt flag
 		// simulation variables
 		this._eventHandlers = { };
 		this._cachedMicro = [];
@@ -90,6 +93,23 @@ module.exports = function(p3js) {
 		}
 	}
 
+	simulator.prototype._readMemory = function(addr) {
+		return this._memoryView.getInt16(addr, true);
+	}
+
+	simulator.prototype._writeMemory = function(addr, val) {
+		this._memoryView.setInt16(addr, val, true);
+	}
+
+	simulator.prototype._alu = function(a, b, cula) {
+		var z = 0, c = 0, n = 0, o = 0;
+		// TODO: implement the ALU
+		return {
+			result: 1,
+			zcno: (z << 3) & (z << 2) & (z << 1) & o
+		};
+	}
+
 	simulator.prototype._clock = function() {
 		var inst = this._unpackIntruction(this._ri);
 		var micro = this._cachedMicro[this._car];
@@ -98,12 +118,31 @@ module.exports = function(p3js) {
 			this._sbr = (this._car + 1) & 0xffff;
 		}
 		if (micro.m5 == 0) {
-			var c = 0;
+			var c0 = 0;
 			if (micro.f) {
-				// XXX: compute c
-				c = 1;
+				var c1
+				switch (micro.mcond) {
+					case 0: c1 = 1;   break;
+					case 1: c1 = this._re >> 6 & 0x1; break; // z
+					case 2: c1 = this._re >> 5 & 0x1; break; // c
+					case 3: c1 = this._re >> 4 & this._int & 0x1; break; // E & INT
+					case 4: c1 = inst.m >> 0 & 0x1; break; // M0
+					case 5: c1 = inst.m >> 1 & 0x1; break; // M1
+					case 6: c1 = (inst.op >> 15) & ~(inst.op >> 14) & inst.s & 0x1; break; // RI15 & ~RI14 & S
+					case 7:
+						switch (inst.c >> 1) {
+							case 0: c1 = this._re >> 3 & 0x1; break; // Z
+							case 1: c1 = this._re >> 2 & 0x1; break; // C
+							case 2: c1 = this._re >> 1 & 0x1; break; // N
+							case 3: c1 = this._re >> 0 & 0x1; break; // O
+							case 4: c1 = ~((this._re >> 3) | (this._re >> 1)) & 0x1; break; // P = ~(Z|N)
+							case 5: c1 = this._int & 0x1; break; // INT
+						}
+						break;
+				}
+				c0 = c1 ^ micro.cc;
 			}
-			if (micro.f && c) {
+			if (micro.f && c0) {
 				this._car = micro.const & 0xffff;
 			} else {
 				this._car = (this._car + 1) & 0xffff;
@@ -113,12 +152,56 @@ module.exports = function(p3js) {
 		} else if (micro.m5 == 2) {
 			this._car = this._romA[inst.op];
 		} else if (micro.m5 == 3) {
-			this._car = this._romB[(micro.sr2 << 2) & ((micro.sr2 ? inst.s : micro.sr1) << 2) & inst.m];
+			this._car = this._romB[(micro.sr2 << 2) & ((micro.sr2 ? inst.s : micro.sr1) << 1) & inst.m];
 		}
-		var sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1))
-		var sel_ad = (micro.mad ? micro.rad : ((micro.m2 ^ inst.s) && (inst.op & 0x20) ? inst.ir2 : inst.ir1))
+		var sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1));
+		var sel_ad = (micro.mad ? micro.rad : ((micro.m2 ^ inst.s) && (inst.op & 0x20) ? inst.ir2 : inst.ir1));
 		// data circuit
-		// XXX: make stuff happen
+		// get operands (MUXA and MUXB)
+		var a, b;
+		if (!micro.f && micro.ma) {
+			a = this._registers[sel_b];
+		} else {
+			a = this._registers[sel_ad];
+		}
+		if (micro.mb) {
+			b = this._ri;
+		} else {
+			b = this._registers[sel_b];
+		}
+		// cumpute result (MUXD)
+		var alu = this._alu(a, b, micro.cula);
+		var result;
+		switch (micro.md) {
+			case 0: result = alu.result;
+			case 1: result = this._readMemory(a); break;
+			case 2: result = this._re & 0x1f; break;
+			case 3: result = micro.const; break;
+		}
+		// write RE
+		// state: z c E Z C N O
+		//   bit: 6 5 4 3 2 1 0
+		if (micro.f) {
+			if (micro.lf) {
+				this._re = a & 0x1f;
+			}
+		} else {
+			this._re = (micro.fm & alu.zcno) | (~micro.fm & this._re);
+		}
+		this._re = this._re & 0x1f | (alu.zcno << 3 & 0x60); // set z and c
+		// write memory
+		if (!micro.f && micro.wm) {
+			this._writeMemory(a, b);
+		}
+		// write register
+		if (micro.wr && sel_ad != 0) {
+			this._registers[sel_ad] = result;
+		}
+		// write RI
+		if (micro.f && micro.li) {
+			this._ri = this._readMemory(a);
+			this._instructionCount++;
+		}
 		this._clockCount++;
 	};
 
@@ -133,8 +216,9 @@ module.exports = function(p3js) {
 
 	simulator.prototype.loadMemory = function(buffer) {
 		this.reset();
-		this._memory = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-		(new Uint8Array(this._memory)).set(new Uint8Array(buffer));
+		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		(new Uint8Array(this._memoryBuffer)).set(new Uint8Array(buffer));
+		this._memoryView = new DataView(this._memoryBuffer);
 		this._fireEvent("load");
 	};
 
@@ -196,8 +280,9 @@ module.exports = function(p3js) {
 
 	simulator.prototype.reset = function() {
 		this.stop();
-		this._registers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		this._registers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		this._ri = this._re = this._car = this._sbr = 0;
+		this._int = 0;
 		this._clockCount = 0;
 		this._instructionCount = 0;
 		this._fireEvent("reset");

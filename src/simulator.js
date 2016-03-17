@@ -105,11 +105,11 @@ module.exports = function(p3js) {
 	}
 
 	simulator.prototype._readMemory = function(addr) {
-		return this._memoryView.getInt16(addr, true);
+		return this._memoryView.getInt16((addr & 0xffff) * 2, true);
 	}
 
 	simulator.prototype._writeMemory = function(addr, val) {
-		this._memoryView.setInt16(addr, val, true);
+		this._memoryView.setInt16(addr * 2, val, true);
 	}
 
 	simulator.prototype._alu = function(a, b, cula) {
@@ -163,7 +163,7 @@ module.exports = function(p3js) {
 		} else if (micro.m5 == 2) {
 			this._car = this._romA[inst.op];
 		} else if (micro.m5 == 3) {
-			this._car = this._romB[(micro.sr2 << 2) & ((micro.sr2 ? inst.s : micro.sr1) << 1) & inst.m];
+			this._car = this._romB[(micro.sr2 << 3) | ((micro.sr2 ? inst.s : micro.sr1) << 2) | inst.m];
 		}
 		var sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1));
 		var sel_ad = (micro.mad ? micro.rad : ((micro.m2 ^ inst.s) && (inst.op & 0x20) ? inst.ir2 : inst.ir1));
@@ -184,7 +184,7 @@ module.exports = function(p3js) {
 		var alu = this._alu(a, b, micro.cula);
 		var result;
 		switch (micro.md) {
-			case 0: result = alu.result;
+			case 0: result = alu.result; break;
 			case 1: result = this._readMemory(a); break;
 			case 2: result = this._re & 0x1f; break;
 			case 3: result = micro.const; break;

@@ -257,6 +257,9 @@ $(window).ready(function() {
 	var $sim_step_i = $("#sim-step-i");
 	var $sim_step_c = $("#sim-step-c");
 	var $sim_reset = $("#sim-reset");
+	var $sim_show_ctrl = $("#sim-show-ctrl");
+
+	var show_ctrl = false;
 
 	function sim_update_registers() {
 		function hex(n) {
@@ -268,13 +271,16 @@ $(window).ready(function() {
 		}
 		text.push("", "SP:  " + hex(p3sim._registers[14]));
 		text.push("PC:  " + hex(p3sim._registers[15]));
-		text.push("RE:  " + hex(p3sim._re), "");
-		for (var i = 7; i < 16; i++) {
-			text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._registers[i]));
+		text.push("RE:  " + hex(p3sim._re));
+		if (show_ctrl) {
+			text.push("");
+			for (var i = 7; i < 16; i++) {
+				text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._registers[i]));
+			}
+			text.push("", "CAR: " + hex(p3sim._car));
+			text.push("SBR: " + hex(p3sim._sbr));
+			text.push("RI:  " + hex(p3sim._ri));
 		}
-		text.push("", "CAR: " + hex(p3sim._car));
-		text.push("SBR: " + hex(p3sim._sbr));
-		text.push("RI:  " + hex(p3sim._ri));
 		$sim_registers.val(text.join("\n"));
 	}
 
@@ -312,6 +318,18 @@ $(window).ready(function() {
 
 	$sim_reset.click(function() {
 		p3sim.reset();
+	});
+
+	$sim_show_ctrl.change(function() {
+		show_ctrl = this.checked;
+		if (show_ctrl) {
+			$sim_step_i.text("Step (Instruction)");
+			$sim_step_c.removeClass("hidden");
+		} else {
+			$sim_step_i.text("Step");
+			$sim_step_c.addClass("hidden");
+		}
+		sim_update_registers();
 	});
 
 	p3sim.registerEventHandler("start", function() {

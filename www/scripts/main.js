@@ -262,15 +262,15 @@ $(window).ready(function() {
 		function hex(n) {
 			return ("000" + n.toString(16)).substr(-4);
 		}
-		var text = [ "R0:  0000" ];
-		for (var i = 0; i < 6; i++) {
-			text.push("R" + (i + 1) + ":  " + hex(p3sim._registers[i]));
+		var text = [];
+		for (var i = 0; i < 7; i++) {
+			text.push("R" + i + ":  " + hex(p3sim._registers[i]));
 		}
-		text.push("", "SP:  " + hex(p3sim._registers[13]));
-		text.push("PC:  " + hex(p3sim._registers[14]));
+		text.push("", "SP:  " + hex(p3sim._registers[14]));
+		text.push("PC:  " + hex(p3sim._registers[15]));
 		text.push("RE:  " + hex(p3sim._re), "");
-		for (var i = 6; i < 15; i++) {
-			text.push("R" + (i + 1) + ": " + (i < 9 ? " " : "" ) + hex(p3sim._registers[i]));
+		for (var i = 7; i < 16; i++) {
+			text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._registers[i]));
 		}
 		text.push("", "CAR: " + hex(p3sim._car));
 		text.push("SBR: " + hex(p3sim._sbr));
@@ -289,8 +289,8 @@ $(window).ready(function() {
 		}
 		$sim_status.html(
 			"Speed: " + s_str + "\n" +
-			"Clock: " + c + "\n" +
-			"Instructions: " + i + "\n"
+			"Clock: " + c.toLocaleString() + "\n" +
+			"Instructions: " + i.toLocaleString() + "\n"
 		);
 	}
 

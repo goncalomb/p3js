@@ -112,12 +112,68 @@ module.exports = function(p3js) {
 		this._memoryView.setInt16(addr * 2, val, true);
 	}
 
-	simulator.prototype._alu = function(a, b, cula) {
-		var z = 0, c = 0, n = 0, o = 0;
-		// TODO: implement the ALU
+	simulator.prototype._alu = function(a, b, cula, c) {
+		var result = 0;
+		var zero = 0, carry = 0, negative = 0, overflow = 0;
+		switch (cula) {
+			// arithmetic unit
+			// TODO: implement arithmetic unit
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				break;
+			// logic unit
+			case 8:
+			case 12:
+				result = ~a;
+				break;
+			case 9:
+			case 13:
+				result = a & b;
+				break;
+			case 10:
+			case 14:
+				result = a | b;
+				break;
+			case 11:
+			case 15:
+				result = a ^ b;
+				break;
+			// shift unit
+			case 16:
+				break;
+			case 17:
+				break;
+			case 18:
+				break;
+			case 19:
+				break;
+			case 20:
+				break;
+			case 21:
+				break;
+			case 22:
+				break;
+			case 23:
+				break;
+			// passthrough
+			default:
+				result = a;
+				break;
+		}
+		if (result == 0) {
+			zero = 1;
+		} else if ((result & 0x8000) != 0) {
+			carry = 1;
+		}
 		return {
-			result: 1,
-			zcno: (z << 3) & (z << 2) & (z << 1) & o
+			result: result,
+			zcno: (zero << 3) & (carry << 2) & (negative << 1) & overflow
 		};
 	}
 
@@ -181,7 +237,7 @@ module.exports = function(p3js) {
 			b = this._registers[sel_b];
 		}
 		// cumpute result (MUXD)
-		var alu = this._alu(a, b, micro.cula);
+		var alu = this._alu(a, b, micro.cula, this._re >> 2 & 0x1);
 		var result;
 		switch (micro.md) {
 			case 0: result = alu.result; break;

@@ -250,7 +250,8 @@ $(window).ready(function() {
 
 	// simulator
 	var p3sim = window.p3sim = new p3js.Simulator();
-	var $sim_registers = $("#sim-registers");
+	var $sim_debug_main = $("#sim-debug-main");
+	var $sim_debug_control = $("#sim-debug-control");
 	var $sim_memory = $("#sim-memory");
 	var $sim_status = $("#sim-status");
 	var $sim_start = $("#sim-start");
@@ -261,21 +262,23 @@ $(window).ready(function() {
 
 	var show_ctrl = false;
 
-	function sim_update_registers() {
+	function sim_update_debug_panel() {
 		function hex(n) {
 			return ("000" + (n & 0xffff).toString(16)).substr(-4);
 		}
+		// XXX: the debug panel should not be using "private" p3sim variables
 		var text = [];
-		for (var i = 0; i < 7; i++) {
+		for (var i = 0; i < 8; i++) {
 			text.push("R" + i + ":  " + hex(p3sim._registers[i]));
 		}
 		text.push("", "SP:  " + hex(p3sim._registers[14]));
 		text.push("PC:  " + hex(p3sim._registers[15]));
-		text.push("", "E Z C N O");
+		text.push("", "Flags:", "E Z C N O");
 		text.push(("000000" + (p3sim._re & 0x1f).toString(2)).substr(-5).split("").join(" "));
+		$sim_debug_main.val(text.join("\n"));
 		if (show_ctrl) {
-			text.push("");
-			for (var i = 7; i < 16; i++) {
+			var text = [];
+			for (var i = 8; i < 16; i++) {
 				text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._registers[i]));
 			}
 			text.push("", "CAR: " + hex(p3sim._car));
@@ -283,8 +286,8 @@ $(window).ready(function() {
 			text.push("RI:  " + hex(p3sim._ri));
 			text.push("", "INT: " + p3sim._int);
 			text.push("z: " + (p3sim._re >> 6 & 0x1) + " c: " + (p3sim._re >> 5 & 0x1));
+			$sim_debug_control.val(text.join("\n"));
 		}
-		$sim_registers.val(text.join("\n"));
 	}
 
 	function sim_update_status(c, i, s) {
@@ -328,11 +331,14 @@ $(window).ready(function() {
 		if (show_ctrl) {
 			$sim_step_i.text("Step (Instruction)");
 			$sim_step_c.removeClass("hidden");
+			$sim_debug_control.parent().removeClass("hidden");
 		} else {
 			$sim_step_i.text("Step");
 			$sim_step_c.addClass("hidden");
+			$sim_debug_control.val("");
+			$sim_debug_control.parent().addClass("hidden");
 		}
-		sim_update_registers();
+		sim_update_debug_panel();
 	});
 
 	p3sim.registerEventHandler("start", function() {
@@ -345,14 +351,15 @@ $(window).ready(function() {
 		$sim_start.text("Start");
 	});
 	p3sim.registerEventHandler("clock", function(c, i, s) {
-		sim_update_registers();
+		sim_update_debug_panel();
 		sim_update_status(c, i, s);
 	});
 	p3sim.registerEventHandler("reset", function() {
+		sim_update_debug_panel();
 		sim_update_status(0, 0, 0);
 	});
 
-	sim_update_registers();
+	sim_update_debug_panel();
 	sim_update_status(0, 0, 0);
 
 });

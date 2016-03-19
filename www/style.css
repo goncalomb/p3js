@@ -52,3 +52,16 @@ textarea {
 	line-height: 1.2em;
 	height: 600px;
 }
+
+.tab-page-simulator table {
+	width: 100%;
+}
+
+.tab-page-simulator table td {
+	width: 85px;
+	padding: 0 2px;
+}
+
+.tab-page-simulator table td:last-child {
+	width: auto;
+}

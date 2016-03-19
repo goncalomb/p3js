@@ -49,11 +49,14 @@
 			<pre id="prog-labels" class="well"></pre>
 		</div>
 		<div class="row tab-page tab-page-simulator hidden">
-			<div class="col-md-2">
-				<textarea id="sim-registers" rows="25" readonly></textarea>
-			</div>
-			<div class="col-md-7">
-				<textarea id="sim-memory" rows="25" readonly></textarea>
+			<div class="col-md-9">
+				<table>
+					<tr>
+						<td><textarea id="sim-debug-main" rows="20" readonly></textarea></td>
+						<td class="hidden"><textarea id="sim-debug-control" rows="20" readonly></textarea></td>
+						<td><textarea id="sim-memory" rows="20" readonly></textarea></td>
+					</tr>
+				</table>
 			</div>
 			<div class="col-md-3">
 				<pre id="sim-status" class="well well-sm"></pre>

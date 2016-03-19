@@ -263,7 +263,7 @@ $(window).ready(function() {
 
 	function sim_update_registers() {
 		function hex(n) {
-			return ("000" + n.toString(16)).substr(-4);
+			return ("000" + (n & 0xffff).toString(16)).substr(-4);
 		}
 		var text = [];
 		for (var i = 0; i < 7; i++) {
@@ -271,7 +271,8 @@ $(window).ready(function() {
 		}
 		text.push("", "SP:  " + hex(p3sim._registers[14]));
 		text.push("PC:  " + hex(p3sim._registers[15]));
-		text.push("RE:  " + hex(p3sim._re));
+		text.push("", "E Z C N O");
+		text.push(("000000" + (p3sim._re & 0x1f).toString(2)).substr(-5).split("").join(" "));
 		if (show_ctrl) {
 			text.push("");
 			for (var i = 7; i < 16; i++) {
@@ -280,6 +281,8 @@ $(window).ready(function() {
 			text.push("", "CAR: " + hex(p3sim._car));
 			text.push("SBR: " + hex(p3sim._sbr));
 			text.push("RI:  " + hex(p3sim._ri));
+			text.push("", "INT: " + p3sim._int);
+			text.push("z: " + (p3sim._re >> 6 & 0x1) + " c: " + (p3sim._re >> 5 & 0x1));
 		}
 		$sim_registers.val(text.join("\n"));
 	}

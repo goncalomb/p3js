@@ -31,6 +31,7 @@ module.exports = function(p3js) {
 		// simulation variables
 		this._eventHandlers = { };
 		this._cachedMicro = null;
+		this._cachedInstruction = null;
 		this._interval = 0;
 		this._oneInstruction = false;
 		this._speed = 0;
@@ -178,7 +179,7 @@ module.exports = function(p3js) {
 	}
 
 	simulator.prototype._clock = function() {
-		var inst = this._unpackIntruction(this._ri);
+		var inst = this._cachedInstruction;
 		var micro = this._cachedMicro[this._car];
 		// control unit
 		if (micro.f && micro.ls) {
@@ -267,6 +268,7 @@ module.exports = function(p3js) {
 		// write RI
 		if (micro.f && micro.li) {
 			this._ri = this._readMemory(a);
+			this._cachedInstruction = this._unpackIntruction(this._ri);
 			this._instructionCount++;
 			return true; // just finished an instruction
 		}
@@ -294,7 +296,9 @@ module.exports = function(p3js) {
 	simulator.prototype.start = function() {
 		if (!this._interval) {
 			var sim = this;
+			// fill cache
 			this._preCacheMicro();
+			this._cachedInstruction = this._unpackIntruction(this._ri);
 			// start loop
 			var m = 1;
 			var s = ss = 0;
@@ -362,6 +366,7 @@ module.exports = function(p3js) {
 		this._ri = this._re = this._car = this._sbr = 0;
 		this._int = 0;
 		this._cachedMicro = null;
+		this._cachedInstruction = null;
 		this._clockCount = 0;
 		this._instructionCount = 0;
 		this._fireEvent("reset");

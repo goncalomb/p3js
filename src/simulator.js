@@ -110,24 +110,67 @@ module.exports = function(p3js) {
 	}
 
 	simulator.prototype._writeMemory = function(addr, val) {
-		this._memoryView.setInt16(addr * 2, val, true);
+		this._memoryView.setInt16((addr & 0xffff) * 2, val, true);
 	}
 
 	simulator.prototype._alu = function(a, b, cula, c) {
+		// In JavaScript all numbers are double-precision floating point.
+		// Bitwise operators convert the numbers to 32 bit integers and then
+		// back to floating point.
+		// The ALU (and the data bus) use 32 bit signed integers.
+		// In some instances 'result = result << 16 >> 16;' is used to replicate
+		// the sign bit and fill the upper 16 bits (making a 32 bit signed
+		// integer).
+		// If the simulator is implemented correctly these exceptions should
+		// never fire.
+		if (a !== (a & 0xffffffff) || b !== (b & 0xffffffff)) {
+			// Integers please.
+			throw "ALU error, invalid operand (not integer)";
+		}
+		var t = (a & 0xffff8000) ^ (b & 0xffff8000);
+		if (t != 0 && (t ^ 0xffff8000) != 0) {
+			// This basically checks if both operands (a, b) have all the upper
+			// 16 bits equal to the 15th bit (sign).
+			// Equivalent to checking if they are between -32768 and 32767.
+			throw "ALU error, invalid operand (invalid number)";
+		}
+		cula &= 0x1f;
+		c &= 0x1;
 		var result = 0;
 		var zero = 0, carry = 0, negative = 0, overflow = 0;
+		switch (cula) {
+			case 4: cula = 1; b = 1; break;
+			case 5: cula = 0; b = 1; break;
+			case 6:
+				b = 1;
+				cula = (!c ? 1 : 24);
+			case 7:
+				b = 1;
+				cula = (c ? 0 : 24);
+				break;
+		}
 		switch (cula) {
 			// arithmetic unit
 			// TODO: implement arithmetic unit
 			case 0:
-			case 1:
 			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-			case 7:
+				result = a + b + (cula == 2 && c ? 1 : 0);
+				carry = result >> 16 & 0x1;
+				result = result << 16 >> 16;
+				if ((((a ^ b) & 0x8000) == 0) && (((a ^ result) & 0x8000) != 0)) {
+					overflow = 1;
+				}
 				break;
+			case 1:
+			case 3:
+				result = a - b - (cula == 3 && !c ? 1 : 0);
+				carry = result >> 16 & 0x1;
+				result = result << 16 >> 16;
+				if ((((a ^ b) & 0x8000) != 0) && (((a ^ result) & 0x8000) == 0)) {
+					overflow = 1;
+				}
+				break;
+			// 4, 5, 6, 7 are handled by the previous cases
 			// logic unit
 			case 8:
 			case 12:
@@ -147,20 +190,53 @@ module.exports = function(p3js) {
 				break;
 			// shift unit
 			case 16:
+				carry = a & 0x1;
+				result = (a >> 1) & 0x00007fff; // shift and fill upper 16 bits with zero
 				break;
 			case 17:
+				carry = a >> 15 & 0x1;
+				result = a << 1;
+				if (carry != (result >> 15 & 0x1)) {
+					// sign changed
+					result = result << 16 >> 16;
+				}
 				break;
 			case 18:
+				carry = a & 0x1;
+				result = a >> 1;
 				break;
 			case 19:
+				carry = a >> 15 & 0x1;
+				result = a << 1;
+				if (carry != (result >> 15 & 0x1)) {
+					// sign changed, overflow
+					result = result << 16 >> 16;
+					overflow = 1;
+				}
 				break;
 			case 20:
+				carry = a & 0x1;
+				result = (a >> 1) & 0xffff;
+				result |= carry << 15;
+				result = result << 16 >> 16;
 				break;
 			case 21:
+				carry = a >> 15 & 0x1;
+				result = (a << 1) & 0xffff;
+				result |= carry;
+				result = result << 16 >> 16;
 				break;
 			case 22:
+				carry = a & 0x1;
+				result = (a >> 1) & 0xffff;
+				result |= c << 15;
+				result = result << 16 >> 16;
 				break;
 			case 23:
+				carry = a >> 15 & 0x1;
+				result = (a << 1) & 0xffff;
+				result |= c;
+				result = result << 16 >> 16;
 				break;
 			// passthrough
 			default:
@@ -170,11 +246,11 @@ module.exports = function(p3js) {
 		if (result == 0) {
 			zero = 1;
 		} else if ((result & 0x8000) != 0) {
-			carry = 1;
+			negative = 1;
 		}
 		return {
 			result: result,
-			zcno: (zero << 3) & (carry << 2) & (negative << 1) & overflow
+			zcno: (zero << 3) | (carry << 2) | (negative << 1) | overflow
 		};
 	}
 
@@ -305,7 +381,13 @@ module.exports = function(p3js) {
 			var t0 = Date.now();
 			this._interval = setInterval(function() {
 				for (var i = 0; i < m; i++) {
-					var finst = sim._clock();
+					var finst;
+					try {
+						finst = sim._clock();
+					} catch (e) {
+						sim.stop();
+						throw e;
+					}
 					if (finst && sim._oneInstruction) {
 						// stop simulation if just running one instruction
 						sim._fireStatusEvent("clock");

@@ -362,4 +362,6 @@ $(window).ready(function() {
 	sim_update_debug_panel();
 	sim_update_status(0, 0, 0);
 
+	require("./tab-io.js")(p3sim);
+
 });

@@ -65,3 +65,85 @@ textarea {
 .tab-page-simulator table td:last-child {
 	width: auto;
 }
+
+/* IO */
+
+#io-terminal {
+	display: block;
+	margin: 5px auto;
+	font-size: 14px;
+	color: #cfcfcf;
+	background-color: #212121;
+	overflow: hidden;
+	box-sizing: content-box;
+	width: 80ch;
+}
+
+#io-board {
+	display: table;
+	margin: 5px auto;
+	padding: 5px;
+	background-color: #212121;
+}
+
+#io-board > div {
+	margin: 10px;
+}
+
+#io-board-lcd {
+	font-family: monospace;
+	font-size: 22px;
+	line-height: 22px;
+	color: #010053;
+	background-color: #217d34;
+	box-sizing: content-box;
+	width: 16ch;
+	height: 44px;
+	padding: 5px;
+}
+
+#io-board-leds span {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 7px;
+	margin-right: 15px;
+	background-color: #727272;
+}
+
+#io-board-leds span:last-child {
+	margin-right: 0;
+}
+
+#io-board-leds span.on {
+	background-color: #de2626;
+}
+
+#io-board-7seg {
+	display: inline-block;
+	vertical-align: top;
+	font-family: monospace;
+	font-size: 110px;
+	line-height: 110px;
+	color: #de2626;
+}
+
+#io-board-buttons {
+	display: inline-block;
+	vertical-align: top;
+}
+
+#io-board-buttons .btn {
+	width: 32px;
+	margin: 5px;
+}
+
+#io-board-switches .btn {
+	width: 32px;
+	height: 32px;
+	margin: 5px;
+}
+
+#io-board-switches .btn.on {
+	background-color: #3494de;
+}

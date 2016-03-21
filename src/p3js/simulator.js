@@ -144,6 +144,7 @@ module.exports = function(p3js) {
 			case 6:
 				b = 1;
 				cula = (!c ? 1 : 24);
+				break;
 			case 7:
 				b = 1;
 				cula = (c ? 0 : 24);
@@ -151,12 +152,13 @@ module.exports = function(p3js) {
 		}
 		switch (cula) {
 			// arithmetic unit
-			// TODO: implement arithmetic unit
 			case 0:
 			case 2:
 				result = a + b + (cula == 2 && c ? 1 : 0);
-				carry = result >> 16 & 0x1;
 				result = result << 16 >> 16;
+				if ((a & b & 0x8000) != 0 || ((a ^ b) & ~result & 0x8000) != 0) {
+					carry = 1;
+				}
 				if ((((a ^ b) & 0x8000) == 0) && (((a ^ result) & 0x8000) != 0)) {
 					overflow = 1;
 				}
@@ -164,9 +166,11 @@ module.exports = function(p3js) {
 			case 1:
 			case 3:
 				result = a - b - (cula == 3 && !c ? 1 : 0);
-				carry = result >> 16 & 0x1;
 				result = result << 16 >> 16;
-				if ((((a ^ b) & 0x8000) != 0) && (((a ^ result) & 0x8000) == 0)) {
+				if ((a & ~b & 0x8000) != 0 || (~(a ^ b) & ~result & 0x8000) != 0) {
+					carry = 1;
+				}
+				if ((((a ^ b) & 0x8000) != 0) && (((a ^ result) & 0x8000) != 0)) {
 					overflow = 1;
 				}
 				break;
@@ -216,7 +220,7 @@ module.exports = function(p3js) {
 				break;
 			case 20:
 				carry = a & 0x1;
-				result = (a >> 1) & 0xffff;
+				result = (a & 0xffff) >> 1;
 				result |= carry << 15;
 				result = result << 16 >> 16;
 				break;
@@ -228,7 +232,7 @@ module.exports = function(p3js) {
 				break;
 			case 22:
 				carry = a & 0x1;
-				result = (a >> 1) & 0xffff;
+				result = (a & 0xffff) >> 1;
 				result |= c << 15;
 				result = result << 16 >> 16;
 				break;
@@ -264,7 +268,7 @@ module.exports = function(p3js) {
 		if (micro.m5 == 0) {
 			var c0 = 0;
 			if (micro.f) {
-				var c1
+				var c1;
 				switch (micro.mcond) {
 					case 0: c1 = 1;   break;
 					case 1: c1 = this._re >> 6 & 0x1; break; // z
@@ -272,7 +276,7 @@ module.exports = function(p3js) {
 					case 3: c1 = this._re >> 4 & this._int & 0x1; break; // E & INT
 					case 4: c1 = inst.m >> 0 & 0x1; break; // M0
 					case 5: c1 = inst.m >> 1 & 0x1; break; // M1
-					case 6: c1 = (inst.op >> 15) & ~(inst.op >> 14) & inst.s & 0x1; break; // RI15 & ~RI14 & S
+					case 6: c1 = (inst.op >> 5) & ~(inst.op >> 4) & inst.s & 0x1; break; // RI15 & ~RI14 & S
 					case 7:
 						switch (inst.c >> 1) {
 							case 0: c1 = this._re >> 3 & 0x1; break; // Z
@@ -282,6 +286,7 @@ module.exports = function(p3js) {
 							case 4: c1 = ~((this._re >> 3) | (this._re >> 1)) & 0x1; break; // P = ~(Z|N)
 							case 5: c1 = this._int & 0x1; break; // INT
 						}
+						c1 = c1 ^ (inst.c & 0x1);
 						break;
 				}
 				c0 = c1 ^ micro.cc;
@@ -346,10 +351,9 @@ module.exports = function(p3js) {
 			this._ri = this._readMemory(a);
 			this._cachedInstruction = this._unpackIntruction(this._ri);
 			this._instructionCount++;
-			return true; // just finished an instruction
 		}
 		this._clockCount++;
-		return false;
+		return (micro.f && micro.li); // finished an instruction?
 	};
 
 	simulator.prototype.registerEventHandler = function(name, fn) {
@@ -424,6 +428,7 @@ module.exports = function(p3js) {
 	simulator.prototype.stepClock = function() {
 		this.stop();
 		this._preCacheMicro();
+		this._cachedInstruction = this._unpackIntruction(this._ri);
 		this._clock();
 		this._fireStatusEvent("clock");
 	}

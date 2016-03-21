@@ -30,6 +30,8 @@ module.exports = function(p3js) {
 		this._int = 0;           // interrupt flag
 		// simulation variables
 		this._eventHandlers = { };
+		this._ioReadHandlers = {};
+		this._ioWriteHandlers = {};
 		this._cachedMicro = null;
 		this._cachedInstruction = null;
 		this._interval = 0;
@@ -106,11 +108,25 @@ module.exports = function(p3js) {
 	}
 
 	simulator.prototype._readMemory = function(addr) {
-		return this._memoryView.getInt16((addr & 0xffff) * 2, true);
+		addr &= 0xffff;
+		if (this._ioReadHandlers[addr]) {
+			return this._ioReadHandlers[addr]() << 16 >> 16;
+		} else if (this._ioWriteHandlers[addr]) {
+			return 0; // this is a write only address, return 0
+		} else {
+			return this._memoryView.getInt16(addr * 2, true);
+		}
 	}
 
 	simulator.prototype._writeMemory = function(addr, val) {
-		this._memoryView.setInt16((addr & 0xffff) * 2, val, true);
+		addr &= 0xffff;
+		if (this._ioWriteHandlers[addr]) {
+			this._ioWriteHandlers[addr](val & 0xffff);
+		} else if (this._ioReadHandlers[addr]) {
+			 // this is a read only address, do nothing
+		} else {
+			this._memoryView.setInt16(addr * 2, val, true);
+		}
 	}
 
 	simulator.prototype._alu = function(a, b, cula, c) {
@@ -364,6 +380,36 @@ module.exports = function(p3js) {
 			this._eventHandlers[name].push(fn);
 		}
 	};
+
+	simulator.prototype.setIOHandler = function(obj) {
+		if (!obj) {
+			this._ioReadHandlers = {};
+			this._ioWriteHandlers = {};
+			return;
+		}
+		var empty_handler = function() { return 0 };
+		function get_handler(name) {
+			return (obj[name] && typeof obj[name] == "function" ? obj[name] : empty_handler);
+		}
+		this._ioWriteHandlers[0xfff0] = get_handler("set7Seg0");
+		this._ioWriteHandlers[0xfff1] = get_handler("set7Seg1");
+		this._ioWriteHandlers[0xfff2] = get_handler("set7Seg2");
+		this._ioWriteHandlers[0xfff3] = get_handler("set7Seg3");
+		this._ioWriteHandlers[0xfff4] = get_handler("lcdWrite");
+		this._ioWriteHandlers[0xfff5] = get_handler("lcdControl");
+		this._ioWriteHandlers[0xfff6] = get_handler("timerSet");
+		this._ioReadHandlers[0xfff6] = get_handler("timerGet");
+		this._ioWriteHandlers[0xfff7] = get_handler("timerControlSet");
+		this._ioReadHandlers[0xfff7] = get_handler("timerControlGet");
+		this._ioWriteHandlers[0xfff8] = get_handler("ledsWrite");
+		this._ioReadHandlers[0xfff9] = get_handler("switchesRead");
+		this._ioWriteHandlers[0xfffa] = get_handler("intMaskWrite");
+		this._ioReadHandlers[0xfffa] = get_handler("intMaskRead");
+		this._ioWriteHandlers[0xfffc] = get_handler("terminalControl");
+		this._ioReadHandlers[0xfffd] = get_handler("terminalState");
+		this._ioWriteHandlers[0xfffe] = get_handler("terminalWrite");
+		this._ioReadHandlers[0xffff] = get_handler("terminalRead");
+	}
 
 	simulator.prototype.loadMemory = function(buffer) {
 		this.reset();

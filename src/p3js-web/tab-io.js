@@ -1,4 +1,4 @@
-module.exports = function(p3sim) {
+module.exports = function(share, p3sim) {
 
 	var $io_terminal = $("#io-terminal");
 	var $io_board_lcd = $("#io-board-lcd");

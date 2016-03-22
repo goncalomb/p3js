@@ -1,6 +1,6 @@
 var webpack = require("webpack");
 var path = require("path");
-var output_path = path.join(__dirname, "www", "scripts");
+var output_path = path.join(__dirname, "www", "static", "js");
 var copyright = "Copyright (C) 2016 Gonçalo Baltazar <me@goncalomb.com>";
 
 module.exports = [{

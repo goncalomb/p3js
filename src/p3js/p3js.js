@@ -105,6 +105,10 @@ module.exports = (function() {
 		ROM_C_SIZE: (1 << 9),   // 512 positions
 		ROM_C_WORD_SIZE: 4,     // 32 bits
 
+		FIRST_ADDRESS: 0x0000,
+		LAST_ADDRESS: 0xffff,
+		IO_FIRST_ADDRESS: 0xff00,
+
 		REGISTER_0: 0,
 		REGISTER_SP: 14,
 		REGISTER_PC: 15,

@@ -109,10 +109,12 @@ module.exports = function(p3js) {
 
 	simulator.prototype._readMemory = function(addr) {
 		addr &= 0xffff;
-		if (this._ioReadHandlers[addr]) {
-			return this._ioReadHandlers[addr]() << 16 >> 16;
-		} else if (this._ioWriteHandlers[addr]) {
-			return 0; // this is a write only address, return 0
+		if (addr >= IO_FIRST_ADDRESS) {
+			if (this._ioReadHandlers[addr]) {
+				return this._ioReadHandlers[addr].call(this) << 16 >> 16;
+			} else {
+				return -1; // not a valid IO read address, return -1
+			}
 		} else {
 			return this._memoryView.getInt16(addr * 2, true);
 		}
@@ -120,10 +122,10 @@ module.exports = function(p3js) {
 
 	simulator.prototype._writeMemory = function(addr, val) {
 		addr &= 0xffff;
-		if (this._ioWriteHandlers[addr]) {
-			this._ioWriteHandlers[addr](val & 0xffff);
-		} else if (this._ioReadHandlers[addr]) {
-			 // this is a read only address, do nothing
+		if (addr >= IO_FIRST_ADDRESS) {
+			if (this._ioWriteHandlers[addr]) {
+				this._ioWriteHandlers[addr].call(this, val & 0xffff);
+			}
 		} else {
 			this._memoryView.setInt16(addr * 2, val, true);
 		}
@@ -381,34 +383,22 @@ module.exports = function(p3js) {
 		}
 	};
 
-	simulator.prototype.setIOHandler = function(obj) {
-		if (!obj) {
+	simulator.prototype.setIOHandlers = function(read, write) {
+		if (!read && !write) {
 			this._ioReadHandlers = {};
 			this._ioWriteHandlers = {};
 			return;
 		}
-		var empty_handler = function() { return 0 };
-		function get_handler(name) {
-			return (obj[name] && typeof obj[name] == "function" ? obj[name] : empty_handler);
+		for (var key in read) {
+			if (key >= IO_FIRST_ADDRESS && key <= LAST_ADDRESS && typeof read[key] == "function") {
+				this._ioReadHandlers[key] = read[key];
+			}
 		}
-		this._ioWriteHandlers[0xfff0] = get_handler("set7Seg0");
-		this._ioWriteHandlers[0xfff1] = get_handler("set7Seg1");
-		this._ioWriteHandlers[0xfff2] = get_handler("set7Seg2");
-		this._ioWriteHandlers[0xfff3] = get_handler("set7Seg3");
-		this._ioWriteHandlers[0xfff4] = get_handler("lcdWrite");
-		this._ioWriteHandlers[0xfff5] = get_handler("lcdControl");
-		this._ioWriteHandlers[0xfff6] = get_handler("timerSet");
-		this._ioReadHandlers[0xfff6] = get_handler("timerGet");
-		this._ioWriteHandlers[0xfff7] = get_handler("timerControlSet");
-		this._ioReadHandlers[0xfff7] = get_handler("timerControlGet");
-		this._ioWriteHandlers[0xfff8] = get_handler("ledsWrite");
-		this._ioReadHandlers[0xfff9] = get_handler("switchesRead");
-		this._ioWriteHandlers[0xfffa] = get_handler("intMaskWrite");
-		this._ioReadHandlers[0xfffa] = get_handler("intMaskRead");
-		this._ioWriteHandlers[0xfffc] = get_handler("terminalControl");
-		this._ioReadHandlers[0xfffd] = get_handler("terminalState");
-		this._ioWriteHandlers[0xfffe] = get_handler("terminalWrite");
-		this._ioReadHandlers[0xffff] = get_handler("terminalRead");
+		for (var key in write) {
+			if (key >= IO_FIRST_ADDRESS && key <= LAST_ADDRESS && typeof write[key] == "function") {
+				this._ioWriteHandlers[key] = write[key];
+			}
+		}
 	}
 
 	simulator.prototype.loadMemory = function(buffer) {

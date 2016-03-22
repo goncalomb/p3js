@@ -52,17 +52,20 @@ module.exports = function(p3sim) {
 		update_7seg(0);
 	});
 
-	p3sim.setIOHandler({
-		set7Seg0: function(v) {
+	p3sim.setIOHandlers({
+		// IO read addresses
+	}, {
+		// IO write addresses
+		0xfff0: function(v) { // 7 segment write 0
 			update_7seg((seg7_value & 0xfff0) | (v & 0xf));
 		},
-		set7Seg1: function(v) {
+		0xfff1: function(v) { // 7 segment write 1
 			update_7seg((seg7_value & 0xff0f) | ((v & 0xf) << 4));
 		},
-		set7Seg2: function(v) {
+		0xfff2: function(v) { // 7 segment write 2
 			update_7seg((seg7_value & 0xf0ff) | ((v & 0xf) << 8));
 		},
-		set7Seg3: function(v) {
+		0xfff3: function(v) { // 7 segment write 3
 			update_7seg((seg7_value & 0x0fff) | ((v & 0xf) << 12));
 		}
 	});

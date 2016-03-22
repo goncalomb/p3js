@@ -75,6 +75,7 @@ textarea {
 	color: #cfcfcf;
 	background-color: #212121;
 	overflow: hidden;
+	white-space: pre;
 	box-sizing: content-box;
 	width: 80ch;
 }

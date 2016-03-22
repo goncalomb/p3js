@@ -5,25 +5,21 @@ module.exports = function(share, p3sim) {
 	var $prog_label_info = $("#prog-label-info");
 	var $prog_labels = $("#prog-labels");
 
-	// XXX: refactor canvas code
-	var mem_footprint_ctx = $prog_memory_footprint[0].getContext("2d");
-	mem_footprint_ctx.textBaseline = "top";
-	mem_footprint_ctx.font = "12px monospace";
-	var mfl_dx = 5;
-	function draw_canvas_label(name, color) {
-		mem_footprint_ctx.fillStyle = color;
-		mem_footprint_ctx.fillRect(mfl_dx, 256 + 5, 10, 10);
-		mem_footprint_ctx.fillStyle = "#222";
-		mem_footprint_ctx.fillText(name, mfl_dx + 12, 256 + 4);
-		mfl_dx += mem_footprint_ctx.measureText(name).width + 30;
-	}
+	var MemoryFootprintChart = require("./MemoryFootprintChart.js");
+	var mfc = new MemoryFootprintChart($prog_memory_footprint[0]);
+	mfc.addLabel("Empty");
+	mfc.addLabel("WORD", "#12d");
+	mfc.addLabel("STR", "#2d1");
+	mfc.addLabel("TAB", "#d21");
+	mfc.addLabel("Instructions", "#222");
+
 	share.clearProgramInfo = function() {
 		$prog_mem_info.text("");
 		$prog_label_info.text("");
+		mfc.clear();
 		$prog_labels.html("<em>Assemble a program first.</em>\n");
-		mem_footprint_ctx.clearRect(0, 0, 1024, 256);
-		mem_footprint_ctx.fillText("Assemble a program first.", 5, 5);
 	}
+
 	share.buildProgramInfo = function(data) {
 		var memory_percent = Math.floor(data.memoryUsage*10000/p3js.constants.MEMORY_SIZE)/100;
 		$prog_mem_info.text(data.memoryUsage + "/" + p3js.constants.MEMORY_SIZE + " (" + memory_percent + "%) used");
@@ -42,29 +38,19 @@ module.exports = function(share, p3sim) {
 		}
 		$prog_labels.text(references.join(""));
 		data.usedAddresses.forEach(function(value, i) {
-			var x = (i%512);
-			var y = Math.floor(i/512);
 			if (value == 1) {
-				mem_footprint_ctx.fillStyle = "#222";
+				mfc.drawSquare(i, "#222");
 			} else if (value == 2) {
-				mem_footprint_ctx.fillStyle = "#12d";
+				mfc.drawSquare(i, "#12d");
 			} else if (value == 3) {
-				mem_footprint_ctx.fillStyle = "#2d1";
+				mfc.drawSquare(i, "#2d1");
 			} else if (value == 4) {
-				mem_footprint_ctx.fillStyle = "#d21";
-			} else if (i%2 == y%2) {
-				mem_footprint_ctx.fillStyle = "#ddd";
+				mfc.drawSquare(i, "#d21");
 			} else {
-				mem_footprint_ctx.fillStyle = "#eee";
+				mfc.drawSquare(i);
 			}
-			mem_footprint_ctx.fillRect(x*2, y*2, 2, 2);
 		});
 	}
 	share.clearProgramInfo();
-	draw_canvas_label("Empty", "#d7d7d7");
-	draw_canvas_label("WORD", "#12d");
-	draw_canvas_label("STR", "#2d1");
-	draw_canvas_label("TAB", "#d21");
-	draw_canvas_label("Instructions", "#222");
 
 };

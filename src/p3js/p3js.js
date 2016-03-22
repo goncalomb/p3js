@@ -186,6 +186,8 @@ module.exports = (function() {
 		return buffer.slice(0, p);
 	}
 
+	p3js.ObjectCodeWriter = require("./ObjectCodeWriter.js")(p3js);
+
 	p3js.parser = require("./parser.js")(p3js);
 	p3js.assembler = require("./assembler.js")(p3js);
 	require("./simulator.js")(p3js);

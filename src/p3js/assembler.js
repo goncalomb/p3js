@@ -3,101 +3,12 @@ module.exports = function(p3js) {
 	var assembler = { };
 	eval(p3js.extractConstants());
 
-	var BufferEx = function(size) {
-		this.buffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-		this._view = new DataView(this.buffer);
-		this._usedAddresses = Array.apply(null, Array(MEMORY_SIZE)).map(Number.prototype.valueOf, 0);
-		this._position = 0;
-	}
-
-	BufferEx.prototype.getPosition = function() {
-		if (this._position >= MEMORY_SIZE) {
-			throw "Internal Error: invalid memory position"
-		}
-		return this._position;
-	}
-
-	BufferEx.prototype.setPosition = function(pos) {
-		if (pos >= MEMORY_SIZE) {
-			throw "Internal Error: invalid memory position"
-		}
-		this._position = pos;
-	}
-
-	BufferEx.prototype.movePosition = function(off) {
-		this._position += off;
-	}
-
-	BufferEx.prototype.getUsedAddresses = function() {
-		return this._usedAddresses;
-	};
-
-	BufferEx.prototype.write = function(value, t) {
-		if (this._position >= MEMORY_SIZE) {
-			throw "Internal Error: end of memory reached"
-		}
-		if (this._usedAddresses[this._position]) {
-			throw "Internal Error: overlapping memory"
-		}
-		this._view.setInt16(this._position * 2, value, true);
-		this._usedAddresses[this._position] = (t || 1);
-		this._position++;
-	}
-
-	BufferEx.prototype.writeInstZero = function(op) {
-		op = op & 0x3f; // 6 bits
-		this.write(op << 10);
-	}
-
-	BufferEx.prototype.writeInstConstant = function(op, c) {
-		op = op & 0x3f; // 6 bits
-		this.write((op << 10) | (c & 0x3ff));
-	}
-
-	BufferEx.prototype.writeInstOneC = function(op, c, m, r, w) {
-		op = op & 0x3f; // 6 bits
-		c = c & 0x0f; // 4 bits
-		m = m & 0x03; // 2 bits
-		r = r & 0x0f; // 4 bits
-		if (m == 2) {
-			r = 0;
-		}
-		this.write((op << 10) | (c << 6) | (m << 4) | r);
-		if (m == 2 || m == 3) {
-			this.write(w);
-		}
-	}
-
-	BufferEx.prototype.writeInstOne = function(op, m, r, w) {
-		this.writeInstOneC(op, 0, m, r, w);
-	}
-
-	BufferEx.prototype.writeInstTwo = function(op, s, r0, m, r1, w) {
-		s = s & 0x01 // 1 bits
-		r0 = r0 & 0x07; // 3 bits
-		this.writeInstOneC(op, ((s << 3) | r0), m, r1, w);
-	}
-
-	BufferEx.prototype.writeJump = BufferEx.prototype.writeInstOne;
-	BufferEx.prototype.writeJumpC = BufferEx.prototype.writeInstOneC;
-
-	BufferEx.prototype.writeJumpR = function(op, d) {
-		this.writeJumpRC(op, 0, d);
-	}
-
-	BufferEx.prototype.writeJumpRC = function(op, c, d) {
-		op = op & 0x3f; // 6 bits
-		c = c & 0x0f; // 4 bits
-		d = d & 0x3f; // 6 bits
-		this.write((op << 10) | (c << 6) | d);
-	}
-
 	assembler.assembleData = function(data) {
-		var buffer = new BufferEx();
+		var writer = new p3js.ObjectCodeWriter();
 		var labels = { };
 
 		var result = {
-			buffer: buffer.buffer,
+			buffer: writer.buffer,
 			usedAddresses: null,
 			labels: labels,
 			labelCount: 0,
@@ -177,35 +88,35 @@ module.exports = function(p3js) {
 
 			switch (inst.i) {
 				case "ORIG":
-					buffer.setPosition(inst.o[0].w);
+					writer.setPosition(inst.o[0].w);
 					continue;
 				case "EQU":
 					set_label(inst.l, inst.o[0].w);
 					continue;
 				case "WORD":
-					set_label(inst.l, buffer.getPosition());
-					buffer.movePosition(1);
+					set_label(inst.l, writer.getPosition());
+					writer.movePosition(1);
 					continue;
 				case "STR":
-					set_label(inst.l, buffer.getPosition());
+					set_label(inst.l, writer.getPosition());
 					inst.o.forEach(function(o) {
 						if (o.type == OPRD_TYPE_STRING) {
-							buffer.movePosition(o.w.length);
+							writer.movePosition(o.w.length);
 						} else if (o.type == OPRD_TYPE_IMMEDIATE) {
-							buffer.movePosition(1);
+							writer.movePosition(1);
 						} else {
 							throw "Invalid operand for STR, on line " + inst.n;
 						}
 					});
 					continue;
 				case "TAB":
-					set_label(inst.l, buffer.getPosition());
-					buffer.movePosition(inst.o[0].w);
+					set_label(inst.l, writer.getPosition());
+					writer.movePosition(inst.o[0].w);
 					continue;
 			}
 
 			if (inst.l) {
-				set_label(inst.l, buffer.getPosition());
+				set_label(inst.l, writer.getPosition());
 			}
 
 			// process instructions
@@ -217,29 +128,29 @@ module.exports = function(p3js) {
 				case "0c":
 				case "jr":
 				case "jrc":
-					buffer.movePosition(1);
+					writer.movePosition(1);
 					continue;
 				case "1":
 				case "1c":
 				case "j":
 				case "jc":
 					if (operand_0.w === undefined) { // TODO: don't check for w, use type
-						buffer.movePosition(1);
+						writer.movePosition(1);
 					} else {
-						buffer.movePosition(2);
+						writer.movePosition(2);
 					}
 					continue;
 				case "2":
 					if (operand_0.w === undefined && operand_1.w === undefined) { // TODO: don't check for w, use type
-						buffer.movePosition(1);
+						writer.movePosition(1);
 					} else {
-						buffer.movePosition(2);
+						writer.movePosition(2);
 					}
 					continue;
 			}
 		}
 
-		buffer.setPosition(0);
+		writer.setPosition(0);
 
 		// second pass, assemble
 		for (var i = 0, l = data.length; i < l; i++) {
@@ -252,22 +163,22 @@ module.exports = function(p3js) {
 			result.pseudoCount++;
 			switch (inst.i) {
 				case "ORIG":
-					buffer.setPosition(inst.o[0].w);
+					writer.setPosition(inst.o[0].w);
 					continue;
 				case "EQU":
 					// done on first pass
 					continue;
 				case "WORD":
-					buffer.write(inst.o[0].w, 2);
+					writer.write(inst.o[0].w, 2);
 					continue;
 				case "STR":
 					inst.o.forEach(function(o) {
 						if (o.type == OPRD_TYPE_STRING) {
 							for (var j = 0, l = o.w.length; j < l; j++) {
-								buffer.write(o.w.charCodeAt(j), 3);
+								writer.write(o.w.charCodeAt(j), 3);
 							}
 						} else if (o.type == OPRD_TYPE_IMMEDIATE) {
-							buffer.write(get_w(o), 3);
+							writer.write(get_w(o), 3);
 						} else {
 							throw "Invalid operand for STR, on line " + inst.n;
 						}
@@ -275,7 +186,7 @@ module.exports = function(p3js) {
 					continue;
 				case "TAB":
 					for (var j = 0; j < inst.o[0].w; j++) {
-						buffer.write(0, 4);
+						writer.write(0, 4);
 					}
 					continue;
 			}
@@ -283,7 +194,7 @@ module.exports = function(p3js) {
 
 			// check if the labels are correctly placed
 			if (inst.l) {
-				if (labels[inst.l] === undefined || labels[inst.l] != buffer.getPosition()) {
+				if (labels[inst.l] === undefined || labels[inst.l] != writer.getPosition()) {
 					throw "Assembler Error: first pass failed"
 				}
 			}
@@ -295,7 +206,7 @@ module.exports = function(p3js) {
 			result.instructionCount++;
 			switch (inst_dec.type) {
 				case "0":
-					buffer.writeInstZero(inst_dec.opcode);
+					writer.writeInstZero(inst_dec.opcode);
 					continue;
 				case "0c":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
@@ -303,7 +214,7 @@ module.exports = function(p3js) {
 					}
 					var w = get_w(operand_0);
 					// TODO: check constant size, these constants are 10 bit long
-					buffer.writeInstConstant(inst_dec.opcode, w);
+					writer.writeInstConstant(inst_dec.opcode, w);
 					continue;
 				case "1":
 				case "j":
@@ -312,7 +223,7 @@ module.exports = function(p3js) {
 					var w = get_w(operand_0);
 					// XXX: some instructions may not accept OPRD_TYPE_IMMEDIATE
 					// XXX: do some tests with OPRD_TYPE_SP and OPRD_TYPE_BASED
-					buffer.writeInstOne(inst_dec.opcode, m, r, w);
+					writer.writeInstOne(inst_dec.opcode, m, r, w);
 					continue;
 				case "1c":
 					var m = get_m(operand_0);
@@ -324,7 +235,7 @@ module.exports = function(p3js) {
 					var w = get_w(operand_0);
 					// TODO: don't accept OPRD_TYPE_IMMEDIATE
 					// TODO: check constant size, these constants are 4 bit long
-					buffer.writeInstOneC(inst_dec.opcode, c, m, r, w);
+					writer.writeInstOneC(inst_dec.opcode, c, m, r, w);
 					continue;
 				case "2":
 					if (operand_0.type == OPRD_TYPE_IMMEDIATE) {
@@ -349,37 +260,37 @@ module.exports = function(p3js) {
 					var m = get_m(other_operand);
 					var r = get_r(other_operand);
 					var w = get_w(other_operand);
-					buffer.writeInstTwo(inst_dec.opcode, s, reg, m, r, w);
+					writer.writeInstTwo(inst_dec.opcode, s, reg, m, r, w);
 					continue;
 				case "jc":
 					var m = get_m(operand_0);
 					var c = p3js.conditions[inst.c].code;
 					var r = get_r(operand_0);
 					var w = get_w(operand_0);
-					buffer.writeJumpC(inst_dec.opcode, c, m, r, w);
+					writer.writeJumpC(inst_dec.opcode, c, m, r, w);
 					continue;
 				case "jr":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
 						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 					}
-					var d = get_w(operand_0) - buffer.getPosition() - 1;
+					var d = get_w(operand_0) - writer.getPosition() - 1;
 					// TODO: check jump distance
-					buffer.writeJumpR(inst_dec.opcode, d);
+					writer.writeJumpR(inst_dec.opcode, d);
 					continue;
 				case "jrc":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
 						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 					}
 					var c = p3js.conditions[inst.c].code;
-					var d = get_w(operand_0) - buffer.getPosition() - 1;
+					var d = get_w(operand_0) - writer.getPosition() - 1;
 					// TODO: check jump distance
-					buffer.writeJumpRC(inst_dec.opcode, c, d);
+					writer.writeJumpRC(inst_dec.opcode, c, d);
 					continue;
 			}
 			console.log(inst.i);
 		}
 
-		result.usedAddresses = buffer.getUsedAddresses();
+		result.usedAddresses = writer.getUsedAddresses();
 		result.usedAddresses.forEach(function(v) {
 			if (v) {
 				result.memoryUsage++;

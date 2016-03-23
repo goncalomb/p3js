@@ -68,6 +68,14 @@ textarea {
 
 /* IO */
 
+.sim-io-visible .nav-tabs *[href="#io"] {
+	display: none;
+}
+
+.sim-io-visible .tab-page-simulator:not(.hidden) ~ .tab-page-io {
+	display: block !important;
+}
+
 #io-terminal, #io-board {
 	border: 2px solid gray;
 	border-radius: 5px;

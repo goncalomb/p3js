@@ -11,8 +11,10 @@ module.exports = function(share, p3sim) {
 	var $sim_step_c = $("#sim-step-c");
 	var $sim_reset = $("#sim-reset");
 	var $sim_show_ctrl = $("#sim-show-ctrl");
+	var $sim_show_io = $("#sim-show-io");
 
 	var show_ctrl = false;
+	var show_io = false;
 
 	function sim_update_debug_panel() {
 		function hex(n) {
@@ -91,6 +93,19 @@ module.exports = function(share, p3sim) {
 			$sim_debug_control.parent().addClass("hidden");
 		}
 		sim_update_debug_panel();
+	});
+
+	$sim_show_io.change(function() {
+		show_io = this.checked;
+		$(".tab-page-io .ui-draggable").css({
+			top: "0px",
+			left: "0px"
+		});
+		if (show_io) {
+			$body.addClass("sim-io-visible");
+		} else {
+			$body.removeClass("sim-io-visible");
+		}
 	});
 
 	p3sim.registerEventHandler("start", function() {

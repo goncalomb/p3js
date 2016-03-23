@@ -88,6 +88,8 @@ $(window).ready(function() {
 			}
 		} else if (hash == "") {
 			hash = "assembler";
+		} else if (hash == "io" && $(document.body).hasClass("sim-io-visible")) {
+			return;
 		}
 		var $tab = $(".tab-page-" + hash);
 		if ($tab.length > 0) {

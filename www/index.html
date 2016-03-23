@@ -7,7 +7,9 @@
 		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/fontawesome/4.5.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/codemirror/4.5.0/codemirror.css">
 		<link rel="stylesheet" type="text/css" href="static/css/main.css">
+		<link rel="stylesheet" type="text/css" href="static/css/draggable.css">
 		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/2.2.0/jquery.min.js"></script>
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.ui/1.11.4/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="https://cdn.jsdelivr.net/g/codemirror@4.5.0(codemirror.min.js+addon/display/rulers.js)"></script>
 		<script type="text/javascript" src="static/js/p3js-bundle.js"></script>
 		<script type="text/javascript" src="static/js/p3js-web-bundle.js"></script>
@@ -79,7 +81,9 @@
 					<div id="io-board-buttons"></div>
 					<div id="io-board-switches"></div>
 				</div>
-				<textarea id="io-terminal" cols="80" rows="24" readonly></textarea>
+				<div id="io-terminal-wrapper">
+					<textarea id="io-terminal" cols="80" rows="24" readonly></textarea>
+				</div
 				</table>
 			</div>
 		</div>

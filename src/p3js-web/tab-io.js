@@ -1,6 +1,8 @@
 module.exports = function(share, p3sim) {
 
 	var $io_terminal = $("#io-terminal");
+	var $io_terminal_wrapper = $("#io-terminal-wrapper");
+	var $io_board = $("#io-board");
 	var $io_board_lcd = $("#io-board-lcd");
 	var $io_board_leds = $("#io-board-leds");
 	var $io_board_7seg = $("#io-board-7seg");
@@ -60,6 +62,9 @@ module.exports = function(share, p3sim) {
 			}
 		}).appendTo($io_board_switches);
 	}
+
+	share.createDraggableElement($io_board);
+	share.createDraggableElement($io_terminal_wrapper);
 
 	// register p3 simulator handlers
 

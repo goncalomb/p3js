@@ -1,0 +1,25 @@
+.ui-draggable {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.ui-draggable .ui-draggable-handle {
+	opacity: 0;
+	margin: 0 !important;
+	padding: 5px;
+	font-size: 16px;
+	line-height: 16px;
+	position: absolute;
+	top: -13px;
+	left: -13px;
+	background-color: #d2d2d2;
+	border-radius: 5px;
+	cursor: move;
+	z-index: 100;
+}
+
+.ui-draggable:hover .ui-draggable-handle, .draggable-handle:hover {
+	opacity: 1;
+}

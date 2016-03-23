@@ -68,9 +68,17 @@ textarea {
 
 /* IO */
 
-#io-terminal {
-	display: block;
+#io-terminal, #io-board {
+	border: 2px solid gray;
+	border-radius: 5px;
+}
+
+#io-terminal-wrapper {
+	display: table;
 	margin: 5px auto;
+}
+
+#io-terminal {
 	font-size: 14px;
 	color: #cfcfcf;
 	background-color: #212121;

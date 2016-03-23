@@ -26,6 +26,21 @@ $(window).ready(function() {
 		});
 	}
 
+	share.createDraggableElement = function($element) {
+		var $handle = $("<div>").prependTo($element);
+		$("<i>").addClass("fa fa-arrows").appendTo($handle);
+		$(document.createTextNode(" Drag Me")).appendTo($handle);
+		var bring_to_top = function() {
+			$(".ui-draggable").css("z-index", 0);
+			$element.css("z-index", 50);
+		};
+		$element.click(bring_to_top);
+		$element.draggable({
+			handle: $handle,
+			start: bring_to_top
+		});
+	};
+
 	// fullscreen
 	function request_fullscreen(elem) {
 		var fn = (

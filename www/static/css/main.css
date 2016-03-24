@@ -53,6 +53,10 @@ textarea {
 	height: 600px;
 }
 
+.tab-page-program {
+	overflow-x: auto;
+}
+
 .tab-page-simulator table {
 	width: 100%;
 }

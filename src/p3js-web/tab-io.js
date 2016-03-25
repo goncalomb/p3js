@@ -11,6 +11,7 @@ module.exports = function(share, p3sim) {
 	var $leds = [];
 
 	var seg7_value = 0;
+	var switches_value = 0;
 	var terminal_x = -1;
 	var terminal_y = -1;
 	var terminal_last_key = 0;
@@ -18,6 +19,11 @@ module.exports = function(share, p3sim) {
 	function update_7seg(value) {
 		seg7_value = value;
 		$io_board_7seg.text(("0000" + seg7_value.toString(16)).substr(-4));
+	}
+
+	function reset_switches() {
+		switches_value = 0;
+		$io_board_switches.children().removeClass("on");
 	}
 
 	function reset_terminal() {
@@ -52,15 +58,20 @@ module.exports = function(share, p3sim) {
 	create_button_row([1,  2,  3, 14]);
 	create_button_row([0, 10, 11]);
 
-	for (var i = 0; i < 8; i++) {
+	function create_switch(i) {
 		$("<button>").addClass("btn").click(function() {
 			var $this = $(this);
 			if ($this.hasClass("on")) {
 				$this.removeClass("on");
+				switches_value &= ~(1 << (7 - i));
 			} else {
 				$this.addClass("on");
+				switches_value |= 1 << (7 - i);
 			}
 		}).appendTo($io_board_switches);
+	}
+	for (var i = 0; i < 8; i++) {
+		create_switch(i);
 	}
 
 	share.createDraggableElement($io_board);
@@ -70,11 +81,15 @@ module.exports = function(share, p3sim) {
 
 	p3sim.registerEventHandler("reset", function() {
 		update_7seg(0);
+		reset_switches();
 		reset_terminal();
 	});
 
 	p3sim.setIOHandlers({
 		// IO read addresses
+		0xfff9: function() { // switches
+			return switches_value;
+		},
 		0xfffd: function() { // terminal state
 			return (terminal_last_key ? 1 : 0);
 		},
@@ -96,6 +111,15 @@ module.exports = function(share, p3sim) {
 		},
 		0xfff3: function(v) { // 7 segment write 3
 			update_7seg((seg7_value & 0x0fff) | ((v & 0xf) << 12));
+		},
+		0xfff8: function(v) { // leds
+			for (var i = 0; i < 16; i++) {
+				if (((v << i) & 0x8000) == 0) {
+					$leds[i].removeClass("on");
+				} else {
+					$leds[i].addClass("on");
+				}
+			}
 		},
 		0xfffc: function(v) { // terminal control
 			if (v == 0xffff) {

@@ -107,16 +107,18 @@ textarea {
 	background-color: #212121;
 }
 
-#io-board > div {
+#io-board > * {
 	margin: 10px;
 }
 
 #io-board-lcd {
+	display: block;
 	font-family: monospace;
 	font-size: 22px;
 	line-height: 22px;
 	color: #010053;
 	background-color: #217d34;
+	border: none;
 	box-sizing: content-box;
 	width: 16ch;
 	height: 44px;

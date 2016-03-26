@@ -10,11 +10,23 @@ module.exports = function(share, p3sim) {
 	var $io_board_switches = $("#io-board-switches");
 	var $leds = [];
 
+	var lcd_active = true;
+	var lcd_x = 0;
+	var lcd_y = 0;
+	var lcd_text = null;
 	var seg7_value = 0;
 	var switches_value = 0;
 	var terminal_x = -1;
 	var terminal_y = -1;
 	var terminal_last_key = 0;
+
+	function reset_lcd() {
+		lcd_active = true;
+		lcd_x = 0;
+		lcd_y = 0;
+		lcd_text = null;
+		$io_board_lcd.val("");
+	}
 
 	function update_7seg(value) {
 		seg7_value = value;
@@ -80,6 +92,7 @@ module.exports = function(share, p3sim) {
 	// register p3 simulator handlers
 
 	p3sim.registerEventHandler("reset", function() {
+		reset_lcd();
 		update_7seg(0);
 		reset_switches();
 		reset_terminal();
@@ -111,6 +124,37 @@ module.exports = function(share, p3sim) {
 		},
 		0xfff3: function(v) { // 7 segment write 3
 			update_7seg((seg7_value & 0x0fff) | ((v & 0xf) << 12));
+		},
+		0xfff4: function(v) { // lcd control
+			if ((v & 0x20) != 0) {
+				$io_board_lcd.val("");
+				lcd_text = null;
+			}
+			if ((v & 0x8000) == 0) {
+				$io_board_lcd.val("");
+				lcd_active = false;
+			} else {
+				if (!lcd_active && lcd_text) {
+					$io_board_lcd.val(lcd_text.join("\n"));
+				}
+				lcd_active = true;
+			}
+			lcd_x = v & 0xf;
+			lcd_y = v >> 4 & 0x1;
+		},
+		0xfff5: function(v) { // lcd write
+			if (!lcd_text) {
+				lcd_text = [
+					Array(16 + 1).join(" "),
+					Array(16 + 1).join(" ")
+				];
+			}
+			var str = lcd_text[lcd_y];
+			str = str.substr(0, lcd_x) + String.fromCharCode(v) + str.substr(lcd_x + 1, str.length);
+			lcd_text[lcd_y] = str;
+			if (lcd_active) {
+				$io_board_lcd.val(lcd_text.join("\n"));
+			}
 		},
 		0xfff8: function(v) { // leds
 			for (var i = 0; i < 16; i++) {

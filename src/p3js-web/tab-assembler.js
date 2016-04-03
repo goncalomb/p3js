@@ -3,10 +3,21 @@ module.exports = function(share, p3sim) {
 	var $document = $(document);
 
 	var $load_demo = $("#load-demo")
-	var $output = $("#output");
 	var $assemble = $("#assemble");
 	var $assemble_run = $("#assemble-run");
 	var $assemble_dl = $("#assemble-dl");
+	var $asm_info = $("#asm-info");
+
+	function asm_info_add(message, cssClass) {
+		if (message) {
+			var $li = $("<li>").text(message).appendTo($asm_info);
+			if (cssClass) {
+				$li.attr("class", cssClass);
+			}
+		} else {
+			$asm_info.html("");
+		}
+	}
 
 	// editor
 	var $code = $("#code");
@@ -65,45 +76,54 @@ module.exports = function(share, p3sim) {
 	});
 	load_demo(demos[0]);
 
-	function try_assemble() {
-		var t = Date.now();
-		function get_ms() {
-			return (Date.now() - t);
+	var is_assembling = false;
+
+	function assemble_program(callback) {
+		if (!is_assembling) {
+			is_assembling = true;
+			asm_info_add(null)
+			asm_info_add("Assembling...");
+			setTimeout(function() {
+				var t = Date.now();
+				try {
+					var data = p3js.parser.parseString(code_mirror.getValue());
+					var result = p3js.assembler.assembleData(data);
+					asm_info_add(null)
+					asm_info_add("Assembling finished (" + (Date.now() - t) + " ms).", "text-success");
+					asm_info_add("Program loaded on simulator.", "text-info small");
+					share.buildProgramInfo(result);
+					p3sim.loadMemory(result.buffer);
+					if (callback) {
+						callback(result);
+					}
+				} catch (e) {
+					share.clearProgramInfo();
+					asm_info_add(null)
+					asm_info_add(e, "text-danger");
+				}
+				is_assembling = false;
+			});
 		}
-		try {
-			var data = p3js.parser.parseString(code_mirror.getValue());
-			var result = p3js.assembler.assembleData(data);
-			$output.val("Done (" + get_ms() + " ms).");
-			share.buildProgramInfo(result);
-			p3sim.loadMemory(result.buffer);
-			return result.buffer;
-		} catch (e) {
-			share.clearProgramInfo();
-			$output.val(e);
-			console.error(e);
-		}
-		return null;
 	}
 
 	$assemble.click(function() {
-		try_assemble();
+		assemble_program();
 	});
 
 	$assemble_run.click(function() {
-		var buffer = try_assemble();
-		if (buffer) {
+		assemble_program(function(result) {
 			p3sim.start();
 			window.location.hash = "#simulator";
-		}
+		});
 	});
 
 	$assemble_dl.click(function() {
-		var buffer = try_assemble();
-		if (buffer) {
-			share.downloadBuffer(p3js.writeObjectFormat(buffer), "code.exe");
-		}
+		assemble_program(function(result) {
+			share.downloadBuffer(p3js.writeObjectFormat(result.buffer), "code.exe");
+			asm_info_add("Download requested (p3as format).", "text-info small");
+		});
 	});
 
-	$output.val("Initialized.\n");
+	asm_info_add("Initialized.");
 
 };

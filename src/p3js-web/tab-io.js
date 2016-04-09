@@ -95,6 +95,7 @@ module.exports = function(share, p3sim) {
 
 	p3sim.registerEventHandler("reset", function() {
 		reset_lcd();
+		$io_board_leds.find(".on").removeClass("on");
 		update_7seg(0);
 		reset_switches();
 		reset_terminal();

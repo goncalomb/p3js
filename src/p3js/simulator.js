@@ -28,6 +28,10 @@ module.exports = function(p3js) {
 		this._car = 0;           // CAR   (control address register)
 		this._sbr = 0;           // SBR   (subroutine branch register)
 		this._int = 0;           // interrupt flag
+		// special variables
+		this._intPending = Array.apply(null, Array(INTERRUPT_COUNT)).map(Boolean.prototype.valueOf, false);
+		this._intMask = 0;
+		this._extData = null;    // external data (injects data on the data bus)
 		// simulation variables
 		this._eventHandlers = { };
 		this._ioReadHandlers = {};
@@ -86,7 +90,7 @@ module.exports = function(p3js) {
 			ma:    (i >> 16 & 0x1),
 			cula:  (i >> 17 & 0x1f),
 			fm:    (i >> 22 & 0xf),
-			aik:   (i >> 26 & 0x1),
+			iak:   (i >> 26 & 0x1),
 			// f = 1
 			const: (i >>  8 & 0xfff),
 			lf:    (i >> 20 & 0x1),
@@ -109,7 +113,9 @@ module.exports = function(p3js) {
 
 	simulator.prototype._readMemory = function(addr) {
 		addr &= 0xffff;
-		if (addr >= IO_FIRST_ADDRESS) {
+		if (addr == INTERRUPT_MASK_ADDRESS) {
+			return this._intMask << 16 >> 16;
+		} else if (addr >= IO_FIRST_ADDRESS) {
 			if (this._ioReadHandlers[addr]) {
 				return this._ioReadHandlers[addr].call(this) << 16 >> 16;
 			} else {
@@ -122,7 +128,16 @@ module.exports = function(p3js) {
 
 	simulator.prototype._writeMemory = function(addr, val) {
 		addr &= 0xffff;
-		if (addr >= IO_FIRST_ADDRESS) {
+		if (addr == INTERRUPT_MASK_ADDRESS) {
+			this._intMask = val & 0xffff;
+			this._int = 0;
+			for (var i = 0; i < INTERRUPT_COUNT; i++) {
+				if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {
+					this._int = 1;
+					break;
+				}
+			}
+		} else if (addr >= IO_FIRST_ADDRESS) {
 			if (this._ioWriteHandlers[addr]) {
 				this._ioWriteHandlers[addr].call(this, val & 0xffff);
 			}
@@ -341,7 +356,15 @@ module.exports = function(p3js) {
 		var result;
 		switch (micro.md) {
 			case 0: result = alu.result; break;
-			case 1: result = this._readMemory(a); break;
+			case 1:
+				if (this._extData !== null) {
+					// Special case where data is "waiting" to be injected on
+					// the data bus. This is used by the interrupt controller.
+					result = this._extData;
+				} else {
+					result = this._readMemory(a);
+				}
+				break;
 			case 2: result = this._re & 0x1f; break;
 			case 3: result = micro.const; break;
 		}
@@ -370,8 +393,41 @@ module.exports = function(p3js) {
 			this._cachedInstruction = this._unpackIntruction(this._ri);
 			this._instructionCount++;
 		}
+		// clean external data
+		this._extData = null;
+		// programmable interrupt controller (PIC)
+		if (!micro.f && micro.iak) {
+			// Detect iak bit and inject the interrupt vector on the data bus.
+			this._int = 0;
+			for (var i = 0; i < INTERRUPT_COUNT; i++) {
+				if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {
+					if (this._extData === null) {
+						this._intPending[i] = false;
+						this._extData = i;
+					} else {
+						// more interruptions waiting
+						this._int = 1;
+						break;
+					}
+				}
+			}
+			if (this._extData === null) {
+				// this should never fire
+				throw "PIC error, no interruption pending";
+			}
+		}
+		// finalize
 		this._clockCount++;
 		return (micro.f && micro.li); // finished an instruction?
+	};
+
+	simulator.prototype.interrupt = function(i) {
+		if (i >= 0 && i < INTERRUPT_COUNT) {
+			this._intPending[i] = true;
+			if (i >= 16 || this._intMask >> i & 0x1) {
+				this._int = 1;
+			}
+		}
 	};
 
 	simulator.prototype.registerEventHandler = function(name, fn) {
@@ -488,6 +544,8 @@ module.exports = function(p3js) {
 		this._registers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		this._ri = this._re = this._car = this._sbr = 0;
 		this._int = 0;
+		this._intPending = Array.apply(null, Array(INTERRUPT_COUNT)).map(Boolean.prototype.valueOf, false);
+		this._extData = null;
 		this._cachedMicro = null;
 		this._cachedInstruction = null;
 		this._clockCount = 0;

@@ -61,7 +61,9 @@ module.exports = function(share, p3sim) {
 	function create_button_row(arr) {
 		var $div = $("<div>");
 		arr.forEach(function(i) {
-			$("<button>").addClass("btn btn-xs").text("I" + i.toString(16).toUpperCase()).appendTo($div);
+			$("<button>").addClass("btn btn-xs").text("I" + i.toString(16).toUpperCase()).click(function() {
+				p3sim.interrupt(i);
+			}).appendTo($div);
 		});
 		$div.appendTo($io_board_buttons);
 	}

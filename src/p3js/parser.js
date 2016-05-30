@@ -25,16 +25,25 @@ module.exports = function(p3js) {
 		) {
 			i = text.charCodeAt(1);
 		}
-		// TODO: check constant size
+		if (i == null || i < -32768 || i > 65535) {
+			return null;
+		}
+		i = i & 0xffff; // 16 bit unsigned, please
 		return i;
 	}
 
 	parser.parseStringConstant = function(text) {
-		// TODO: improve this function (verify end, escape ' etc)
 		var str = "";
 		var l = text.length;
 		if (l > 3 && text.charAt(0) == "'" && text.charAt(l - 1) == "'") {
 			for (var i = 1; i < l - 1; i++) {
+				if (text.charAt(i) == "'") {
+					// found "'" in the middle of string, error
+					// XXX: the official assembler doesn't escape "'", it's
+					// inpossible to have strings with "'" :(
+					// should we escape?
+					return null;
+				}
 				str += text.charAt(i);
 			}
 			return str;

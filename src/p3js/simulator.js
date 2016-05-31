@@ -6,13 +6,27 @@ module.exports = function(p3js) {
 		if (!(this instanceof simulator)) {
 			return new simulator();
 		}
-		// processor variables
-		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-		this._memoryView = new DataView(this._memoryBuffer);
+		// processor roms
 		this._romA = this._romB = this._romC = null;
 		this.resetRomA();
 		this.resetRomB();
 		this.resetRomC();
+		// processor variables
+		this._memoryBufferFresh = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
+		this._memoryView = new DataView(this._memoryBuffer);
+		this._resetProcessorVariables();
+		// simulation variables
+		this._eventHandlers = {};
+		this._ioReadHandlers = {};
+		this._ioWriteHandlers = {};
+		this._resetSimulationVariables();
+	};
+
+	simulator.prototype._resetProcessorVariables = function() {
+		// reset memory
+		(new Uint8Array(this._memoryBuffer)).set(new Uint8Array(this._memoryBufferFresh));
+		// registers
 		this._registers = [
 			0,                   // R0    = 0
 			0, 0, 0, 0, 0, 0, 0, // R1-7  general use
@@ -32,13 +46,12 @@ module.exports = function(p3js) {
 		this._intPending = Array.apply(null, Array(INTERRUPT_COUNT)).map(Boolean.prototype.valueOf, false);
 		this._intMask = 0;
 		this._extData = null;    // external data (injects data on the data bus)
-		// simulation variables
-		this._eventHandlers = { };
-		this._ioReadHandlers = {};
-		this._ioWriteHandlers = {};
+	}
+
+	simulator.prototype._resetSimulationVariables = function() {
 		this._cachedMicro = null;
 		this._cachedInstruction = null;
-		this._interval = 0;
+		this._interval = 0; // != 0 when simulation is running
 		this._oneInstruction = false;
 		this._speed = 0;
 		this._clockCount = 0;
@@ -459,11 +472,9 @@ module.exports = function(p3js) {
 	}
 
 	simulator.prototype.loadMemory = function(buffer) {
+		this.stop();
+		(new Uint8Array(this._memoryBufferFresh)).set(new Uint8Array(buffer));
 		this.reset();
-		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-		(new Uint8Array(this._memoryBuffer)).set(new Uint8Array(buffer));
-		this._memoryView = new DataView(this._memoryBuffer);
-		this._fireEvent("memory", [null]);
 		this._fireEvent("load");
 	};
 
@@ -543,15 +554,9 @@ module.exports = function(p3js) {
 
 	simulator.prototype.reset = function() {
 		this.stop();
-		this._registers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		this._ri = this._re = this._car = this._sbr = 0;
-		this._int = 0;
-		this._intPending = Array.apply(null, Array(INTERRUPT_COUNT)).map(Boolean.prototype.valueOf, false);
-		this._extData = null;
-		this._cachedMicro = null;
-		this._cachedInstruction = null;
-		this._clockCount = 0;
-		this._instructionCount = 0;
+		this._resetProcessorVariables();
+		this._resetSimulationVariables();
+		this._fireEvent("memory", [null]);
 		this._fireEvent("reset");
 	};
 

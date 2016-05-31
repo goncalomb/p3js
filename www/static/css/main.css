@@ -64,10 +64,16 @@ textarea {
 .tab-page-simulator table td {
 	width: 85px;
 	padding: 0 2px;
+	vertical-align: top;
 }
 
 .tab-page-simulator table td:last-child {
 	width: auto;
+}
+
+#sim-memory0, #sim-memory1 {
+	resize: vertical;
+	height: 200px;
 }
 
 /* IO */

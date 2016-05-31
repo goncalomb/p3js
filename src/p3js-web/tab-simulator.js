@@ -4,7 +4,8 @@ module.exports = function(share, p3sim) {
 
 	var $sim_debug_main = $("#sim-debug-main");
 	var $sim_debug_control = $("#sim-debug-control");
-	var $sim_memory = $("#sim-memory");
+	var $sim_memory0 = $("#sim-memory0");
+	var $sim_memory1 = $("#sim-memory1");
 	var $sim_status = $("#sim-status");
 	var $sim_start = $("#sim-start");
 	var $sim_step_i = $("#sim-step-i");
@@ -60,6 +61,28 @@ module.exports = function(share, p3sim) {
 		);
 	}
 
+	function sim_update_memory($textarea, off, len) {
+		var arr = [];
+		for (var i = off, l = off + len; i < l; ) {
+			var line = "";
+			var ascii = "";
+			line += ("000" + i.toString(16)).substr(-4) + " : ";
+			for (var j = 0; j < 8 && i < l; j++, i++) {
+				var v = p3sim._memoryView.getInt16(i * 2, true);
+				line += ("000" + v.toString(16)).substr(-4) + " ";
+				if (v > 32 && v < 127) {
+					// only printable characters
+					ascii += String.fromCharCode(v);
+				} else {
+					ascii += ".";
+				}
+			}
+			line += ascii + "\n";
+			arr.push(line);
+		}
+		$textarea.val(arr.join(""));
+	}
+
 	$sim_start.click(function() {
 		if (p3sim.isRunning()) {
 			p3sim.stop();
@@ -111,6 +134,9 @@ module.exports = function(share, p3sim) {
 	p3sim.registerEventHandler("start", function() {
 		$body.addClass("sim-running");
 		$sim_start.text("Stop");
+		setTimeout(function() {
+			$sim_memory1[0].scrollTop = $sim_memory1[0].scrollHeight;
+		});
 	});
 	p3sim.registerEventHandler("stop", function(c, i, s) {
 		sim_update_status(c, i, s);
@@ -125,8 +151,19 @@ module.exports = function(share, p3sim) {
 		sim_update_debug_panel();
 		sim_update_status(0, 0, 0);
 	});
+	p3sim.registerEventHandler("memory", function(addr) {
+		// XXX: don't use hardcoded values
+		if (addr === null || (addr >= 32768 && addr < 32768 + 256)) {
+			sim_update_memory($sim_memory0, 32768, 256);
+		}
+		if (addr === null || (addr >= 64768 && addr < 64768 + 256)) {
+			sim_update_memory($sim_memory1, 64768, 256);
+		}
+	});
 
 	sim_update_debug_panel();
 	sim_update_status(0, 0, 0);
+	sim_update_memory($sim_memory0, 32768, 256);
+	sim_update_memory($sim_memory1, 64768, 256);
 
 };

@@ -142,6 +142,7 @@ module.exports = function(p3js) {
 				this._ioWriteHandlers[addr].call(this, val & 0xffff);
 			}
 		} else {
+			this._fireEvent("memory", [addr]);
 			this._memoryView.setInt16(addr * 2, val, true);
 		}
 	}
@@ -462,6 +463,7 @@ module.exports = function(p3js) {
 		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
 		(new Uint8Array(this._memoryBuffer)).set(new Uint8Array(buffer));
 		this._memoryView = new DataView(this._memoryBuffer);
+		this._fireEvent("memory", [null]);
 		this._fireEvent("load");
 	};
 

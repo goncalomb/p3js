@@ -6,6 +6,7 @@ module.exports = function(share, p3sim) {
 	var $assemble = $("#assemble");
 	var $assemble_run = $("#assemble-run");
 	var $assemble_dl = $("#assemble-dl");
+	var $asm_use_linter = $("#asm-use-linter");
 	var $asm_info = $("#asm-info");
 
 	function asm_info_add(message, cssClass) {
@@ -19,11 +20,33 @@ module.exports = function(share, p3sim) {
 		}
 	}
 
+	// linter
+	var use_linter = true;
+	CodeMirror.registerHelper("lint", null, function(text) {
+		if (use_linter) {
+			try {
+				p3js.assembler.assembleData(p3js.parser.parseString(text));
+			} catch (e) {
+				var matches = e.toString().match(/^(.*), on line (\d+)$/);
+				if (matches) {
+					return [{
+						from: CodeMirror.Pos(matches[2] - 1, 0),
+						to: CodeMirror.Pos(matches[2] - 1, 80),
+						message: matches[1]
+					}];
+				}
+			}
+		}
+		return [];
+	});
+
 	// editor
 	var $code = $("#code");
 	var code_mirror = CodeMirror.fromTextArea($code[0], {
 		lineNumbers: true,
 		indentUnit: 4,
+		gutters: ["CodeMirror-lint-markers"],
+		lint: true,
 		extraKeys: {
 			Tab: function(cm) {
 				var selections = cm.listSelections();
@@ -122,6 +145,10 @@ module.exports = function(share, p3sim) {
 			share.downloadBuffer(p3js.writeObjectFormat(result.buffer), "code.exe");
 			asm_info_add("Download requested (p3as format).", "text-info small");
 		});
+	});
+
+	$asm_use_linter.change(function() {
+		use_linter = this.checked;
 	});
 
 	asm_info_add("Initialized.");

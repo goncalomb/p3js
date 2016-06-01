@@ -108,6 +108,7 @@ module.exports = (function() {
 		FIRST_ADDRESS: 0x0000,
 		LAST_ADDRESS: 0xffff,
 		IO_FIRST_ADDRESS: 0xff00,
+		INTERRUPT_VECTOR_ADDRESS: 0xfe00, // default value, may be different if RomC was changed
 		INTERRUPT_COUNT: 256,
 		INTERRUPT_MASK_ADDRESS: 0xfffa,
 

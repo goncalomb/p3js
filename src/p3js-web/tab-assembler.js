@@ -122,7 +122,12 @@ module.exports = function(share, p3sim) {
 				} catch (e) {
 					share.clearProgramInfo();
 					asm_info_add(null)
-					asm_info_add(e, "text-danger");
+					if (e.substr(0, 15) == "Internal Error:") {
+						asm_info_add("Something is not right with the assembler (" + e.substr(16) + ").", "text-danger");
+						asm_info_add("Please contact me so I can look into it. Thanks.", "text-info small");
+					} else {
+						asm_info_add(e, "text-danger");
+					}
 				}
 				is_assembling = false;
 			});

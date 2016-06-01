@@ -33,10 +33,10 @@ module.exports = function(p3js) {
 
 	ObjectCodeWriter.prototype.write = function(value, t) {
 		if (this._position >= MEMORY_SIZE) {
-			throw "Internal Error: end of memory reached"
+			throw "Assembling Error: end of memory reached"
 		}
 		if (this._usedAddresses[this._position]) {
-			throw "Internal Error: overlapping memory"
+			throw "Assembling Error: overlapping memory"
 		}
 		this._view.setInt16(this._position * 2, value, true);
 		this._usedAddresses[this._position] = (t || 1);

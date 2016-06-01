@@ -195,7 +195,8 @@ module.exports = function(p3js) {
 			// check if the labels are correctly placed
 			if (inst.l) {
 				if (labels[inst.l] === undefined || labels[inst.l] != writer.getPosition()) {
-					throw "Assembler Error: first pass failed"
+					// should not happen
+					throw "Internal Error: first pass failed";
 				}
 			}
 
@@ -287,7 +288,8 @@ module.exports = function(p3js) {
 					writer.writeJumpRC(inst_dec.opcode, c, d);
 					continue;
 			}
-			console.log(inst.i);
+			// should not happen
+			throw "Internal Error: unknown instruction type";
 		}
 
 		result.usedAddresses = writer.getUsedAddresses();

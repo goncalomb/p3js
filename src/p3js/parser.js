@@ -113,10 +113,10 @@ module.exports = function(p3js) {
 		var matches = text.match(/^\s*(?:([a-z_]\w*)(?:\s+|\s*(:)\s*))?([a-z]+)(?:\s*\.\s*([a-z]+))?(?:\s+(.*?)\s*)?$/i);
 		// 1: label; 2: colon; 3: instruction; 4: condition; 5: operands;
 		if (!matches) {
-			throw "Syntax error on line " + n;
+			throw "Syntax error, on line " + n;
 		} else if (!matches[3]) {
 			// should not happen
-			throw "Oops, the parser has a bug, on line " + n;
+			throw "Internal Error: invalid regex result";
 		}
 
 		// process label

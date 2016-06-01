@@ -106,5 +106,6 @@ $(window).ready(function() {
 	require("./tab-program.js")(share, p3sim);
 	require("./tab-simulator.js")(share, p3sim);
 	require("./tab-io.js")(share, p3sim);
+	require("./tab-roms.js")(share, p3sim);
 
 });

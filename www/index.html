@@ -26,6 +26,7 @@
 			<li><a href="#program"><i class="fa fa-area-chart"></i> Program</a></li>
 			<li><a href="#simulator"><i class="fa fa-cogs"></i> Simulator</a></li>
 			<li><a href="#io"><i class="fa fa-laptop"></i> Input/Output</a></li>
+			<li><a href="#roms"><i class="fa fa-tasks"></i> ROMs</a></li>
 			<li><a href="#about"><i class="fa fa-question-circle"></i> About P3JS</a></li>
 			<li class="pull-right"><a id="fullscr" href="#"><i class="fa fa-arrows-alt"></i> Fullscreen Mode</a></li>
 		</ul>
@@ -93,6 +94,26 @@
 					<textarea id="io-terminal" cols="80" rows="24" readonly></textarea>
 				</div
 				</table>
+			</div>
+		</div>
+		<div class="row tab-page tab-page-roms hidden">
+			<div class="col-md-12">
+				<p class="text-info">
+					<i class="fa fa-info-circle"></i> <strong>There is no interface to edit the ROMs at the moment. Sorry.</strong><br>
+					<span class="small">If you are a hacker, try changing these JavaScript variables: <code>p3sim._romA</code>, <code>p3sim._romB</code> and <code>p3sim._romC</code>.</span>
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h3>ROM A <small></small></h3>
+				<textarea id="rom-a" rows="33" readonly></textarea>
+			</div>
+			<div class="col-md-4">
+				<h3>ROM B <small></small></h3>
+				<textarea id="rom-b" rows="17" readonly></textarea>
+			</div>
+			<div class="col-md-4">
+				<h3>ROM C <small></small></h3>
+				<textarea id="rom-c" rows="33" readonly></textarea>
 			</div>
 		</div>
 		<div class="row tab-page tab-page-about hidden">

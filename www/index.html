@@ -38,9 +38,25 @@
 			</div>
 			<div class="col-md-3">
 				<div class="form-group">
-					<label for="load-demo">Load Demo:</label>
-					<select id="load-demo" class="form-control"></select>
+					<label for="asm-editor-files">Your Files:</label>
+					<select id="asm-editor-files" class="form-control">
+						<option style="display: none;" value="" disabled selected> -- select a file -- </option>
+					</select>
 				</div>
+				<div class="btn-group btn-group-xs" style="width: 100%">
+					<button id="asm-editor-new" class="btn btn-primary" style="width: 25%" title="New"><i class="fa fa-asterisk"></i> New</button>
+					<button id="asm-editor-save" class="btn btn-primary" style="width: 45%" title="Save"><i class="fa fa-floppy-o"></i> Save</button>
+					<button id="asm-editor-download" class="btn btn-info" style="width: 15%" title="Download"><i class="fa fa-download"></i></button>
+					<button id="asm-editor-delete" class="btn btn-danger" style="width: 15%" title="Delete" disabled><i class="fa fa-trash"></i></button>
+				</div>
+				<hr>
+				<div class="form-group">
+					<label for="asm-editor-demos">Demos:</label>
+					<select id="asm-editor-demos" class="form-control">
+						<option style="display: none;" value="" disabled selected> -- select a demo -- </option>
+					</select>
+				</div>
+				<hr>
 				<button id="assemble" class="btn btn-primary btn-sm btn-block">Assemble</button>
 				<button id="assemble-run" class="btn btn-primary btn-sm btn-block">Assemble and Run</button>
 				<button id="assemble-dl" class="btn btn-primary btn-sm btn-block">Assemble and Download</button>

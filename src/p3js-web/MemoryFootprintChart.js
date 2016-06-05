@@ -2,7 +2,6 @@ var MemoryFootprintChart = module.exports = function(canvas) {
 	this._canvas = canvas;
 	this._labelDx = 5;
 	// canvas style
-	this._canvas.style.cssText = this.constructor.STYLE;
 	this._canvas.width = this.constructor.WIDTH;
 	this._canvas.height = this.constructor.HEIGHT;
 	// initialize
@@ -14,7 +13,6 @@ var MemoryFootprintChart = module.exports = function(canvas) {
 
 MemoryFootprintChart.WIDTH = 1024;
 MemoryFootprintChart.HEIGHT = 276;
-MemoryFootprintChart.STYLE = "border: 1px solid #ccc";
 MemoryFootprintChart.SIZE = (1 << 16);
 
 MemoryFootprintChart.prototype.clear = function() {

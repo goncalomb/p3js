@@ -45,16 +45,25 @@ textarea {
 	font-size: 13px;
 	width: 100%;
 	resize: none;
+	border: 2px solid #dce4ec;
+	border-radius: 4px;
 }
 
 .CodeMirror {
 	font-size: 14px;
 	line-height: 1.2em;
 	height: 600px;
+	border: 2px solid #dce4ec;
+	border-radius: 4px;
 }
 
 .tab-page-program {
 	overflow-x: auto;
+}
+
+#prog-memory-footprint {
+	border: 2px solid #dce4ec;
+	border-radius: 4px;
 }
 
 .tab-page-simulator table {

@@ -81,6 +81,15 @@ module.exports = function(share, p3sim) {
 		$code_mirror.height($(window).height() - $code_mirror.offset().top - 20);
 	}).on("fullscreenoff", function() {
 		$code_mirror.css("height", "");
+	}).on("p3js-tab-change", function(e, tab) {
+		if (tab == "assembler") {
+			setTimeout(function() {
+				if ($(document.body).hasClass("fullscreen")) {
+					$code_mirror.height($(window).height() - $code_mirror.offset().top - 20);
+				}
+				code_mirror.refresh();
+			});
+		}
 	});
 
 	// saved files and demos

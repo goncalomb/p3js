@@ -56,14 +56,13 @@ $(window).ready(function() {
 		);
 		if (fn) fn.apply(document);
 	}
-	$("#fullscr").click(function() {
+	function fullscreen_toogle() {
 		if ($body.hasClass("fullscreen")) {
 			exit_fullscreen();
 		} else {
 			request_fullscreen(document.documentElement);
 		}
-		return false;
-	});
+	}
 	$(document).on("webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange", function() {
 		if ($body.hasClass("fullscreen")) {
 			$body.removeClass("fullscreen");
@@ -71,6 +70,18 @@ $(window).ready(function() {
 		} else {
 			$body.addClass("fullscreen");
 			$document.trigger("fullscreenon");
+		}
+	});
+	// event for fullscreen button
+	$("#fullscr").click(function() {
+		fullscreen_toogle();
+		return false;
+	});
+	// F11 doesn't trigger fullscreenchange, so we hijack the key
+	$(document).on("keydown", function(e) {
+		if (e.which == 122) {
+			fullscreen_toogle();
+			return false;
 		}
 	});
 
@@ -97,6 +108,7 @@ $(window).ready(function() {
 			$tab.removeClass("hidden");
 			$all_tab_lis.removeClass("active");
 			$("a[href=\"#" + hash + "\"]", $all_tab_lis).parent().addClass("active");
+			$(document).trigger("p3js-tab-change", hash);
 		}
 	});
 

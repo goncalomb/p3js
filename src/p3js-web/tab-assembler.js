@@ -299,7 +299,16 @@ module.exports = function(share, p3sim) {
 
 	$assemble_dl.click(function() {
 		assemble_program(function(result) {
-			share.downloadBuffer(p3js.writeObjectFormat(result.buffer), "code.exe");
+			var name = "code.exe";
+			if (current_file) {
+				var i = current_file.lastIndexOf(".");
+				if (i != -1) {
+					name = current_file.substr(0, i) + ".exe";
+				} else {
+					name = current_file + ".exe";
+				}
+			}
+			share.downloadBuffer(p3js.writeObjectFormat(result.buffer, false, result.usedAddresses), name);
 			asm_info_add("Download requested (p3as format).", "text-info small");
 		});
 	});

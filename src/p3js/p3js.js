@@ -148,7 +148,7 @@ module.exports = (function() {
 		return null
 	}
 
-	p3js.writeObjectFormat = function(memory, oldFormat) {
+	p3js.writeObjectFormat = function(memory, oldFormat, usedAddresses) {
 		var view_mem = new DataView(memory);
 		var buffer = new ArrayBuffer(memory.byteLength * 2);
 		var view = new DataView(buffer);
@@ -162,7 +162,11 @@ module.exports = (function() {
 			p = 8
 		}
 		for (var i = 0, l = memory.byteLength; i < l; i += 2) {
-			if (view_mem.getInt16(i, true) == 0) {
+			if (usedAddresses) {
+				if (!usedAddresses[i/2]) {
+					continue;
+				}
+			} else if (view_mem.getInt16(i, true) == 0) {
 				continue;
 			}
 			var length_pos = p;
@@ -174,7 +178,11 @@ module.exports = (function() {
 			var j = i;
 			for (; j < l; j += 2) {
 				var v = view_mem.getInt16(j, true);
-				if (v == 0) {
+				if (usedAddresses) {
+					if (!usedAddresses[j/2]) {
+						break;
+					}
+				} else if (v == 0) {
 					break;
 				}
 				view.setInt16(p, v, true);

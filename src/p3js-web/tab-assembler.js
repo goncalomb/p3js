@@ -269,9 +269,14 @@ module.exports = function(share, p3sim) {
 				} catch (e) {
 					share.clearProgramInfo();
 					asm_info_add(null)
-					if (e.substr(0, 15) == "Internal Error:") {
+					if (typeof e != "string") {
+						asm_info_add("Something is not right (" + e.toString() + ").", "text-danger");
+						asm_info_add("Please contact me so I can look into it. Thanks.", "text-info small");
+						console.error(e);
+					} else if (e.substr(0, 15) == "Internal Error:") {
 						asm_info_add("Something is not right with the assembler (" + e.substr(16) + ").", "text-danger");
 						asm_info_add("Please contact me so I can look into it. Thanks.", "text-info small");
+						console.error(e);
 					} else {
 						asm_info_add(e, "text-danger");
 					}

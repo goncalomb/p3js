@@ -15,6 +15,9 @@ module.exports = function(share, p3sim) {
 	var lcd_y = 0;
 	var lcd_text = null;
 	var seg7_value = 0;
+	var timer_value = 0;
+	var timer_state = 0;
+	var timer_interval = 0;
 	var switches_value = 0;
 	var terminal_x = -1;
 	var terminal_y = -1;
@@ -36,6 +39,24 @@ module.exports = function(share, p3sim) {
 	function reset_switches() {
 		switches_value = 0;
 		$io_board_switches.children().removeClass("on");
+	}
+
+	function control_timer(state) {
+		if (state == 0) {
+			clearInterval(timer_interval);
+			timer_state = 0;
+			timer_interval = 0;
+		} else if (timer_state == 0) {
+			timer_state = 1;
+			timer_interval = setInterval(function() {
+				if (timer_value <= 0) {
+					control_timer(0);
+					p3sim.interrupt(15);
+				} else {
+					timer_value--;
+				}
+			}, 100);
+		}
 	}
 
 	function reset_terminal() {
@@ -97,12 +118,20 @@ module.exports = function(share, p3sim) {
 		reset_lcd();
 		$io_board_leds.find(".on").removeClass("on");
 		update_7seg(0);
+		timer_value = 0;
+		control_timer(0);
 		reset_switches();
 		reset_terminal();
 	});
 
 	p3sim.setIOHandlers({
 		// IO read addresses
+		0xfff6: function() { // timer value
+			return timer_value;
+		},
+		0xfff7: function() { // timer state
+			return timer_state;
+		},
 		0xfff9: function() { // switches
 			return switches_value;
 		},
@@ -158,6 +187,12 @@ module.exports = function(share, p3sim) {
 			if (lcd_active) {
 				$io_board_lcd.val(lcd_text.join("\n"));
 			}
+		},
+		0xfff6: function(v) { // timer value
+			timer_value = v;
+		},
+		0xfff7: function(v) { // timer state
+			control_timer(v & 0x1);
 		},
 		0xfff8: function(v) { // leds
 			for (var i = 0; i < 16; i++) {

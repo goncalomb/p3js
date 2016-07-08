@@ -214,7 +214,14 @@ module.exports = function(share, p3sim) {
 		},
 		0xfffe: function(v) { // terminal write
 			if (terminal_x == -1) {
-				$io_terminal.val($io_terminal.val() + String.fromCharCode(v));
+				var val = $io_terminal.val();
+				val += String.fromCharCode(v);
+				if ((val.length + 1)%81 == 0) {
+					val += "\n";
+				}
+				$io_terminal.val(val);
+				// XXX: causes to many browser redraws
+				// $io_terminal[0].scrollTop = $io_terminal[0].scrollHeight;
 			} else if (terminal_x < 80 && terminal_y < 24) {
 				var str = $io_terminal.val();
 				var i = terminal_x + terminal_y*80;

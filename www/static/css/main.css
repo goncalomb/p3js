@@ -109,10 +109,8 @@ textarea {
 	font-size: 14px;
 	color: #cfcfcf;
 	background-color: #212121;
-	overflow: hidden;
-	white-space: pre;
 	box-sizing: content-box;
-	width: 80ch;
+	width: 82ch;
 }
 
 #io-board {

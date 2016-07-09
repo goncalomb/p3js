@@ -55,8 +55,8 @@ module.exports = function(p3js) {
 		return !!value.match(/^[a-z_]\w*$/i);
 	}
 
-	function process_constant_or_label(value, n) {
-		var w = parser.parseConstant(value);
+	function process_constant_or_label(value, sign, n) {
+		var w = parser.parseConstant(sign + value);
 		if (w === null && parser.isValidLabel(value)) {
 			w = value;
 		}
@@ -78,7 +78,7 @@ module.exports = function(p3js) {
 			return { type: OPRD_TYPE_SP, r: REGISTER_SP };
 		} else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
 			if (matches[4]) {
-				var w = process_constant_or_label(matches[4], n);
+				var w = process_constant_or_label(matches[4], '', n);
 				return { type: OPRD_TYPE_DIRECT, w: w };
 			} else if (matches[1]) {
 				var op = { type: OPRD_TYPE_INDEXED, w: 0 }
@@ -90,7 +90,7 @@ module.exports = function(p3js) {
 				}
 				if (matches[2]) {
 					op.s = matches[2];
-					op.w = process_constant_or_label(matches[3], n);
+					op.w = process_constant_or_label(matches[3], matches[2], n);
 				} else if (op.r != REGISTER_SP) {
 					return { type: OPRD_TYPE_REGISTER_INDIRECT, r: op.r };
 				}
@@ -101,7 +101,7 @@ module.exports = function(p3js) {
 			if (w) {
 				return { type: OPRD_TYPE_STRING, w: w };
 			}
-			w = process_constant_or_label(operand, n);
+			w = process_constant_or_label(operand, '', n);
 			return { type: OPRD_TYPE_IMMEDIATE, w: w };
 		}
 		return null;

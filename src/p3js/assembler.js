@@ -30,8 +30,11 @@ module.exports = function(p3js) {
 				if (typeof operand.w.valueOf() == "string") {
 					if (labels[operand.w] === undefined) {
 						throw "Undefined label " + operand.w + ", on line " + inst.n;
+					} if (operand.s == "-") {
+						return -labels[operand.w];
+					} else {
+						return labels[operand.w];
 					}
-					return labels[operand.w];
 				}
 				return operand.w;
 			}

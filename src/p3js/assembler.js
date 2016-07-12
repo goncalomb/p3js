@@ -26,8 +26,8 @@ module.exports = function(p3js) {
 		}
 
 		var get_w = function(operand) {
-			if (operand.w !== undefined) { // TODO: don't check for w, use type
-				if (typeof operand.w.valueOf() == "string") {
+			if (has_w(operand)) {
+				if (typeof operand.w == "string") {
 					if (labels[operand.w] === undefined) {
 						throw "Undefined label " + operand.w + ", on line " + inst.n;
 					} if (operand.s == "-") {
@@ -68,6 +68,11 @@ module.exports = function(p3js) {
 			return operand.r;
 		}
 
+		var has_w = function(operand) {
+			var m = get_m(operand);
+			return (m == 2 || m == 3);
+		}
+
 		// first pass, record labels
 		for (var i = 0, l = data.length; i < l; i++) {
 			var inst = data[i];
@@ -81,12 +86,12 @@ module.exports = function(p3js) {
 			}
 
 			// process pseudo-instructions
-			if (
-				(inst.i == "ORIG" || inst.i == "EQU" || inst.i == "WORD" || inst.i == "TAB") &&
-				inst.o[0].type != OPRD_TYPE_IMMEDIATE
-				// TODO: check if inst.o[0].w is a label!!! don't allow labels.
-			) {
-				throw "Invalid operand for " + inst.i + ", on line " + inst.n;
+			if ((inst.i == "ORIG" || inst.i == "EQU" || inst.i == "WORD" || inst.i == "TAB") && inst.o[0].type != OPRD_TYPE_IMMEDIATE) {
+				throw "Invalid operand for " + inst.i + " (expects constant), on line " + inst.n;
+			}
+
+			if ((inst.i == "ORIG" || inst.i == "EQU") && typeof inst.o[0].w == "string") {
+				throw "Invalid operand for " + inst.i + " (cannot be a label), on line " + inst.n;
 			}
 
 			switch (inst.i) {
@@ -137,18 +142,10 @@ module.exports = function(p3js) {
 				case "1c":
 				case "j":
 				case "jc":
-					if (operand_0.w === undefined) { // TODO: don't check for w, use type
-						writer.movePosition(1);
-					} else {
-						writer.movePosition(2);
-					}
+					writer.movePosition(has_w(operand_0) ? 2 : 1);
 					continue;
 				case "2":
-					if (operand_0.w === undefined && operand_1.w === undefined) { // TODO: don't check for w, use type
-						writer.movePosition(1);
-					} else {
-						writer.movePosition(2);
-					}
+					writer.movePosition(has_w(operand_0) || has_w(operand_1) ? 2 : 1);
 					continue;
 			}
 		}
@@ -172,7 +169,7 @@ module.exports = function(p3js) {
 					// done on first pass
 					continue;
 				case "WORD":
-					writer.write(inst.o[0].w, 2);
+					writer.write(get_w(inst.o[0]), 2);
 					continue;
 				case "STR":
 					inst.o.forEach(function(o) {
@@ -188,7 +185,7 @@ module.exports = function(p3js) {
 					});
 					continue;
 				case "TAB":
-					for (var j = 0; j < inst.o[0].w; j++) {
+					for (var j = 0; j < get_w(inst.o[0]); j++) {
 						writer.write(0, 4);
 					}
 					continue;
@@ -214,10 +211,12 @@ module.exports = function(p3js) {
 					continue;
 				case "0c":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
-						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
+						throw "Operand must be immediate, on line " + inst.n;
 					}
 					var w = get_w(operand_0);
-					// TODO: check constant size, these constants are 10 bit long
+					if (w < 0 || w > 1023) {
+						throw "Constant must be between 0 and 1023, on line " + inst.n;
+					}
 					writer.writeInstConstant(inst_dec.opcode, w);
 					continue;
 				case "1":
@@ -232,13 +231,15 @@ module.exports = function(p3js) {
 				case "1c":
 					var m = get_m(operand_0);
 					if (operand_1.type != OPRD_TYPE_IMMEDIATE) {
-						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
+						throw "Second operand must be a constant, on line " + inst.n;
 					}
 					var c = get_w(operand_1);
+					if (c < 0 || c > 15) {
+						throw "Constant must be between 0 and 15, on line " + inst.n;
+					}
 					var r = get_r(operand_0);
 					var w = get_w(operand_0);
 					// TODO: don't accept OPRD_TYPE_IMMEDIATE
-					// TODO: check constant size, these constants are 4 bit long
 					writer.writeInstOneC(inst_dec.opcode, c, m, r, w);
 					continue;
 				case "2":
@@ -255,7 +256,7 @@ module.exports = function(p3js) {
 						reg = operand_1.r;
 						other_operand = operand_0;
 					} else {
-						throw "One of the operands must be a resister, on line " + inst.n;
+						throw "One of the operands must be a register, on line " + inst.n;
 					}
 					if (other_operand.type == OPRD_TYPE_IMMEDIATE && (inst.i == "MUL" || inst.i == "DIV" || inst.i == "XCH")) {
 						throw inst.i + " cannot have immediate operand, on line " + inst.n;
@@ -274,21 +275,20 @@ module.exports = function(p3js) {
 					writer.writeJumpC(inst_dec.opcode, c, m, r, w);
 					continue;
 				case "jr":
-					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
-						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
-					}
-					var d = get_w(operand_0) - writer.getPosition() - 1;
-					// TODO: check jump distance
-					writer.writeJumpR(inst_dec.opcode, d);
-					continue;
 				case "jrc":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
 						throw "Invalid operand for " + inst.i + ", on line " + inst.n;
 					}
-					var c = p3js.conditions[inst.c].code;
 					var d = get_w(operand_0) - writer.getPosition() - 1;
-					// TODO: check jump distance
-					writer.writeJumpRC(inst_dec.opcode, c, d);
+					if (d < -32 || d > 31) {
+						throw "Target too far for branch jump, on line " + inst.n;
+					}
+					if (inst_dec.type == "jr") {
+						writer.writeJumpR(inst_dec.opcode, d);
+					} else {
+						var c = p3js.conditions[inst.c].code;
+						writer.writeJumpRC(inst_dec.opcode, c, d);
+					}
 					continue;
 			}
 			// should not happen

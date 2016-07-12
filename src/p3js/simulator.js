@@ -155,8 +155,8 @@ module.exports = function(p3js) {
 				this._ioWriteHandlers[addr].call(this, val & 0xffff);
 			}
 		} else {
-			this._fireEvent("memory", [addr]);
 			this._memoryView.setInt16(addr * 2, val, true);
+			this._fireEvent("memory", [addr]);
 		}
 	}
 

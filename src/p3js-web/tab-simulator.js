@@ -68,7 +68,7 @@ module.exports = function(share, p3sim) {
 			var ascii = "";
 			line += ("000" + i.toString(16)).substr(-4) + " : ";
 			for (var j = 0; j < 8 && i < l; j++, i++) {
-				var v = p3sim._memoryView.getInt16(i * 2, true);
+				var v = p3sim._memoryView.getInt16(i * 2, true) & 0xffff;
 				line += ("000" + v.toString(16)).substr(-4) + " ";
 				if (v > 32 && v < 127) {
 					// only printable characters

@@ -76,7 +76,7 @@ module.exports = function(p3js) {
 			return { type: OPRD_TYPE_REGISTER, r: matches[1].charCodeAt(0) - 48 };
 		} else if (operand.toUpperCase() == "SP") {
 			return { type: OPRD_TYPE_SP, r: REGISTER_SP };
-		} else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
+		} else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|PC|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
 			if (matches[4]) {
 				var w = process_constant_or_label(matches[4], '', n);
 				return { type: OPRD_TYPE_DIRECT, w: w };
@@ -85,6 +85,9 @@ module.exports = function(p3js) {
 				if (matches[1].toUpperCase() == "SP") {
 					op.type = OPRD_TYPE_BASED;
 					op.r = REGISTER_SP;
+				} else if (matches[1].toUpperCase() == "PC") {
+					op.type = OPRD_TYPE_RELATIVE;
+					op.r = REGISTER_PC;
 				} else {
 					op.r = matches[1].charCodeAt(1) - 48;
 				}

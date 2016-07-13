@@ -97,7 +97,7 @@ module.exports = function(share, p3sim) {
 	var saved_files = JSON.parse(localStorage.getItem("p3js-saved-files")) || {};
 	var current_file = null;
 	var current_file_is_demo = false;
-	var save_info = "The files are stored on your browser, they are not uploaded to a remote server.\nI recommend making a copy in case something unexpected happens.\n";
+	var save_info = "The files are stored on your browser, they are not uploaded to a remote server.\nI recommend making a local copy (click the blue download button) in case something unexpected happens.\n";
 	var demos = [
 		"welcome.as",
 		"Demo1-clean.as"
@@ -147,6 +147,7 @@ module.exports = function(share, p3sim) {
 		editor_set("");
 		current_file = null;
 		current_file_is_demo = false;
+		localStorage.removeItem("p3js-current-file");
 		$asm_editor_delete.attr("disabled", true);
 	}
 	function editor_load_file(name, is_demo) {
@@ -156,9 +157,11 @@ module.exports = function(share, p3sim) {
 			$.get("demos/" + name, null, function(data) {
 				editor_set(data);
 			}, "text");
+			localStorage.removeItem("p3js-current-file");
 		} else {
 			editor_set_demos_select(null);
 			editor_set(saved_files[name]);
+			localStorage.setItem("p3js-current-file", name);
 		}
 		$asm_editor_delete.attr("disabled", is_demo);
 		current_file = name;
@@ -188,6 +191,7 @@ module.exports = function(share, p3sim) {
 			$asm_editor_delete.attr("disabled", false);
 			current_file = new_name;
 			current_file_is_demo = false;
+			localStorage.setItem("p3js-current-file", current_file);
 		}
 		saved_files[current_file] = code_mirror.getValue();
 		localStorage.setItem("p3js-saved-files", JSON.stringify(saved_files));
@@ -211,15 +215,20 @@ module.exports = function(share, p3sim) {
 		}
 	});
 
-	editor_set_files_select(null);
-	editor_set_demos_select("welcome.as");
-	$asm_editor_demos.change();
+	current_file = localStorage.getItem("p3js-current-file");
+	if (current_file) {
+		editor_set_files_select(current_file);
+		editor_set_demos_select(null);
+		$asm_editor_files.change();
+	} else {
+		editor_set_files_select(null);
+		editor_set_demos_select("welcome.as");
+		$asm_editor_demos.change();
+	}
 
 	$asm_editor_new.click(function() {
 		if (editor_confirm()) {
 			editor_clear();
-			current_file = null;
-			current_file_is_demo = false;
 		}
 	});
 	$asm_editor_save.click(editor_save);

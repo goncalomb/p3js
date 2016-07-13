@@ -57,6 +57,15 @@ textarea {
 	border-radius: 4px;
 }
 
+.CodeMirror .asm-ruler, .CodeMirror .asm-ruler-extra {
+	display: none;
+}
+
+.CodeMirror.asm-show-extra-rulers .asm-ruler-extra,
+.CodeMirror.asm-show-rulers .asm-ruler {
+	display: block;
+}
+
 .tab-page-program {
 	overflow-x: auto;
 }

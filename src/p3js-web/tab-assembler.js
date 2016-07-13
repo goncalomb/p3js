@@ -12,7 +12,6 @@ module.exports = function(share, p3sim) {
 	var $assemble = $("#assemble");
 	var $assemble_run = $("#assemble-run");
 	var $assemble_dl = $("#assemble-dl");
-	var $asm_use_linter = $("#asm-use-linter");
 	var $asm_info = $("#asm-info");
 
 	function asm_info_add(message, cssClass) {
@@ -48,6 +47,15 @@ module.exports = function(share, p3sim) {
 
 	// editor
 	var $code = $("#code");
+
+	var rulers = [];
+	for (var i = 0; i <= 80; i+= 8) {
+		rulers.push({ column: i, className: "asm-ruler-extra", color: "#dadada" });
+	}
+	rulers.push({ column: 16, className: "asm-ruler", color: "#c0c0ff" });
+	rulers.push({ column: 24, className: "asm-ruler", color: "#c0c0ff" });
+	rulers.push({ column: 80, className: "asm-ruler", color: "#ffc0c0" });
+
 	var code_mirror = CodeMirror.fromTextArea($code[0], {
 		lineNumbers: true,
 		indentUnit: 4,
@@ -70,11 +78,7 @@ module.exports = function(share, p3sim) {
 				cm.replaceSelections(strings);
 			}
 		},
-		rulers: [
-			{ column: 16, color: "#dedede" },
-			{ column: 24, color: "#dedede" },
-			{ column: 80, color: "#dedede" }
-		]
+		rulers: rulers
 	});
 	var $code_mirror = $(code_mirror.getWrapperElement());
 	$document.on("fullscreenon", function() {
@@ -322,10 +326,19 @@ module.exports = function(share, p3sim) {
 		});
 	});
 
-	$asm_use_linter.change(function() {
+	$("#asm-use-linter").change(function() {
 		use_linter = this.checked;
 	});
 
+	$("#asm-show-rulers").change(function() {
+		$code_mirror[this.checked ? "addClass" : "removeClass"]("asm-show-rulers");
+	});
+
+	$("#asm-show-extra-rulers").change(function() {
+		$code_mirror[this.checked ? "addClass" : "removeClass"]("asm-show-extra-rulers");
+	});
+
+	$code_mirror.addClass("asm-show-rulers");
 	asm_info_add("Initialized.");
 
 };

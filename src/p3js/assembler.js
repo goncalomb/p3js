@@ -3,7 +3,34 @@ module.exports = function(p3js) {
 	var assembler = { };
 	eval(p3js.extractConstants());
 
-	assembler.assembleData = function(data) {
+	assembler.DEFAULT_VALIDATOR = function(inst) {
+		switch (inst.d.type) {
+			case "1":
+				if (inst.o[0].type == OPRD_TYPE_IMMEDIATE && (
+					inst.i == "NEG" || inst.i == "INC" || inst.i == "DEC" || inst.i == "COM" || inst.i == "POP"
+				)) {
+					throw inst.i + " cannot have immediate operand";
+				}
+				break;
+			case "1c":
+				if (inst.o[0].type == OPRD_TYPE_IMMEDIATE) {
+					throw inst.i + " cannot have immediate operand";
+				}
+			case "2":
+				if (inst.o[1].type == OPRD_TYPE_IMMEDIATE && (
+					inst.i == "MUL" || inst.i == "DIV" || inst.i == "XCH"
+				)) {
+					throw inst.i + " cannot have immediate operand";
+				}
+				break;
+		}
+	}
+
+	// The validator is a optional function to validate instructions.
+	// The DEFAULT_VALIDATOR implements some checks that make the assembler
+	// less abstract but more similar to the official one.
+
+	assembler.assembleData = function(data, validator) {
 		var writer = new p3js.ObjectCodeWriter();
 		var labels = { };
 
@@ -76,9 +103,30 @@ module.exports = function(p3js) {
 		// first pass, record labels
 		for (var i = 0, l = data.length; i < l; i++) {
 			var inst = data[i];
-			// inst.n: line #; inst.l: label; inst.i: instruction; inst.c: condition; inst.o: operands;
-			var inst_dec = (p3js.instructions[inst.i] ? p3js.instructions[inst.i] : p3js.pseudoInstructions[inst.i]);
-			var num_operands = p3js.getNumOperands(inst_dec.type);
+
+			if (p3js.pseudoInstructions[inst.i]) {
+				inst.d = p3js.pseudoInstructions[inst.i];
+				inst.p = true;
+			} else if (p3js.instructions[inst.i]) {
+				inst.d = p3js.instructions[inst.i];
+				inst.p = false;
+			} else {
+				throw "Internal Error: unknown instruction";
+			}
+
+			// inst.n = line number
+			// inst.l = label
+			// inst.i = instruction name
+			// inst.c = condition (may be null)
+			// inst.o = array of operands (may be empty)
+			// inst.o[].type = operand type (OPRD_XXX)
+			// inst.o[].r    = register (may not exist)
+			// inst.o[].w    = constant (may not exist)
+			// inst.o[].s    = constant sign (may not exist)
+			// inst.d = instruction declaration
+			// inst.p = is pseudo instruction?
+
+			var num_operands = p3js.getNumOperands(inst.d.type);
 			if (num_operands === null && inst.o.length < 1) {
 				throw "Instruction " + inst.i + " expects at least 1 operand, on line " + inst.n;
 			} else if (num_operands !== null && num_operands != inst.o.length) {
@@ -131,7 +179,7 @@ module.exports = function(p3js) {
 			var operand_0 = inst.o[0];
 			var operand_1 = inst.o[1];
 
-			switch (inst_dec.type) {
+			switch (inst.d.type) {
 				case "0":
 				case "0c":
 				case "jr":
@@ -155,8 +203,6 @@ module.exports = function(p3js) {
 		// second pass, assemble
 		for (var i = 0, l = data.length; i < l; i++) {
 			var inst = data[i];
-			// inst.n: line #; inst.l: label; inst.i: instruction; inst.c: condition; inst.o: operands;
-			var inst_dec = (p3js.instructions[inst.i] ? p3js.instructions[inst.i] : p3js.pseudoInstructions[inst.i]);
 			// no need to recheck number of operands
 
 			// process pseudo-instructions
@@ -205,10 +251,10 @@ module.exports = function(p3js) {
 			var operand_1 = inst.o[1];
 
 			result.instructionCount++;
-			switch (inst_dec.type) {
+			switch (inst.d.type) {
 				case "0":
-					writer.writeInstZero(inst_dec.opcode);
-					continue;
+					writer.writeInstZero(inst.d.opcode);
+					break;
 				case "0c":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
 						throw "Operand must be immediate, on line " + inst.n;
@@ -217,17 +263,15 @@ module.exports = function(p3js) {
 					if (w < 0 || w > 1023) {
 						throw "Constant must be between 0 and 1023, on line " + inst.n;
 					}
-					writer.writeInstConstant(inst_dec.opcode, w);
-					continue;
+					writer.writeInstConstant(inst.d.opcode, w);
+					break;
 				case "1":
 				case "j":
 					var m = get_m(operand_0);
 					var r = get_r(operand_0);
 					var w = get_w(operand_0);
-					// XXX: some instructions may not accept OPRD_TYPE_IMMEDIATE
-					// XXX: do some tests with OPRD_TYPE_SP and OPRD_TYPE_BASED
-					writer.writeInstOne(inst_dec.opcode, m, r, w);
-					continue;
+					writer.writeInstOne(inst.d.opcode, m, r, w);
+					break;
 				case "1c":
 					var m = get_m(operand_0);
 					if (operand_1.type != OPRD_TYPE_IMMEDIATE) {
@@ -239,9 +283,8 @@ module.exports = function(p3js) {
 					}
 					var r = get_r(operand_0);
 					var w = get_w(operand_0);
-					// TODO: don't accept OPRD_TYPE_IMMEDIATE
-					writer.writeInstOneC(inst_dec.opcode, c, m, r, w);
-					continue;
+					writer.writeInstOneC(inst.d.opcode, c, m, r, w);
+					break;
 				case "2":
 					if (operand_0.type == OPRD_TYPE_IMMEDIATE) {
 						throw "Fist operand cannot be immediate, on line " + inst.n;
@@ -258,22 +301,18 @@ module.exports = function(p3js) {
 					} else {
 						throw "One of the operands must be a register, on line " + inst.n;
 					}
-					if (other_operand.type == OPRD_TYPE_IMMEDIATE && (inst.i == "MUL" || inst.i == "DIV" || inst.i == "XCH")) {
-						throw inst.i + " cannot have immediate operand, on line " + inst.n;
-					}
-					// XXX: test other special cases (SP etc.)
 					var m = get_m(other_operand);
 					var r = get_r(other_operand);
 					var w = get_w(other_operand);
-					writer.writeInstTwo(inst_dec.opcode, s, reg, m, r, w);
-					continue;
+					writer.writeInstTwo(inst.d.opcode, s, reg, m, r, w);
+					break;
 				case "jc":
 					var m = get_m(operand_0);
 					var c = p3js.conditions[inst.c].code;
 					var r = get_r(operand_0);
 					var w = get_w(operand_0);
-					writer.writeJumpC(inst_dec.opcode, c, m, r, w);
-					continue;
+					writer.writeJumpC(inst.d.opcode, c, m, r, w);
+					break;
 				case "jr":
 				case "jrc":
 					if (operand_0.type != OPRD_TYPE_IMMEDIATE) {
@@ -283,16 +322,28 @@ module.exports = function(p3js) {
 					if (d < -32 || d > 31) {
 						throw "Target too far for branch jump, on line " + inst.n;
 					}
-					if (inst_dec.type == "jr") {
-						writer.writeJumpR(inst_dec.opcode, d);
+					if (inst.d.type == "jr") {
+						writer.writeJumpR(inst.d.opcode, d);
 					} else {
 						var c = p3js.conditions[inst.c].code;
-						writer.writeJumpRC(inst_dec.opcode, c, d);
+						writer.writeJumpRC(inst.d.opcode, c, d);
 					}
-					continue;
+					break;
+				default:
+					// should not happen
+					throw "Internal Error: unknown instruction type";
 			}
-			// should not happen
-			throw "Internal Error: unknown instruction type";
+
+			// call the validator
+			if (validator) {
+				try {
+					validator(inst);
+				} catch (e) {
+					if (typeof e == "string") {
+						throw e + ", on line " + inst.n;
+					}
+				}
+			}
 		}
 
 		result.usedAddresses = writer.getUsedAddresses();

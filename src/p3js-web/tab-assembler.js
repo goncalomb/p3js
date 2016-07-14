@@ -30,7 +30,7 @@ module.exports = function(share, p3sim) {
 	CodeMirror.registerHelper("lint", null, function(text) {
 		if (use_linter) {
 			try {
-				p3js.assembler.assembleData(p3js.parser.parseString(text));
+				p3js.assembler.assembleData(p3js.parser.parseString(text), p3js.assembler.DEFAULT_VALIDATOR);
 			} catch (e) {
 				var matches = e.toString().match(/^(.*), on line (\d+)$/);
 				if (matches) {
@@ -270,7 +270,7 @@ module.exports = function(share, p3sim) {
 				var t = Date.now();
 				try {
 					var data = p3js.parser.parseString(code_mirror.getValue());
-					var result = p3js.assembler.assembleData(data);
+					var result = p3js.assembler.assembleData(data, p3js.assembler.DEFAULT_VALIDATOR);
 					asm_info_add(null)
 					asm_info_add("Assembling finished (" + (Date.now() - t) + " ms).", "text-success");
 					asm_info_add("Program loaded on simulator.", "text-info small");

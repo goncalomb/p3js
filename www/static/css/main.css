@@ -1,6 +1,8 @@
 /*!
  * Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>
  *
+ * Source Code on GitHub: https://github.com/goncalomb/p3js
+ *
  * P3JS is released under the terms of the MIT License.
  * See LICENSE.txt for details.
  */
@@ -24,6 +26,10 @@ header, footer {
 
 header h1 {
 	font-weight: bold;
+}
+
+footer p{
+	margin-bottom: 21px;
 }
 
 .fullscreen header h1 {

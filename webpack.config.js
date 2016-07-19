@@ -2,6 +2,7 @@ var webpack = require("webpack");
 var path = require("path");
 var output_path = path.join(__dirname, "www", "static", "js");
 var copyright = "Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>\n\n"
+	+ "Source Code on GitHub: https://github.com/goncalomb/p3js\n\n"
 	+ "P3JS is released under the terms of the MIT License.\n"
 	+ "See LICENSE.txt for details.";
 

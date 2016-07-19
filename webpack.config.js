@@ -1,7 +1,9 @@
 var webpack = require("webpack");
 var path = require("path");
 var output_path = path.join(__dirname, "www", "static", "js");
-var copyright = "Copyright (C) 2016 Gonçalo Baltazar <me@goncalomb.com>";
+var copyright = "Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>\n\n"
+	+ "P3JS is released under the terms of the MIT License.\n"
+	+ "See LICENSE.txt for details.";
 
 module.exports = [{
 	entry: "./src/p3js/p3js.js",
@@ -11,9 +13,9 @@ module.exports = [{
 	},
 	plugins: [
 		new webpack.BannerPlugin(
-			"P3JS Core Bundle\n" +
+			"P3JS Bundle\n\n" +
 			"P3 CPU Assembler and Simulator.\n" +
-			"Creates 'window.p3js'.\n" +
+			"Exposes 'window.p3js'.\n" +
 			"\n" + copyright
 		)
 	]
@@ -25,8 +27,9 @@ module.exports = [{
 	},
 	plugins: [
 		new webpack.BannerPlugin(
-			"P3JS Web Bundle\n" +
-			"Web UI for P3JS.\n" +
+			"P3JS-WEB Bundle\n\n" +
+			"Web interface for P3JS.\n" +
+			"Exposes 'window.p3sim', an instance of 'p3js.Simulator'.\n" +
 			"\n" + copyright
 		)
 	]

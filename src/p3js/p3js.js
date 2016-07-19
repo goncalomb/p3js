@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>
+ *
+ * P3JS is released under the terms of the MIT License.
+ * See LICENSE.txt for details.
+ */
+
 module.exports = (function() {
 
 	var p3j3 = window.p3js = { };

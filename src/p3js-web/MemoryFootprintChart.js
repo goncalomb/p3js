@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>
+ *
+ * P3JS is released under the terms of the MIT License.
+ * See LICENSE.txt for details.
+ */
+
 var MemoryFootprintChart = module.exports = function(canvas) {
 	this._canvas = canvas;
 	this._labelDx = 5;

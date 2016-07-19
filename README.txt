@@ -8,4 +8,6 @@ Computer Engineering students.
 This is a work in progress.
 
 Copyright (C) 2016 Gonçalo Baltazar <me@goncalomb.com>
-All rights reserved.
+
+P3JS is released under the terms of the MIT License.
+See LICENSE.txt for details.

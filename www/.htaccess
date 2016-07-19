@@ -1,0 +1,7 @@
+ServerSignature Off
+DirectoryIndex index.html
+DirectorySlash On
+AcceptPathInfo Off
+Options -MultiViews -Indexes -Includes -ExecCGI +FollowSymLinks
+
+AddCharset UTF-8 .html .js .css .as

@@ -7,7 +7,10 @@
 
 module.exports = (function() {
 
-	var p3j3 = window.p3js = { };
+	var p3js = { };
+	if (typeof window != "undefined") {
+		window.p3js = p3js;
+	}
 
 	p3js.pseudoInstructions = {
 		"ORIG": { type: "0c", requiresLabel: false },

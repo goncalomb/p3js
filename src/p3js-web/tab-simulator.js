@@ -24,6 +24,10 @@ module.exports = function(share, p3sim) {
 	var show_ctrl = false;
 	var show_io = false;
 
+	var MemoryViewPanel = require("./MemoryViewPanel.js");
+	var memory_panel0 = new MemoryViewPanel($sim_memory0, 32768, 32768 + 256);
+	var memory_panel1 = new MemoryViewPanel($sim_memory1, 64768, 64768 + 256);
+
 	function sim_update_debug_panel() {
 		function hex(n) {
 			return ("000" + (n & 0xffff).toString(16)).substr(-4);
@@ -66,28 +70,6 @@ module.exports = function(share, p3sim) {
 			"Clock: " + c.toLocaleString() + "\n" +
 			"Instructions: " + i.toLocaleString() + "\n"
 		);
-	}
-
-	function sim_update_memory($textarea, off, len) {
-		var arr = [];
-		for (var i = off, l = off + len; i < l; ) {
-			var line = "";
-			var ascii = "";
-			line += ("000" + i.toString(16)).substr(-4) + " : ";
-			for (var j = 0; j < 8 && i < l; j++, i++) {
-				var v = p3sim._memoryView.getInt16(i * 2, true) & 0xffff;
-				line += ("000" + v.toString(16)).substr(-4) + " ";
-				if (v > 32 && v < 127) {
-					// only printable characters
-					ascii += String.fromCharCode(v);
-				} else {
-					ascii += ".";
-				}
-			}
-			line += ascii + "\n";
-			arr.push(line);
-		}
-		$textarea.val(arr.join(""));
 	}
 
 	$sim_start.click(function() {
@@ -159,18 +141,13 @@ module.exports = function(share, p3sim) {
 		sim_update_status(0, 0, 0);
 	});
 	p3sim.registerEventHandler("memory", function(addr) {
-		// XXX: don't use hardcoded values
-		if (addr === null || (addr >= 32768 && addr < 32768 + 256)) {
-			sim_update_memory($sim_memory0, 32768, 256);
-		}
-		if (addr === null || (addr >= 64768 && addr < 64768 + 256)) {
-			sim_update_memory($sim_memory1, 64768, 256);
-		}
+		memory_panel0.updateConditionally(p3sim._memoryView, addr);
+		memory_panel1.updateConditionally(p3sim._memoryView, addr);
 	});
 
 	sim_update_debug_panel();
 	sim_update_status(0, 0, 0);
-	sim_update_memory($sim_memory0, 32768, 256);
-	sim_update_memory($sim_memory1, 64768, 256);
+	memory_panel0.update(p3sim._memoryView);
+	memory_panel1.update(p3sim._memoryView);
 
 };

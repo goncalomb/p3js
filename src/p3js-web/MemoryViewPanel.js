@@ -4,6 +4,29 @@ var MemoryViewPanel = module.exports = function($area, begin, end) {
 	this._end = end;
 }
 
+MemoryViewPanel.prototype.promptLimits = function() {
+	var regex = /^([0-9a-f]{1,4})\s?:\s?([0-9a-f]{1,4})$/i;
+	var value = ("000" + this._begin.toString(16)).substr(-4) + ":" + ("000" + (this._end - 1).toString(16)).substr(-4);
+	value = prompt("New memory range:", value);
+	while (true) {
+		if (!value) {
+			return;
+		} else {
+			var matches = value.match(regex);
+			if (matches) {
+				var b = parseInt(matches[1], 16);
+				var e = parseInt(matches[2], 16);
+				if (e >= b) {
+					this._begin = b;
+					this._end = e + 1;
+					return;
+				}
+			}
+		}
+		value = prompt("Invalid range. New memory range:", value);
+	}
+}
+
 MemoryViewPanel.prototype.updateConditionally = function(data_view, addr) {
 	if (addr === null || (addr >= this._begin && addr < this._end)) {
 		this.update(data_view);

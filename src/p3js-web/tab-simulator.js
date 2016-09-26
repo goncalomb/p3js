@@ -28,6 +28,16 @@ module.exports = function(share, p3sim) {
 	var memory_panel0 = new MemoryViewPanel($sim_memory0, 32768, 32768 + 256);
 	var memory_panel1 = new MemoryViewPanel($sim_memory1, 64768, 64768 + 256);
 
+	$("#sim-memory0-edit").click(function() {
+		memory_panel0.promptLimits();
+		memory_panel0.update(p3sim._memoryView);
+	});
+
+	$("#sim-memory1-edit").click(function() {
+		memory_panel1.promptLimits();
+		memory_panel1.update(p3sim._memoryView);
+	});
+
 	function sim_update_debug_panel() {
 		function hex(n) {
 			return ("000" + (n & 0xffff).toString(16)).substr(-4);

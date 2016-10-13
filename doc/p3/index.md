@@ -20,13 +20,3 @@ _Not to be confused with The Pentium III._
 * 45 instructions (default)
 * 4 addressing modes
 * 1 interrupt signal
-
-## Some Considerations ##
-
-The P3 uses "interrupt acknowledge" to handle interrupts. The interrupt number is read from the data bus (lower 8 bits, 256 interrupts). Check the book for more information.
-
-Addresses from 0xFE00 to 0xFEFF are reserved for the interrupt vector table.
-
-Addresses from 0xFF00 to 0xFFFF are reserved for memory mapped I/O devices.
-
-On boot, the CPU starts executing instructions at 0x0000.

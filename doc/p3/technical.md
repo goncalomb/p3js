@@ -20,7 +20,7 @@ The opcodes are 6-bit long.
 | **011x** | SHR   | SHL   | SHRA  | SHLA  | ROR   | ROL   | RORC  | ROLC  |
 | **100x** | CMP   | ADD   | ADDC  | SUB   | SUBB  | MUL   | DIV   | TEST  |
 | **101x** | AND   | OR    | XOR   | MOV   | MVBH  | MVBL  | XCH   |       |
-| **110x** | JMP   | CALL  | JMP.  | CALL. |       |       |       |       |
+| **110x** | JMP   | JMP.  | CALL  | CALL. |       |       |       |       |
 | **111x** | BR    | BR.   |       |       |       |       |       |       |
 
 ## Interrupts ##

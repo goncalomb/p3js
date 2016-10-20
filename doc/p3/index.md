@@ -1,6 +1,6 @@
 # P3 CPU #
 
-The P3 is a 16 bit CPU used at Instituto Superior Técnico (IST) as a learning tool for Computer Engineering students.
+The P3 is a 16-bit CPU used at Instituto Superior Técnico (IST) as a learning tool for Computer Engineering students.
 
 It is described in chapters 10, 11 and 12 of the book:
 

@@ -26,8 +26,9 @@ module.exports = function(share, p3sim) {
 	var timer_state = 0;
 	var timer_interval = 0;
 	var switches_value = 0;
-	var terminal_x = -1;
-	var terminal_y = -1;
+	var terminal_cursor_mode = false;
+	var terminal_x = 0;
+	var terminal_y = 0;
 	var terminal_last_key = 0;
 
 	function reset_lcd() {
@@ -67,9 +68,10 @@ module.exports = function(share, p3sim) {
 	}
 
 	function reset_terminal() {
-		terminal_x = terminal_y = -1;
+		terminal_cursor_mode = false;
+		terminal_x = terminal_y = 0;
 		terminal_last_key = 0;
-		$io_terminal.val("");
+		$io_terminal.text("");
 	}
 
 	$io_terminal.on("keypress", function(e) {
@@ -212,28 +214,28 @@ module.exports = function(share, p3sim) {
 		},
 		0xfffc: function(v) { // terminal control
 			if (v == 0xffff) {
+				terminal_cursor_mode = true;
 				terminal_x = terminal_y = 0;
-				$io_terminal.val(Array(80*24 + 1).join(" "));
+				var empty_line = Array(80 + 1).join(" ") + "\n"
+				$io_terminal.text(Array(24 + 1).join(empty_line).slice(0, -1));
 			} else {
 				terminal_x = v & 0xff;
 				terminal_y = v >> 8 & 0xff;
 			}
 		},
 		0xfffe: function(v) { // terminal write
-			if (terminal_x == -1) {
-				var val = $io_terminal.val();
+			if (!terminal_cursor_mode) {
+				var val = $io_terminal.text();
 				val += String.fromCharCode(v);
-				if ((val.length + 1)%81 == 0) {
-					val += "\n";
+				if (val.length > 4096) {
+					val = val.substr(1, 4096)
 				}
-				$io_terminal.val(val);
-				// XXX: causes to many browser redraws
-				// $io_terminal[0].scrollTop = $io_terminal[0].scrollHeight;
+				$io_terminal.text(val);
 			} else if (terminal_x < 80 && terminal_y < 24) {
-				var str = $io_terminal.val();
-				var i = terminal_x + terminal_y*80;
+				var str = $io_terminal.text();
+				var i = terminal_x + terminal_y*81;
 				str = str.substr(0, i) + String.fromCharCode(v) + str.substr(i + 1, str.length);
-				$io_terminal.val(str);
+				$io_terminal.text(str);
 			}
 		}
 	});

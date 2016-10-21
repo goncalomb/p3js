@@ -117,29 +117,31 @@ textarea {
 	display: block !important;
 }
 
-#io-terminal, #io-board {
-	border: 2px solid gray;
-	border-radius: 5px;
-}
-
-#io-terminal-wrapper {
-	display: table;
-	margin: 5px auto;
-}
-
-#io-terminal {
-	font-size: 14px;
-	color: #cfcfcf;
-	background-color: #212121;
-	box-sizing: content-box;
-	width: 82ch;
-}
-
-#io-board {
+#io-terminal-wrapper, #io-board {
 	display: table;
 	margin: 5px auto;
 	padding: 5px;
+	border: 2px solid gray;
+	border-radius: 5px;
 	background-color: #212121;
+}
+
+#io-terminal-scroll {
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+#io-terminal {
+	font-family: monospace;
+	font-size: 14px;
+	line-height: 15px;
+	color: #cfcfcf;
+	width: 80ch;
+	height: 360px;
+	margin-right: 5px;
+	white-space: pre-wrap;
+	word-break: break-all;
+	word-wrap: break-word;
 }
 
 #io-board > * {

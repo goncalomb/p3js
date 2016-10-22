@@ -74,9 +74,23 @@ module.exports = function(share, p3sim) {
 		$io_terminal.text("");
 	}
 
-	$io_terminal.on("keypress", function(e) {
+	$io_terminal_wrapper.on("keypress", function(e) {
+		e.preventDefault();
 		if (p3sim.isRunning()) {
-			terminal_last_key = e.which;
+			if (e.which == 13) {
+				terminal_last_key = 10 // send ENTER as LF insted of CR
+			} else {
+				terminal_last_key = e.which;
+			}
+		}
+	});
+
+	$io_terminal_wrapper.on("keydown", function(e) {
+		if (e.which == 8 || e.which == 27) { // BS and ESC
+			e.preventDefault();
+			if (p3sim.isRunning()) {
+				terminal_last_key = e.which;
+			}
 		}
 	});
 

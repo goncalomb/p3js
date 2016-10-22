@@ -126,6 +126,11 @@ textarea {
 	background-color: #212121;
 }
 
+#io-terminal-wrapper:focus {
+	outline: none;
+	box-shadow: #3498db 0 0 10px, #3498db 0 0 10px, #3498db 0 0 10px;
+}
+
 #io-terminal-scroll {
 	overflow-x: hidden;
 	overflow-y: scroll;

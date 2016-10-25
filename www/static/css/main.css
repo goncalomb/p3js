@@ -145,8 +145,6 @@ textarea {
 	height: 360px;
 	margin-right: 5px;
 	white-space: pre-wrap;
-	word-break: break-all;
-	word-wrap: break-word;
 }
 
 #io-board > * {

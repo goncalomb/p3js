@@ -7,251 +7,43 @@
 
 module.exports = function(share, p3sim) {
 
-	var $io_terminal = $("#io-terminal");
-	var $io_terminal_wrapper = $("#io-terminal-wrapper");
-	var $io_board = $("#io-board");
-	var $io_board_lcd = $("#io-board-lcd");
-	var $io_board_leds = $("#io-board-leds");
-	var $io_board_7seg = $("#io-board-7seg");
-	var $io_board_buttons = $("#io-board-buttons");
-	var $io_board_switches = $("#io-board-switches");
-	var $leds = [];
+	var IOBoard = require("./IOBoard.js");
+	var IOTerminal = require("./IOTerminal.js");
+	var IOTimer = require("./IOTimer.js");
 
-	var lcd_active = true;
-	var lcd_x = 0;
-	var lcd_y = 0;
-	var lcd_text = null;
-	var seg7_value = 0;
-	var timer_value = 0;
-	var timer_state = 0;
-	var timer_interval = 0;
-	var switches_value = 0;
-	var terminal_cursor_mode = false;
-	var terminal_x = 0;
-	var terminal_y = 0;
-	var terminal_last_key = 0;
+	var board = new IOBoard(p3sim);
+	var terminal = new IOTerminal(p3sim);
+	var timer = new IOTimer(p3sim);
 
-	function reset_lcd() {
-		lcd_active = true;
-		lcd_x = 0;
-		lcd_y = 0;
-		lcd_text = null;
-		$io_board_lcd.val("");
-	}
-
-	function update_7seg(value) {
-		seg7_value = value;
-		$io_board_7seg.text(("0000" + seg7_value.toString(16)).substr(-4));
-	}
-
-	function reset_switches() {
-		switches_value = 0;
-		$io_board_switches.children().removeClass("on");
-	}
-
-	function control_timer(state) {
-		if (state == 0) {
-			clearInterval(timer_interval);
-			timer_state = 0;
-			timer_interval = 0;
-		} else if (timer_state == 0) {
-			timer_state = 1;
-			timer_interval = setInterval(function() {
-				if (timer_value <= 0) {
-					control_timer(0);
-					p3sim.interrupt(15);
-				} else {
-					timer_value--;
-				}
-			}, 100);
-		}
-	}
-
-	function reset_terminal() {
-		terminal_cursor_mode = false;
-		terminal_x = terminal_y = 0;
-		terminal_last_key = 0;
-		$io_terminal.text("");
-	}
-
-	$io_terminal_wrapper.on("keypress", function(e) {
-		e.preventDefault();
-		if (p3sim.isRunning()) {
-			if (e.which == 13) {
-				terminal_last_key = 10 // send ENTER as LF insted of CR
-			} else {
-				terminal_last_key = e.which;
-			}
-		}
-	});
-
-	$io_terminal_wrapper.on("keydown", function(e) {
-		if (e.which == 8 || e.which == 27) { // BS and ESC
-			e.preventDefault();
-			if (p3sim.isRunning()) {
-				terminal_last_key = e.which;
-			}
-		}
-	});
-
-	// populate board elements
-
-	for (var i = 0; i < 16; i++) {
-		$leds.push($("<span>").appendTo($io_board_leds));
-	}
-
-	$io_board_7seg.text("0000");
-
-	function create_button_row(arr) {
-		var $div = $("<div>");
-		arr.forEach(function(i) {
-			$("<button>").addClass("btn btn-xs").text("I" + i.toString(16).toUpperCase()).click(function() {
-				p3sim.interrupt(i);
-			}).appendTo($div);
-		});
-		$div.appendTo($io_board_buttons);
-	}
-	create_button_row([7,  8,  9, 12]);
-	create_button_row([4,  5,  6, 13]);
-	create_button_row([1,  2,  3, 14]);
-	create_button_row([0, 10, 11]);
-
-	function create_switch(i) {
-		$("<button>").addClass("btn").click(function() {
-			var $this = $(this);
-			if ($this.hasClass("on")) {
-				$this.removeClass("on");
-				switches_value &= ~(1 << (7 - i));
-			} else {
-				$this.addClass("on");
-				switches_value |= 1 << (7 - i);
-			}
-		}).appendTo($io_board_switches);
-	}
-	for (var i = 0; i < 8; i++) {
-		create_switch(i);
-	}
-
-	share.createDraggableElement($io_board);
-	share.createDraggableElement($io_terminal_wrapper);
-
-	// register p3 simulator handlers
+	share.createDraggableElement($("#io-board"));
+	share.createDraggableElement($("#io-terminal-wrapper"));
 
 	p3sim.registerEventHandler("reset", function() {
-		reset_lcd();
-		$io_board_leds.find(".on").removeClass("on");
-		update_7seg(0);
-		timer_value = 0;
-		control_timer(0);
-		reset_switches();
-		reset_terminal();
+		board.reset();
+		terminal.reset();
+		timer.reset();
 	});
 
 	p3sim.setIOHandlers({
 		// IO read addresses
-		0xfff6: function() { // timer value
-			return timer_value;
-		},
-		0xfff7: function() { // timer state
-			return timer_state;
-		},
-		0xfff9: function() { // switches
-			return switches_value;
-		},
-		0xfffd: function() { // terminal state
-			return (terminal_last_key ? 1 : 0);
-		},
-		0xffff: function() { // terminal read
-			var k = terminal_last_key;
-			terminal_last_key = 0;
-			return k;
-		}
+		0xfff6: function() { return timer.getValue(); }, // timer value
+		0xfff7: function() { return timer.state(); }, // timer control
+		0xfff9: function() { return board.switches(); }, // switches
+		0xfffd: function() { return terminal.state(); }, // terminal state
+		0xffff: function() { return terminal.read(); } // terminal read
 	}, {
 		// IO write addresses
-		0xfff0: function(v) { // 7 segment write 0
-			update_7seg((seg7_value & 0xfff0) | (v & 0xf));
-		},
-		0xfff1: function(v) { // 7 segment write 1
-			update_7seg((seg7_value & 0xff0f) | ((v & 0xf) << 4));
-		},
-		0xfff2: function(v) { // 7 segment write 2
-			update_7seg((seg7_value & 0xf0ff) | ((v & 0xf) << 8));
-		},
-		0xfff3: function(v) { // 7 segment write 3
-			update_7seg((seg7_value & 0x0fff) | ((v & 0xf) << 12));
-		},
-		0xfff4: function(v) { // lcd control
-			if ((v & 0x20) != 0) {
-				$io_board_lcd.val("");
-				lcd_text = null;
-			}
-			if ((v & 0x8000) == 0) {
-				$io_board_lcd.val("");
-				lcd_active = false;
-			} else {
-				if (!lcd_active && lcd_text) {
-					$io_board_lcd.val(lcd_text.join("\n"));
-				}
-				lcd_active = true;
-			}
-			lcd_x = v & 0xf;
-			lcd_y = v >> 4 & 0x1;
-		},
-		0xfff5: function(v) { // lcd write
-			if (!lcd_text) {
-				lcd_text = [
-					Array(16 + 1).join(" "),
-					Array(16 + 1).join(" ")
-				];
-			}
-			var str = lcd_text[lcd_y];
-			str = str.substr(0, lcd_x) + String.fromCharCode(v) + str.substr(lcd_x + 1, str.length);
-			lcd_text[lcd_y] = str;
-			if (lcd_active) {
-				$io_board_lcd.val(lcd_text.join("\n"));
-			}
-		},
-		0xfff6: function(v) { // timer value
-			timer_value = v;
-		},
-		0xfff7: function(v) { // timer state
-			control_timer(v & 0x1);
-		},
-		0xfff8: function(v) { // leds
-			for (var i = 0; i < 16; i++) {
-				if (((v << i) & 0x8000) == 0) {
-					$leds[i].removeClass("on");
-				} else {
-					$leds[i].addClass("on");
-				}
-			}
-		},
-		0xfffc: function(v) { // terminal control
-			if (v == 0xffff) {
-				terminal_cursor_mode = true;
-				terminal_x = terminal_y = 0;
-				var empty_line = Array(80 + 1).join(" ") + "\n"
-				$io_terminal.text(Array(24 + 1).join(empty_line).slice(0, -1));
-			} else {
-				terminal_x = v & 0xff;
-				terminal_y = v >> 8 & 0xff;
-			}
-		},
-		0xfffe: function(v) { // terminal write
-			if (!terminal_cursor_mode) {
-				var val = $io_terminal.text();
-				val += String.fromCharCode(v);
-				if (val.length > 4096) {
-					val = val.substr(1, 4096)
-				}
-				$io_terminal.text(val);
-			} else if (terminal_x < 80 && terminal_y < 24) {
-				var str = $io_terminal.text();
-				var i = terminal_x + terminal_y*81;
-				str = str.substr(0, i) + String.fromCharCode(v) + str.substr(i + 1, str.length);
-				$io_terminal.text(str);
-			}
-		}
+		0xfff0: function(v) { board.set7Segment(v & 0xf, 0xfff0); }, // 7 segment write 0
+		0xfff1: function(v) { board.set7Segment((v & 0xf) << 4, 0xff0f); }, // 7 segment write 1
+		0xfff2: function(v) { board.set7Segment((v & 0xf) << 8, 0xf0ff); }, // 7 segment write 2
+		0xfff3: function(v) { board.set7Segment((v & 0xf) << 12, 0x0fff); }, // 7 segment write 3
+		0xfff4: function(v) { board.lcdControl(v); }, // lcd control
+		0xfff5: function(v) { board.lcdWrite(v); }, // lcd write
+		0xfff6: function(v) { timer.setValue(v); }, // timer value
+		0xfff7: function(v) { timer.control(v); }, // timer control
+		0xfff8: function(v) { board.leds(v); }, // leds
+		0xfffc: function(v) { terminal.control(v); }, // terminal control
+		0xfffe: function(v) { terminal.write(v); } // terminal write
 	});
 
 };

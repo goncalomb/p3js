@@ -25,11 +25,25 @@ var IOTerminal = module.exports = function(p3sim) {
 	});
 }
 
+IOTerminal.BUFFER_SIZE = 64 * 80;
+IOTerminal.REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
+
+IOTerminal.prototype._charFromCode = function(code, deny_lf) {
+	if (!deny_lf && code == 10) {
+		return "\n";
+	} else if (code < 0x20 || (code >= 0x7f && code <= 0xa0) || code == 0xad || code > 0xff) {
+		return this.constructor.REPLACEMENT_CHAR;
+	} else {
+		return String.fromCharCode(code);
+	}
+}
+
 IOTerminal.prototype.reset = function() {
 	this._$content.text("");
 	this._buffer = "";
 	this._cursor_mode = false;
 	this._last_key = 0;
+	this._last_lf_index = 0;
 	this._x = 0;
 	this._y = 0;
 }
@@ -61,16 +75,20 @@ IOTerminal.prototype.control = function(v) {
 IOTerminal.prototype.write = function(v) {
 	var val = this._buffer;
 	if (!this._cursor_mode) {
-		val += String.fromCharCode(v);
-		if ((val.length + 1)%81 == 0) {
+		val += this._charFromCode(v);
+		this._last_lf_index++;
+		if (v == 10) { // test for LF
+			this._last_lf_index = 0;
+		} else if (this._last_lf_index == 80) {
+			this._last_lf_index = 0;
 			val += "\n";
 		}
-		if (val.length > 64 * 81) {
-			val = val.substr(81);
+		if (val.length > this.constructor.BUFFER_SIZE) {
+			val = val.substr(val.indexOf("\n") + 1);
 		}
 	} else if (this._x < 80 && this._y < 24) {
 		var i = this._x + this._y*81;
-		val = val.substr(0, i) + String.fromCharCode(v) + val.substr(i + 1, val.length);
+		val = val.substr(0, i) + this._charFromCode(v, true) + val.substr(i + 1, val.length);
 	}
 	this._$content.text(this._buffer = val);
 }

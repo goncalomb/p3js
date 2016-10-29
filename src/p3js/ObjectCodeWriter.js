@@ -7,7 +7,8 @@
 
 module.exports = function(p3js) {
 
-	eval(p3js.extractConstants());
+	var MEMORY_SIZE = p3js.devices.RAM.MEMORY_SIZE;
+	var MEMORY_WORD_SIZE = p3js.devices.RAM.MEMORY_WORD_SIZE;
 
 	var ObjectCodeWriter = function() {
 		this.buffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);

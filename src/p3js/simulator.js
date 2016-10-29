@@ -7,32 +7,32 @@
 
 module.exports = function(p3js) {
 
-	eval(p3js.extractConstants());
-
 	var simulator = p3js.Simulator = function() {
 		if (!(this instanceof simulator)) {
 			return new simulator();
 		}
+
 		// processor roms
 		this._romA = this._romB = this._romC = null;
 		this.resetRomA();
 		this.resetRomB();
 		this.resetRomC();
+
 		// processor variables
-		this._memoryBufferFresh = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-		this._memoryBuffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-		this._memoryView = new DataView(this._memoryBuffer);
 		this._resetProcessorVariables();
+
 		// simulation variables
 		this._eventHandlers = {};
-		this._ioReadHandlers = {};
-		this._ioWriteHandlers = {};
+
+		this._ram = new p3js.devices.RAM();
+		this._ioc = new p3js.devices.IOC();
+		this._pic = new p3js.devices.PIC(this);
+		this._busDevices = [this._pic, this._ioc, this._ram];
+
 		this._resetSimulationVariables();
 	};
 
 	simulator.prototype._resetProcessorVariables = function() {
-		// reset memory
-		(new Uint8Array(this._memoryBuffer)).set(new Uint8Array(this._memoryBufferFresh));
 		// registers
 		this._registers = [
 			0,                   // R0    = 0
@@ -49,13 +49,15 @@ module.exports = function(p3js) {
 		this._car = 0;           // CAR   (control address register)
 		this._sbr = 0;           // SBR   (subroutine branch register)
 		this._int = 0;           // interrupt flag
-		// special variables
-		this._intPending = Array.apply(null, Array(INTERRUPT_COUNT)).map(Boolean.prototype.valueOf, false);
-		this._intMask = 0;
-		this._extData = null;    // external data (injects data on the data bus)
+		this._iak = 0;           // interrupt acknowledge flag
 	}
 
 	simulator.prototype._resetSimulationVariables = function() {
+		// reset bus elements
+		for (var i = 0, l = this._busDevices.length; i < l; i++) {
+			this._busDevices[i].reset();
+		}
+
 		this._cachedMicro = null;
 		this._cachedInstruction = null;
 		this._interval = 0; // != 0 when simulation is running
@@ -133,38 +135,26 @@ module.exports = function(p3js) {
 
 	simulator.prototype._readMemory = function(addr) {
 		addr &= 0xffff;
-		if (addr == INTERRUPT_MASK_ADDRESS) {
-			return this._intMask << 16 >> 16;
-		} else if (addr >= IO_FIRST_ADDRESS) {
-			if (this._ioReadHandlers[addr]) {
-				return this._ioReadHandlers[addr].call(this) << 16 >> 16;
-			} else {
-				return -1; // not a valid IO read address, return -1
+		for (var i = 0, l = this._busDevices.length; i < l; i++) {
+			var v = this._busDevices[i].readFromAddress(addr, this._iak);
+			if (v !== undefined) {
+				return v;
 			}
-		} else {
-			return this._memoryView.getInt16(addr * 2, true);
 		}
+		throw "BUS read error";
 	}
 
 	simulator.prototype._writeMemory = function(addr, val) {
 		addr &= 0xffff;
-		if (addr == INTERRUPT_MASK_ADDRESS) {
-			this._intMask = val & 0xffff;
-			this._int = 0;
-			for (var i = 0; i < INTERRUPT_COUNT; i++) {
-				if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {
-					this._int = 1;
-					break;
+		for (var i = 0, l = this._busDevices.length; i < l; i++) {
+			if (this._busDevices[i].writeToAddress(addr, val) !== undefined) {
+				if (this._busDevices[i] == this._ram) {
+					this._fireEvent("memory", [addr]);
 				}
+				return;
 			}
-		} else if (addr >= IO_FIRST_ADDRESS) {
-			if (this._ioWriteHandlers[addr]) {
-				this._ioWriteHandlers[addr].call(this, val & 0xffff);
-			}
-		} else {
-			this._memoryView.setInt16(addr * 2, val, true);
-			this._fireEvent("memory", [addr]);
 		}
+		throw "BUS write error";
 	}
 
 	simulator.prototype._alu = function(a, b, cula, c) {
@@ -377,15 +367,7 @@ module.exports = function(p3js) {
 		var result;
 		switch (micro.md) {
 			case 0: result = alu.result; break;
-			case 1:
-				if (this._extData !== null) {
-					// Special case where data is "waiting" to be injected on
-					// the data bus. This is used by the interrupt controller.
-					result = this._extData;
-				} else {
-					result = this._readMemory(a);
-				}
-				break;
+			case 1: result = this._readMemory(a); break;
 			case 2: result = this._re & 0x1f; break;
 			case 3: result = micro.const; break;
 		}
@@ -416,40 +398,20 @@ module.exports = function(p3js) {
 		}
 		// clean external data
 		this._extData = null;
-		// programmable interrupt controller (PIC)
-		if (!micro.f && micro.iak) {
-			// Detect iak bit and inject the interrupt vector on the data bus.
-			this._int = 0;
-			for (var i = 0; i < INTERRUPT_COUNT; i++) {
-				if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {
-					if (this._extData === null) {
-						this._intPending[i] = false;
-						this._extData = i;
-					} else {
-						// more interruptions waiting
-						this._int = 1;
-						break;
-					}
-				}
-			}
-			if (this._extData === null) {
-				// this should never fire
-				throw "PIC error, no interruption pending";
-			}
-		}
+		// set iak
+		this._iak = (!micro.f && micro.iak ? 1 : 0);
 		// finalize
 		this._clockCount++;
 		return (micro.f && micro.li); // finished an instruction?
 	};
 
 	simulator.prototype.interrupt = function(i) {
-		if (i >= 0 && i < INTERRUPT_COUNT) {
-			this._intPending[i] = true;
-			if (i >= 16 || this._intMask >> i & 0x1) {
-				this._int = 1;
-			}
-		}
+		this._pic.triggerInterrupt(i);
 	};
+
+	simulator.prototype.setIntSignal = function(i) {
+		this._int = (i & 0x1);
+	}
 
 	simulator.prototype.registerEventHandler = function(name, fn) {
 		if (typeof fn == "function") {
@@ -461,26 +423,17 @@ module.exports = function(p3js) {
 	};
 
 	simulator.prototype.setIOHandlers = function(read, write) {
-		if (!read && !write) {
-			this._ioReadHandlers = {};
-			this._ioWriteHandlers = {};
-			return;
-		}
 		for (var key in read) {
-			if (key >= IO_FIRST_ADDRESS && key <= LAST_ADDRESS && typeof read[key] == "function") {
-				this._ioReadHandlers[key] = read[key];
-			}
+			this._ioc.registerReadHandler(key, read[key]);
 		}
 		for (var key in write) {
-			if (key >= IO_FIRST_ADDRESS && key <= LAST_ADDRESS && typeof write[key] == "function") {
-				this._ioWriteHandlers[key] = write[key];
-			}
+			this._ioc.registerWriteHandler(key, write[key]);
 		}
 	}
 
 	simulator.prototype.loadMemory = function(buffer) {
 		this.stop();
-		(new Uint8Array(this._memoryBufferFresh)).set(new Uint8Array(buffer));
+		this._ram.load(buffer)
 		this.reset();
 		this._fireEvent("load");
 	};

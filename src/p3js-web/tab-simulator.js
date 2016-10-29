@@ -30,12 +30,12 @@ module.exports = function(share, p3sim) {
 
 	$("#sim-memory0-edit").click(function() {
 		memory_panel0.promptLimits();
-		memory_panel0.update(p3sim._memoryView);
+		memory_panel0.update(p3sim._ram._memoryView);
 	});
 
 	$("#sim-memory1-edit").click(function() {
 		memory_panel1.promptLimits();
-		memory_panel1.update(p3sim._memoryView);
+		memory_panel1.update(p3sim._ram._memoryView);
 	});
 
 	function sim_update_debug_panel() {
@@ -151,13 +151,13 @@ module.exports = function(share, p3sim) {
 		sim_update_status(0, 0, 0);
 	});
 	p3sim.registerEventHandler("memory", function(addr) {
-		memory_panel0.updateConditionally(p3sim._memoryView, addr);
-		memory_panel1.updateConditionally(p3sim._memoryView, addr);
+		memory_panel0.updateConditionally(p3sim._ram._memoryView, addr);
+		memory_panel1.updateConditionally(p3sim._ram._memoryView, addr);
 	});
 
 	sim_update_debug_panel();
 	sim_update_status(0, 0, 0);
-	memory_panel0.update(p3sim._memoryView);
-	memory_panel1.update(p3sim._memoryView);
+	memory_panel0.update(p3sim._ram._memoryView);
+	memory_panel1.update(p3sim._ram._memoryView);
 
 };

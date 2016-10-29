@@ -106,8 +106,6 @@ module.exports = (function() {
 		P3AS_MAGIC_NUMBER: 56347333,
 		P3AS_MAGIC_NUMBER_OLD: 936854375,
 
-		MEMORY_SIZE: (1 << 16), // 65536 positions
-		MEMORY_WORD_SIZE: 2,    // 16 bits
 		ROM_A_SIZE: (1 << 6),   // 64 positions
 		ROM_A_WORD_SIZE: 2,     // 16 bits (only 9 are used)
 		ROM_B_SIZE: (1 << 2),   // 16 positions
@@ -115,12 +113,7 @@ module.exports = (function() {
 		ROM_C_SIZE: (1 << 9),   // 512 positions
 		ROM_C_WORD_SIZE: 4,     // 32 bits
 
-		FIRST_ADDRESS: 0x0000,
-		LAST_ADDRESS: 0xffff,
-		IO_FIRST_ADDRESS: 0xff00,
-		INTERRUPT_VECTOR_ADDRESS: 0xfe00, // default value, may be different if RomC was changed
-		INTERRUPT_COUNT: 256,
-		INTERRUPT_MASK_ADDRESS: 0xfffa,
+		INTERRUPT_VECTOR_ADDRESS: 0xfe00,
 
 		REGISTER_0: 0,
 		REGISTER_SP: 14,
@@ -207,8 +200,8 @@ module.exports = (function() {
 		return buffer.slice(0, p);
 	}
 
+	p3js.devices = require("./devices");
 	p3js.ObjectCodeWriter = require("./ObjectCodeWriter.js")(p3js);
-
 	p3js.parser = require("./parser.js")(p3js);
 	p3js.assembler = require("./assembler.js")(p3js);
 	require("./simulator.js")(p3js);

@@ -1,4 +1,5 @@
-var RAM = module.exports = function() {
+var RAM = module.exports = function(sim) {
+	this._sim = sim;
 	this._memoryBufferFresh = new ArrayBuffer(this.constructor.MEMORY_SIZE * this.constructor.MEMORY_WORD_SIZE);
 	this._memoryBuffer = new ArrayBuffer(this.constructor.MEMORY_SIZE * this.constructor.MEMORY_WORD_SIZE);
 	this._memoryView = new DataView(this._memoryBuffer);
@@ -18,6 +19,7 @@ RAM.prototype.readFromAddress = function(addr, iak) {
 
 RAM.prototype.writeToAddress = function(addr, val) {
 	this._memoryView.setInt16(addr*2, val, true);
+	this._sim._fireEvent("memory", [addr]);
 	return true;
 }
 

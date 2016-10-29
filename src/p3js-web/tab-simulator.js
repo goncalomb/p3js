@@ -45,23 +45,23 @@ module.exports = function(share, p3sim) {
 		// XXX: the debug panel should not be using "private" p3sim variables
 		var text = [];
 		for (var i = 0; i < 8; i++) {
-			text.push("R" + i + ":  " + hex(p3sim._registers[i]));
+			text.push("R" + i + ":  " + hex(p3sim._cpu._registers[i]));
 		}
-		text.push("", "SP:  " + hex(p3sim._registers[14]));
-		text.push("PC:  " + hex(p3sim._registers[15]));
+		text.push("", "SP:  " + hex(p3sim._cpu._registers[14]));
+		text.push("PC:  " + hex(p3sim._cpu._registers[15]));
 		text.push("", "Flags:", "E Z C N O");
-		text.push(("000000" + (p3sim._re & 0x1f).toString(2)).substr(-5).split("").join(" "));
+		text.push(("000000" + (p3sim._cpu._re & 0x1f).toString(2)).substr(-5).split("").join(" "));
 		$sim_debug_main.val(text.join("\n"));
 		if (show_ctrl) {
 			var text = [];
 			for (var i = 8; i < 16; i++) {
-				text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._registers[i]));
+				text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._cpu._registers[i]));
 			}
-			text.push("", "CAR: " + hex(p3sim._car));
-			text.push("SBR: " + hex(p3sim._sbr));
-			text.push("RI:  " + hex(p3sim._ri));
-			text.push("", "INT: " + p3sim._int);
-			text.push("z: " + (p3sim._re >> 6 & 0x1) + " c: " + (p3sim._re >> 5 & 0x1));
+			text.push("", "CAR: " + hex(p3sim._cpu._car));
+			text.push("SBR: " + hex(p3sim._cpu._sbr));
+			text.push("RI:  " + hex(p3sim._cpu._ri));
+			text.push("", "INT: " + p3sim._cpu._int);
+			text.push("z: " + (p3sim._cpu._re >> 6 & 0x1) + " c: " + (p3sim._cpu._re >> 5 & 0x1));
 			$sim_debug_control.val(text.join("\n"));
 		}
 	}

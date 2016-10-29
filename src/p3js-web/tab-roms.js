@@ -23,9 +23,9 @@ module.exports = function(share, p3sim) {
 	// TODO: UI to edit the roms
 
 	function dump_roms() {
-		dump_rom_contents($rom_a, p3sim._romA, p3js.constants.ROM_A_WORD_SIZE * 2);
-		dump_rom_contents($rom_b, p3sim._romB, p3js.constants.ROM_B_WORD_SIZE * 2);
-		dump_rom_contents($rom_c, p3sim._romC, p3js.constants.ROM_C_WORD_SIZE * 2);
+		dump_rom_contents($rom_a, p3sim._cpu._romA, p3js.constants.ROM_A_WORD_SIZE * 2);
+		dump_rom_contents($rom_b, p3sim._cpu._romB, p3js.constants.ROM_B_WORD_SIZE * 2);
+		dump_rom_contents($rom_c, p3sim._cpu._romC, p3js.constants.ROM_C_WORD_SIZE * 2);
 	}
 
 	p3sim.registerEventHandler("start", dump_roms);

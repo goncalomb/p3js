@@ -1,36 +1,13 @@
-/*
- * Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>
- *
- * P3JS is released under the terms of the MIT License.
- * See LICENSE.txt for details.
- */
-
-var Simulator = module.exports = function() {
-	if (!(this instanceof Simulator)) {
-		return new Simulator();
-	}
-
-	// processor roms
+var CPU = module.exports = function(busDevices) {
+	this._busDevices = busDevices;
 	this._romA = this._romB = this._romC = null;
 	this.resetRomA();
 	this.resetRomB();
 	this.resetRomC();
-
-	// processor variables
-	this._resetProcessorVariables();
-
-	// simulation variables
-	this._eventHandlers = {};
-
-	this._ram = new p3js.devices.RAM();
-	this._ioc = new p3js.devices.IOC();
-	this._pic = new p3js.devices.PIC(this);
-	this._busDevices = [this._pic, this._ioc, this._ram];
-
-	this._resetSimulationVariables();
+	this._resetVariables();
 };
 
-Simulator.prototype._resetProcessorVariables = function() {
+CPU.prototype._resetVariables = function() {
 	// registers
 	this._registers = [
 		0,                   // R0    = 0
@@ -46,39 +23,17 @@ Simulator.prototype._resetProcessorVariables = function() {
 	this._re = 0;            // RE    (status register)
 	this._car = 0;           // CAR   (control address register)
 	this._sbr = 0;           // SBR   (subroutine branch register)
+	// flags
 	this._int = 0;           // interrupt flag
 	this._iak = 0;           // interrupt acknowledge flag
-}
-
-Simulator.prototype._resetSimulationVariables = function() {
-	// reset bus elements
-	for (var i = 0, l = this._busDevices.length; i < l; i++) {
-		this._busDevices[i].reset();
-	}
-
+	// other
 	this._cachedMicro = null;
 	this._cachedInstruction = null;
-	this._interval = 0; // != 0 when simulation is running
-	this._oneInstruction = false;
-	this._speed = 0;
 	this._clockCount = 0;
 	this._instructionCount = 0;
-};
+}
 
-Simulator.prototype._fireEvent = function(name, args) {
-	if (this._eventHandlers[name]) {
-		var sim = this;
-		this._eventHandlers[name].forEach(function(fn) {
-			fn.apply(sim, args);
-		});
-	}
-};
-
-Simulator.prototype._fireStatusEvent = function(name) {
-	this._fireEvent(name, [this._clockCount, this._instructionCount, this._speed]);
-};
-
-Simulator.prototype._unpackIntruction = function(i) {
+CPU.prototype._unpackIntruction = function(i) {
 	return {
 		op:  (i >> 10 & 0x3f),
 		s:   (i >>  9 & 0x1),
@@ -90,7 +45,7 @@ Simulator.prototype._unpackIntruction = function(i) {
 	}
 }
 
-Simulator.prototype._unpackMicro = function(i) {
+CPU.prototype._unpackMicro = function(i) {
 	return {
 		f:     (i >> 31 & 0x01),
 		// f = 0 or 1
@@ -121,7 +76,7 @@ Simulator.prototype._unpackMicro = function(i) {
 	}
 }
 
-Simulator.prototype._preCacheMicro = function() {
+CPU.prototype._fillCache = function() {
 	if (!this._cachedMicro) {
 		this._cachedMicro = [];
 		var sim = this;
@@ -129,9 +84,12 @@ Simulator.prototype._preCacheMicro = function() {
 			sim._cachedMicro.push(sim._unpackMicro(i));
 		});
 	}
+	if (!this._cachedInstruction) {
+		this._cachedInstruction = this._unpackIntruction(this._ri);
+	}
 }
 
-Simulator.prototype._readMemory = function(addr) {
+CPU.prototype._readMemory = function(addr) {
 	addr &= 0xffff;
 	for (var i = 0, l = this._busDevices.length; i < l; i++) {
 		var v = this._busDevices[i].readFromAddress(addr, this._iak);
@@ -142,20 +100,17 @@ Simulator.prototype._readMemory = function(addr) {
 	throw "BUS read error";
 }
 
-Simulator.prototype._writeMemory = function(addr, val) {
+CPU.prototype._writeMemory = function(addr, val) {
 	addr &= 0xffff;
 	for (var i = 0, l = this._busDevices.length; i < l; i++) {
 		if (this._busDevices[i].writeToAddress(addr, val) !== undefined) {
-			if (this._busDevices[i] == this._ram) {
-				this._fireEvent("memory", [addr]);
-			}
 			return;
 		}
 	}
 	throw "BUS write error";
 }
 
-Simulator.prototype._alu = function(a, b, cula, c) {
+CPU.prototype._alu = function(a, b, cula, c) {
 	// In JavaScript all numbers are double-precision floating point.
 	// Bitwise operators convert the numbers to 32 bit integers and then
 	// back to floating point.
@@ -300,7 +255,8 @@ Simulator.prototype._alu = function(a, b, cula, c) {
 	};
 }
 
-Simulator.prototype._clock = function() {
+CPU.prototype.clock = function() {
+	this._fillCache();
 	var inst = this._cachedInstruction;
 	var micro = this._cachedMicro[this._car];
 	// control unit
@@ -394,131 +350,25 @@ Simulator.prototype._clock = function() {
 		this._cachedInstruction = this._unpackIntruction(this._ri);
 		this._instructionCount++;
 	}
-	// clean external data
-	this._extData = null;
 	// set iak
 	this._iak = (!micro.f && micro.iak ? 1 : 0);
 	// finalize
 	this._clockCount++;
 	return (micro.f && micro.li); // finished an instruction?
-};
+}
 
-Simulator.prototype.interrupt = function(i) {
-	this._pic.triggerInterrupt(i);
-};
-
-Simulator.prototype.setIntSignal = function(i) {
+CPU.prototype.setIntSignal = function(i) {
 	this._int = (i & 0x1);
 }
 
-Simulator.prototype.registerEventHandler = function(name, fn) {
-	if (typeof fn == "function") {
-		if (!this._eventHandlers[name]) {
-			this._eventHandlers[name] = [];
-		}
-		this._eventHandlers[name].push(fn);
+CPU.prototype.reset = function() {
+	for (var i = 0, l = this._busDevices.length; i < l; i++) {
+		this._busDevices[i].reset();
 	}
-};
-
-Simulator.prototype.setIOHandlers = function(read, write) {
-	for (var key in read) {
-		this._ioc.registerReadHandler(key, read[key]);
-	}
-	for (var key in write) {
-		this._ioc.registerWriteHandler(key, write[key]);
-	}
+	this._resetVariables();
 }
 
-Simulator.prototype.loadMemory = function(buffer) {
-	this.stop();
-	this._ram.load(buffer)
-	this.reset();
-	this._fireEvent("load");
-};
-
-Simulator.prototype.start = function() {
-	if (!this._interval) {
-		var sim = this;
-		// fill cache
-		this._preCacheMicro();
-		this._cachedInstruction = this._unpackIntruction(this._ri);
-		// start loop
-		var m = 1;
-		var s = ss = 0;
-		var t0 = Date.now();
-		this._interval = setInterval(function() {
-			for (var i = 0; i < m; i++) {
-				var finst;
-				try {
-					finst = sim._clock();
-				} catch (e) {
-					sim.stop();
-					throw e;
-				}
-				if (finst && sim._oneInstruction) {
-					// stop simulation if just running one instruction
-					sim._fireStatusEvent("clock");
-					sim.stop();
-					return;
-				}
-			}
-			// find time
-			var t1 = Date.now();
-			var td = t1 - t0 + 1; // + 1 to avoid divide by zero
-			t0 = t1;
-			// calculate speed with 20 samples
-			if (s == 20) {
-				ss -= ss/s; // remove mean
-			} else {
-				s++;
-			}
-			ss += (m*1000)/td; // add speed
-			sim._speed = ss/s;
-			// fire clock event
-			sim._fireStatusEvent("clock");
-			// ajust m to keep loop within 30ms
-			m += Math.max(1, Math.floor((30 - td) * 0.8 / (td/m)));
-		}, 5);
-		this._fireStatusEvent("start");
-	}
-};
-
-Simulator.prototype.stepInstruction = function() {
-	this._oneInstruction = true;
-	this.start();
-}
-
-Simulator.prototype.stepClock = function() {
-	this.stop();
-	this._preCacheMicro();
-	this._cachedInstruction = this._unpackIntruction(this._ri);
-	this._clock();
-	this._fireStatusEvent("clock");
-}
-
-Simulator.prototype.isRunning = function() {
-	return !!this._interval;
-};
-
-Simulator.prototype.stop = function() {
-	if (this._interval) {
-		clearInterval(this._interval);
-		this._interval = 0;
-		this._oneInstruction = false;
-		this._speed = 0;
-		this._fireStatusEvent("stop");
-	}
-};
-
-Simulator.prototype.reset = function() {
-	this.stop();
-	this._resetProcessorVariables();
-	this._resetSimulationVariables();
-	this._fireEvent("memory", [null]);
-	this._fireEvent("reset");
-};
-
-Simulator.prototype.resetRomA = function() {
+CPU.prototype.resetRomA = function() {
 	this._romA = [
 		0x0032, 0x0033, 0x0037, 0x003b, 0x003e, 0x0040, 0x0044, 0x0047,
 		0x004c, 0x0055,      0,      0,      0,      0,      0,      0,
@@ -530,16 +380,16 @@ Simulator.prototype.resetRomA = function() {
 		0x00f9, 0x00f8,      0,      0,      0,      0,      0,      0
 		// empty addresses: 10 to 15, 22, 23, 47, 52 to 55, 58 to 63
 	];
-};
+}
 
-Simulator.prototype.resetRomB = function() {
+CPU.prototype.resetRomB = function() {
 	this._romB = [
 		0x000a, 0x000b, 0x000d, 0x000f, 0x002d, 0x002f, 0x002d, 0x002f,
 		0x0013, 0x0017, 0x001d, 0x0023, 0x0015, 0x001a, 0x0020, 0x0028
 	];
-};
+}
 
-Simulator.prototype.resetRomC = function() {
+CPU.prototype.resetRomC = function() {
 	this._romC = [
 		0x8060001f, 0x400a009f, 0x81c000d8, 0x0008319e,
 		0x04083f9e, 0x000000b9, 0x804200f8, 0x00023099,
@@ -627,4 +477,4 @@ Simulator.prototype.resetRomC = function() {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	];
-};
+}

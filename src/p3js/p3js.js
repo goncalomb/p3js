@@ -201,7 +201,7 @@ p3js.writeObjectFormat = function(memory, oldFormat, usedAddresses) {
 
 p3js.devices = require("./devices");
 p3js.ObjectCodeWriter = require("./ObjectCodeWriter.js");
-p3js.Simulator = require("./simulator.js");
+p3js.Simulator = require("./Simulator.js");
 
 p3js.parser = require("./parser.js")(p3js);
 p3js.assembler = require("./assembler.js")(p3js);

@@ -22,6 +22,10 @@ module.exports = function(share, p3sim) {
 	mfc.addLabel("INT Vector (using default ROM C)", "#fb1");
 	mfc.addLabel("IO Addresses (reserved)", "#b1f");
 
+	var MEMORY_SIZE = p3js.devices.RAM.MEMORY_SIZE;
+	var IO_FIRST_ADDRESS = p3js.devices.IOC.IO_FIRST_ADDRESS;
+	var INTERRUPT_COUNT = p3js.devices.PIC.INTERRUPT_COUNT;
+
 	share.clearProgramInfo = function() {
 		$prog_mem_info.text("");
 		$prog_label_info.text("");
@@ -30,8 +34,8 @@ module.exports = function(share, p3sim) {
 	}
 
 	share.buildProgramInfo = function(data) {
-		var memory_percent = Math.floor(data.memoryUsage*10000/p3js.constants.MEMORY_SIZE)/100;
-		$prog_mem_info.text(data.memoryUsage + "/" + p3js.constants.MEMORY_SIZE + " (" + memory_percent + "%) used");
+		var memory_percent = Math.floor(data.memoryUsage*10000/MEMORY_SIZE)/100;
+		$prog_mem_info.text(data.memoryUsage + "/" + MEMORY_SIZE + " (" + memory_percent + "%) used");
 		$prog_label_info.text(data.labelCount);
 		var references = [];
 		for (var label in data.labels) {
@@ -46,10 +50,10 @@ module.exports = function(share, p3sim) {
 			references.push(l + v + "\n");
 		}
 		$prog_labels.text(references.join(""));
-		for (var i = p3js.constants.INTERRUPT_VECTOR_ADDRESS, l = i + p3js.constants.INTERRUPT_COUNT; i < l; i++) {
+		for (var i = p3js.constants.INTERRUPT_VECTOR_ADDRESS, l = i + INTERRUPT_COUNT; i < l; i++) {
 			mfc.drawSquare(i, "#fb1");
 		}
-		for (var i = p3js.constants.IO_FIRST_ADDRESS; i < p3js.constants.MEMORY_SIZE; i++) {
+		for (var i = IO_FIRST_ADDRESS; i < MEMORY_SIZE; i++) {
 			mfc.drawSquare(i, "#b1f");
 		}
 		data.usedAddresses.forEach(function(value, i) {

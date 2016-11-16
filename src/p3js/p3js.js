@@ -113,21 +113,6 @@ p3js.constants = {
 	ROM_C_WORD_SIZE: 4,     // 32 bits
 
 	INTERRUPT_VECTOR_ADDRESS: 0xfe00,
-
-	REGISTER_0: 0,
-	REGISTER_SP: 14,
-	REGISTER_PC: 15,
-
-	OPRD_TYPE_STRING: -1,           // 'Test String'
-	OPRD_TYPE_REGISTER: 0,          // Rx
-	OPRD_TYPE_REGISTER_INDIRECT: 1, // M[Rx]
-	OPRD_TYPE_IMMEDIATE: 2,         // W
-	OPRD_TYPE_DIRECT: 3,            // M[W]
-	OPRD_TYPE_INDEXED: 4,           // M[Rx+W]
-	OPRD_TYPE_RELATIVE: 5,          // M[PC+W]
-	OPRD_TYPE_BASED: 6,             // M[SP+W]
-	OPRD_TYPE_PC: 7,                // PC
-	OPRD_TYPE_SP: 8                 // SP
 };
 
 p3js.extractConstants = function() {

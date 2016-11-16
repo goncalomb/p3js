@@ -5,7 +5,7 @@
  * See LICENSE.txt for details.
  */
 
-var p3js_devices_RAM = require("./devices/RAM.js");
+var p3js_devices_RAM = require("../devices/RAM.js");
 
 var MEMORY_SIZE = p3js_devices_RAM.MEMORY_SIZE;
 var MEMORY_WORD_SIZE = p3js_devices_RAM.MEMORY_WORD_SIZE;

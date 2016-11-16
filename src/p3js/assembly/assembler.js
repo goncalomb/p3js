@@ -38,7 +38,7 @@ module.exports = function(p3js) {
 	// less abstract but more similar to the official one.
 
 	assembler.assembleData = function(data, validator) {
-		var writer = new p3js.ObjectCodeWriter();
+		var writer = new p3js.assembly.ObjectCodeWriter();
 		var labels = { };
 
 		var result = {

@@ -15,8 +15,7 @@ if (typeof process.argv[2] != "undefined") {
 			var output_file = input_file.slice(0, -3) + ".exe";
 			console.log("Assembling '" + input_file + "'...");
 			try {
-				var data = p3js.parser.parseString(data);
-				var result = p3js.assembler.assembleData(data, p3js.assembler.DEFAULT_VALIDATOR);
+				var result = p3js.assembly.assembleWithDefaultValidator(data);
 				var buffer = p3js.writeObjectFormat(result.buffer, false, result.usedAddresses);
 			} catch (e) {
 				console.log(e);

@@ -115,16 +115,6 @@ p3js.constants = {
 	INTERRUPT_VECTOR_ADDRESS: 0xfe00,
 };
 
-p3js.extractConstants = function() {
-	var code = ["// use eval(p3js.extractConstants());\n"];
-	for (var key in p3js.constants) {
-		code.push("var " + key + " = p3js.constants[" + JSON.stringify(key) + "];\n");
-	}
-	return code.join("");
-}
-
-eval(p3js.extractConstants());
-
 p3js.getNumOperands = function(type) {
 	if (type == "0")  return 0;
 	if (type == "0c") return 1;
@@ -141,10 +131,10 @@ p3js.writeObjectFormat = function(memory, oldFormat, usedAddresses) {
 	var view = new DataView(buffer);
 	var p = 0; // position on the output buffer
 	if (!oldFormat) {
-		view.setUint32(0, P3AS_MAGIC_NUMBER, true); // 32bit integer
+		view.setUint32(0, p3js.constants.P3AS_MAGIC_NUMBER, true); // 32bit integer
 		p = 4;
 	} else {
-		view.setUint32(0, P3AS_MAGIC_NUMBER_OLD, true); // 64bit integer
+		view.setUint32(0, p3js.constants.P3AS_MAGIC_NUMBER_OLD, true); // 64bit integer
 		view.setUint32(4, 0, true);
 		p = 8
 	}

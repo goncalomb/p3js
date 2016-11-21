@@ -53,8 +53,8 @@ module.exports = function(share, p3sim) {
 
 	['a', 'b', 'c'].forEach(function(key, value) {
 		var upper = key.toUpperCase();
-		var rom_size = p3js.constants["ROM_" + upper + "_SIZE"];
-		var rom_word_size = p3js.constants["ROM_" + upper + "_WORD_SIZE"];
+		var rom_size = p3js.devices.CPU["ROM_" + upper + "_SIZE"];
+		var rom_word_length = p3js.devices.CPU["ROM_" + upper + "_WORD_LENGTH"];
 
 		var $wrapper = $("#rom-" + key + "-wrapper");
 		$wrapper.append($("<h3>").text("ROM " + upper));
@@ -68,7 +68,7 @@ module.exports = function(share, p3sim) {
 		var $contents = $("<textarea readonly>").attr("rows", (rom_size > 32 ? 32 : rom_size)).appendTo($wrapper);
 
 		var dump_func = function() {
-			dump_rom_contents($contents, p3sim._cpu["_rom" + upper], rom_word_size*2);
+			dump_rom_contents($contents, p3sim._cpu["_rom" + upper], Math.ceil(rom_word_length/4));
 		}
 		dump_funcs.push(dump_func);
 
@@ -76,7 +76,7 @@ module.exports = function(share, p3sim) {
 			p3sim.stop();
 			p3sim._cpu["resetRom" + upper]();
 			try {
-				var new_values = parse_rom_values($changes.val(), rom_size, Math.pow(256, rom_word_size) - 1);
+				var new_values = parse_rom_values($changes.val(), rom_size, Math.pow(2, rom_word_length) - 1);
 				for (k in new_values) {
 					p3sim._cpu["_rom" + upper][k] = new_values[k];
 				}

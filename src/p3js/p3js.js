@@ -105,13 +105,6 @@ p3js.constants = {
 	P3AS_MAGIC_NUMBER: 56347333,
 	P3AS_MAGIC_NUMBER_OLD: 936854375,
 
-	ROM_A_SIZE: (1 << 6),   // 64 positions
-	ROM_A_WORD_SIZE: 2,     // 16 bits (only 9 are used)
-	ROM_B_SIZE: (1 << 2),   // 16 positions
-	ROM_B_WORD_SIZE: 2,     // 16 bits (only 9 are used)
-	ROM_C_SIZE: (1 << 9),   // 512 positions
-	ROM_C_WORD_SIZE: 4,     // 32 bits
-
 	INTERRUPT_VECTOR_ADDRESS: 0xfe00,
 };
 

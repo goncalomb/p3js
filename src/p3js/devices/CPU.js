@@ -7,6 +7,13 @@ var CPU = module.exports = function(busDevices) {
 	this._resetVariables();
 };
 
+CPU.ROM_A_SIZE = (1 << 6);   // 64 positions
+CPU.ROM_A_WORD_LENGTH = 9;   // 9 bits
+CPU.ROM_B_SIZE = (1 << 4);   // 16 positions
+CPU.ROM_B_WORD_LENGTH = 9;   // 9 bits
+CPU.ROM_C_SIZE = (1 << 9);   // 512 positions
+CPU.ROM_C_WORD_LENGTH = 32;  // 32 bits
+
 CPU.prototype._resetVariables = function() {
 	// registers
 	this._registers = [

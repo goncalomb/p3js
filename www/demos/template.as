@@ -7,43 +7,43 @@
 ;
 ;       Description
 ;
-;============== Constants ======================================================
+;===============================================================================
 
-; Interrupt table (fe00h - feffh)
-; Ends at feffh, but there are no devices connected to interrupts above fe0fh.
+; Interrupt Vector Table addresses (fe00h to feffh)
 INT0_BTN        EQU     fe00h
 INT1_BTN        EQU     fe01h
 INT2_BTN        EQU     fe02h
 ; ...
-INT14_BTN       EQU     fe02h
+INT14_BTN       EQU     fe0eh
 INT15_TIMER     EQU     fe0fh
 
-; I/O addresses (ff00h - ffffh)
-; Starts at ff00h, but there are no devices connected below fff0h.
-DISP7SEG_0      EQU     fff0h   ; write
-DISP7SEG_1      EQU     fff1h   ; write
-DISP7SEG_2      EQU     fff2h   ; write
-DISP7SEG_3      EQU     fff3h   ; write
-LCD_CONTROL     EQU     fff4h   ; write
-LCD_WRITE       EQU     fff5h   ; write
-TIMER_VALUE     EQU     fff6h   ; read/write
-TIMER_CONTROL   EQU     fff7h   ; read/write
-LEDS            EQU     fff8h   ; write
-SWITCHES        EQU     fff9h   ; read
-INT_MASK        EQU     fffah   ; read/write
-TERM_CURSOR     EQU     fffch   ; write
-TERM_STATE      EQU     fffdh   ; read
-TERM_WRITE      EQU     fffeh   ; write
-TERM_READ       EQU     ffffh   ; read
+; I/O addresses (ff00h to ffffh)
+DISP7SEG_0      EQU     fff0h
+DISP7SEG_1      EQU     fff1h
+DISP7SEG_2      EQU     fff2h
+DISP7SEG_3      EQU     fff3h
+LCD_CONTROL     EQU     fff4h
+LCD_WRITE       EQU     fff5h
+TIMER_VALUE     EQU     fff6h
+TIMER_CONTROL   EQU     fff7h
+LEDS            EQU     fff8h
+SWITCHES        EQU     fff9h
+INT_MASK        EQU     fffah
+TERM_CURSOR     EQU     fffch
+TERM_STATE      EQU     fffdh
+TERM_WRITE      EQU     fffeh
+TERM_READ       EQU     ffffh
 
-; Default values
-STR_END         EQU     0000h   ; string terminator
-SP_ADDRESS      EQU     fdffh   ; starts at the last available address (fdffh)
-INT_MASK_VALUE  EQU     ffffh   ; ffffh = enable all
+; Other constants
+STR_END         EQU     0000h
+SP_ADDRESS      EQU     fdffh
+INT_MASK_VALUE  EQU     ffffh
 
-;============== Data Region (starting at address 8000h) =======================
+;============== Data Region (starting at address 8000h) ========================
 
                 ORIG    8000h
+
+                ; allocate variables and data here (WORD, STR and TAB)
 
 A_VARIABLE      WORD    1010011010b
 A_STRING        STR     'A String', ' more words', '!', STR_END
@@ -56,29 +56,14 @@ A_BUFFER        TAB     1337
 
 ;-------------- Routines -------------------------------------------------------
 
-                ; a routine routine for INT0_BTN
+                ; put routines here
 
-Int0Routine:    NOP
+Int0Routine:    NOP     ; a routine routine for INT0
+                INC     M[A_VARIABLE]
                 RTI
 
-                ; a routine routine for INT1_BTN
-
-Int1Routine:    NOP
-                RTI
-
-                ; a routine routine for INT2_BTN
-
-Int2Routine:    NOP
-                RTI
-
-                ; a routine that does nothing
-
-ARoutine:       NOP
-                RET
-
-                ; another routine that does nothing
-
-AnotherRoutine: NOP
+ARoutine:       NOP     ; a routine that does nothing
+                MOV     R2, M[A_VARIABLE]
                 RET
 
 ;-------------- Main Program ---------------------------------------------------
@@ -86,22 +71,16 @@ AnotherRoutine: NOP
 Main:           MOV     R1, SP_ADDRESS
                 MOV     SP, R1                  ; set stack pointer
 
-                MOV     R1, Int0Routine         ; set routine for INT0
-                MOV     M[INT0_BTN], R1
-                MOV     R1, Int1Routine         ; set routine for INT1
-                MOV     M[INT1_BTN], R1
-                MOV     R1, Int2Routine         ; set routine for INT2
-                MOV     M[INT2_BTN], R1
+                MOV     R1, Int0Routine
+                MOV     M[INT0_BTN], R1         ; set routine for INT0
 
-                MOV     R1, ffffh
+                MOV     R1, INT_MASK_VALUE
                 MOV     M[INT_MASK], R1         ; set interrupt mask
                 ENI                             ; enable interrupts
 
+                ; start code here
+
                 CALL    ARoutine
-                CALL    AnotherRoutine
-                NOP
-                NOP
-                NOP
 
 TheEnd:         BR      TheEnd
 

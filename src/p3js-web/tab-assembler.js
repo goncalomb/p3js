@@ -111,6 +111,7 @@ module.exports = function(share, p3sim) {
 	var save_info = "The files are stored on your browser, they are not uploaded to a remote server.\nI recommend making a local copy (click the blue download button) in case something unexpected happens.\n";
 	var demos = [
 		"welcome.as",
+		"automaton.as",
 		"keyboard-test.as",
 		"template.as",
 		"Demo1-clean.as"

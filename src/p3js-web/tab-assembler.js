@@ -111,17 +111,33 @@ module.exports = function(share, p3sim) {
 	var save_info = "The files are stored on your browser, they are not uploaded to a remote server.\nI recommend making a local copy (click the blue download button) in case something unexpected happens.\n";
 	var demos = [
 		"welcome.as",
-		"automaton.as",
-		"keyboard-test.as",
-		"template.as",
-		"Demo1-clean.as"
+		{
+			label: "P3JS Demos",
+			files: [
+				"automaton.as",
+				"keyboard-test.as",
+				"template.as"
+			]
+		},
+		{
+			label: "IST Demos",
+			files: [ "Demo1-clean.as" ]
+		}
 	];
 
 	for (var key in saved_files) {
 		$asm_editor_files.append($("<option>").val(key).text(key));
 	}
 	demos.forEach(function(demo) {
-		$asm_editor_demos.append($("<option>").val(demo).text(demo));
+		if (typeof demo == "string") {
+			$asm_editor_demos.append($("<option>").val(demo).text(demo));
+		} else {
+			var $optgroup = $("<optgroup>").attr("label", demo.label);
+			demo.files.forEach(function(demo) {
+				$optgroup.append($("<option>").val(demo).text(demo));
+			});
+			$asm_editor_demos.append($optgroup);
+		}
 	});
 
 	code_mirror.on("change", function() {

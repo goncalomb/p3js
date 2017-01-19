@@ -4,13 +4,13 @@
   "description": "P3 CPU Assembler and Simulator",
   "main": "webpack.config.js",
   "dependencies": {
+    "blessed": "^0.1.81",
     "webpack": "~1.12.14"
   },
   "scripts": {
     "start": "webpack --watch",
     "install": "webpack -p"
   },
-  "repository": { },
   "author": "goncalomb",
   "license": "MIT"
 }

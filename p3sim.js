@@ -8,12 +8,6 @@ if (!process.stdin.isTTY || !process.stdout.isTTY) {
 	process.stdout.write("no TTY");
 }
 
-var IOTerminal = require("./src/p3js-web/IOTerminal.js");
-var fake_IOTerminal = { constructor: IOTerminal };
-var fromCharCode = function() {
-	return IOTerminal.prototype._charFromCode.apply(fake_IOTerminal, arguments);
-}
-
 p3sim.setIOHandlers({
 	0xfffd: function() {
 		return (termui.peekLastKey() ? 1 : 0);
@@ -28,12 +22,12 @@ p3sim.setIOHandlers({
 		termui.move(x, y);
 	},
 	0xfffe: function(v) {
-		termui.write(fromCharCode(v));
+		termui.putChar(v);
 	}
 });
 
 if (typeof process.argv[2] != "undefined") {
-	termui.initialize();
+	termui.initialize(p3sim);
 	fs.readFile(process.argv[2], "utf8", function (err, data) {
 		var result = p3js.assembly.assembleWithDefaultValidator(data);
 		p3sim.loadMemory(result.buffer);

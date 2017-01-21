@@ -37,8 +37,6 @@ module.exports = function(share, p3sim) {
 		0xfff1: function(v) { board.set7Segment((v & 0xf) << 4, 0xff0f); }, // 7 segment write 1
 		0xfff2: function(v) { board.set7Segment((v & 0xf) << 8, 0xf0ff); }, // 7 segment write 2
 		0xfff3: function(v) { board.set7Segment((v & 0xf) << 12, 0x0fff); }, // 7 segment write 3
-		0xfff4: function(v) { board.lcdControl(v); }, // lcd control
-		0xfff5: function(v) { board.lcdWrite(v); }, // lcd write
 		0xfff6: function(v) { timer.setValue(v); }, // timer value
 		0xfff7: function(v) { timer.control(v); }, // timer control
 		0xfff8: function(v) { board.leds(v); }, // leds

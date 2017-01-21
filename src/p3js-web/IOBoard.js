@@ -7,7 +7,6 @@ var IOBoard = module.exports = function(p3sim) {
 	this._$board_switches = $("#io-board-switches");
 	this._leds$array = $();
 
-	this.reset();
 	var self = this;
 
 	for (var i = 0; i < 16; i++) {
@@ -43,52 +42,30 @@ var IOBoard = module.exports = function(p3sim) {
 	for (var i = 0; i < 8; i++) {
 		create_switch(i);
 	}
+
+	this._lcd = new (require("../p3js-io/LCD.js"))(p3sim);
+	this._lcd.bindHandlers();
+	this._lcd.onStateChange(function(text, active) {
+		if (!active || !text) {
+			self._$board_lcd.val("");
+		} else if (text) {
+			self._$board_lcd.val(text.join("\n"));
+		}
+	});
+	this._lcd.onTextChange(function(text, active, x, y) {
+		self._$board_lcd.val(text.join("\n"));
+	});
+
+	this.reset();
 }
 
 IOBoard.prototype.reset = function() {
-	this._$board_lcd.val("");
 	this._$board_leds.find(".on").removeClass("on");
 	this._$board_7seg.text("0000");
 	this._$board_switches.children().removeClass("on");
-	this._lcd_active = true;
-	this._lcd_x = 0;
-	this._lcd_y = 0;
-	this._lcd_text = null;
+	this._lcd.reset();
 	this._7seg_value = 0;
 	this._switches_value = 0;
-}
-
-IOBoard.prototype.lcdControl = function(v) {
-	if ((v & 0x20) != 0) {
-		this._$board_lcd.val("");
-		this._lcd_text = null;
-	}
-	if ((v & 0x8000) == 0) {
-		this._$board_lcd.val("");
-		this._lcd_active = false;
-	} else {
-		if (!this._lcd_active && this._lcd_text) {
-			this._$board_lcd.val(this._lcd_text.join("\n"));
-		}
-		this._lcd_active = true;
-	}
-	this._lcd_x = v & 0xf;
-	this._lcd_y = v >> 4 & 0x1;
-}
-
-IOBoard.prototype.lcdWrite = function(v) {
-	if (!this._lcd_text) {
-		this._lcd_text = [
-			Array(16 + 1).join(" "),
-			Array(16 + 1).join(" ")
-		];
-	}
-	var str = this._lcd_text[this._lcd_y];
-	str = str.substr(0, this._lcd_x) + String.fromCharCode(v) + str.substr(this._lcd_x + 1, str.length);
-	this._lcd_text[this._lcd_y] = str;
-	if (this._lcd_active) {
-		this._$board_lcd.val(this._lcd_text.join("\n"));
-	}
 }
 
 IOBoard.prototype.leds = function(v) {

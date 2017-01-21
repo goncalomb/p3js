@@ -6,6 +6,75 @@ var last_key = 0;
 var term_cur_x = 0;
 var term_cur_y = 0;
 
+var focus = 0;
+var switches_value = 0;
+
+function hex_key_to_int(c) {
+	if (c >= 48 && c <= 57) {
+		return c - 48;
+	} else if (c >= 65 && c <= 70) {
+		return c - 65 + 10;
+	} else if (c >= 97 && c <= 102) {
+		return c - 97 + 10;
+	}
+	return -1;
+}
+
+function draw_inputs() {
+	program.move(56, 3);
+	if (focus == 1) { program.bg("blue"); }
+	program.write("INT");
+	if (focus == 1) { program.bg("!blue"); }
+	program.write(": 0123456789ABCDE");
+	program.move(56, 4);
+	if (focus == 2) { program.bg("blue"); }
+	program.write("SWT");
+	if (focus == 2) { program.bg("!blue"); }
+	var swt_str = ("00000000" + switches_value.toString(2)).substr(-8);
+	program.write(": " + swt_str.substr(0, 4) + " " + swt_str.substr(4));
+	program.move(72, 4);
+	if (focus == 0) { program.bg("blue"); }
+	program.write("TERM");
+	if (focus == 0) { program.bg("!blue"); }
+}
+
+function next_focus() {
+	focus = (focus + 1)%3;
+	draw_inputs();
+}
+
+function trigger_interrupt(c, p3sim) {
+	var i = hex_key_to_int(c);
+	if (i != -1) {
+		p3sim.interrupt(i);
+		program.move(61 + i, 3);
+		program.bg("red");
+		program.write(String.fromCharCode(c).toUpperCase());
+		program.bg("!red");
+		setTimeout(function() {
+			program.move(61 + i, 3);
+			program.write(String.fromCharCode(c).toUpperCase());
+		}, 100);
+	}
+}
+
+function set_switches(c) {
+	var i = hex_key_to_int(c);
+	if (i != -1 && i < 8) {
+		switches_value ^= (1 << i);
+		//draw_inputs();
+		var ii = 61 + (i < 4 ? 8 : 7) - i;
+		program.move(ii, 4);
+		program.bg("red");
+		program.write(((switches_value >> i) & 1).toString());
+		program.bg("!red");
+		setTimeout(function() {
+			program.move(ii, 4);
+			program.write(((switches_value >> i) & 1).toString());
+		}, 100);
+	}
+}
+
 termui.initialize = function(p3sim) {
 	program.alternateBuffer();
 	process.stdout.write("\x1b[8;30;80t"); // resize
@@ -16,7 +85,9 @@ termui.initialize = function(p3sim) {
 			return; // exclude special keys
 		}
 		var c = (k.sequence || k.ch).charCodeAt(0);
-		if (c == 3) { // Ctrl-C
+		if (c == 1) { // Ctrl-A
+			next_focus();
+		} else if (c == 3) { // Ctrl-C
 			process.exit();
 		} else if (c == 18) { // Ctrl-R
 			p3sim.reset();
@@ -28,6 +99,10 @@ termui.initialize = function(p3sim) {
 			}
 		} else if (k.ctrl) {
 			return; // exclude other special keys
+		} else if (focus == 1) {
+			trigger_interrupt(c, p3sim);
+		} else if (focus == 2) {
+			set_switches(c);
 		} else {
 			last_key = c;
 		}
@@ -96,10 +171,7 @@ termui.drawHeader = function() {
 	put_char(54, 3, 0x2502);
 	put_char(54, 4, 0x2502);
 	put_char(54, 5, 0x2534);
-	program.move(56, 3);
-	program.write("INT: 0123456789ABCDE");
-	program.move(56, 4);
-	program.write("SWT: 0000 0000");
+	draw_inputs();
 	put_char(77, 2, 0x252c);
 	put_char(77, 3, 0x2502);
 	put_char(77, 4, 0x2502);
@@ -130,6 +202,10 @@ termui.getLastKey = function() {
 	var k = last_key;
 	last_key = 0;
 	return k;
+}
+
+termui.getSwitches = function() {
+	return switches_value;
 }
 
 termui.dispose = function() {

@@ -9,6 +9,7 @@ if (!process.stdin.isTTY || !process.stdout.isTTY) {
 }
 
 p3sim.setIOHandlers({
+	0xfff9: function() { return termui.getSwitches(); },
 	0xfffd: function() {
 		return (termui.peekLastKey() ? 1 : 0);
 	},

@@ -32,16 +32,22 @@ var IOBoard = module.exports = function(p3sim) {
 			var $this = $(this);
 			if ($this.hasClass("on")) {
 				$this.removeClass("on");
-				self._switches_value &= ~(1 << (7 - i));
+				self._switches.unset(i);
 			} else {
 				$this.addClass("on");
-				self._switches_value |= 1 << (7 - i);
+				self._switches.set(i);
 			}
 		}).appendTo(self._$board_switches);
 	}
 	for (var i = 0; i < 8; i++) {
 		create_switch(i);
 	}
+
+	this._seg7 = new (require("../p3js-io/Seg7Display.js"))(p3sim);
+	this._seg7.bindHandlers();
+	this._seg7.onStateChange(function(value) {
+		self._$board_7seg.text(("0000" + value.toString(16)).substr(-4));
+	});
 
 	this._lcd = new (require("../p3js-io/LCD.js"))(p3sim);
 	this._lcd.bindHandlers();
@@ -56,33 +62,32 @@ var IOBoard = module.exports = function(p3sim) {
 		self._$board_lcd.val(text.join("\n"));
 	});
 
+	this._timer = new (require("../p3js-io/Timer.js"))(p3sim);
+	this._timer.bindHandlers();
+
+	this._leds = new (require("../p3js-io/Leds.js"))(p3sim);
+	this._leds.bindHandlers();
+	this._leds.onStateChange(function(value) {
+		for (var i = 0; i < 16; i++) {
+			if (((value << i) & 0x8000) == 0) {
+				self._leds$array[i].removeClass("on");
+			} else {
+				self._leds$array[i].addClass("on");
+			}
+		}
+	});
+
+	this._switches = new (require("../p3js-io/Switches.js"))(p3sim);
+	this._switches.bindHandlers();
+
 	this.reset();
 }
 
 IOBoard.prototype.reset = function() {
-	this._$board_leds.find(".on").removeClass("on");
-	this._$board_7seg.text("0000");
-	this._$board_switches.children().removeClass("on");
+	this._seg7.reset();
 	this._lcd.reset();
-	this._7seg_value = 0;
-	this._switches_value = 0;
-}
-
-IOBoard.prototype.leds = function(v) {
-	for (var i = 0; i < 16; i++) {
-		if (((v << i) & 0x8000) == 0) {
-			this._leds$array[i].removeClass("on");
-		} else {
-			this._leds$array[i].addClass("on");
-		}
-	}
-}
-
-IOBoard.prototype.set7Segment = function(v, mask) {
-	this._7seg_value = (this._7seg_value & mask) | v;
-	this._$board_7seg.text(("0000" + this._7seg_value.toString(16)).substr(-4));
-}
-
-IOBoard.prototype.switches = function() {
-	return this._switches_value;
+	this._timer.reset();
+	this._leds.reset();
+	this._switches.reset();
+	this._$board_switches.children().removeClass("on");
 }

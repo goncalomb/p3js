@@ -11,11 +11,25 @@ termui.initialize = function(p3sim) {
 	process.stdout.write("\x1b[8;30;80t"); // resize
 	program.hideCursor();
 	program.clear();
-	program.on("keypress", function(chunk) {
-		if (chunk == "\u0003") {
+	program.on("keypress", function(data, k) {
+		if (k.sequence && k.sequence.length > 1) {
+			return; // exclude special keys
+		}
+		var c = (k.sequence || k.ch).charCodeAt(0);
+		if (c == 3) { // Ctrl-C
 			process.exit();
+		} else if (c == 18) { // Ctrl-R
+			p3sim.reset();
+		} else if (c == 19) { // Ctrl-S
+			if (p3sim.isRunning()) {
+				p3sim.stop();
+			} else {
+				p3sim.start();
+			}
+		} else if (k.ctrl) {
+			return; // exclude other special keys
 		} else {
-			last_key = chunk.toString().charCodeAt(0);
+			last_key = c;
 		}
 	});
 	process.once("SIGTERM", termui.dispose);

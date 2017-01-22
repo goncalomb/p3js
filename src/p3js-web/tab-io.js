@@ -21,14 +21,4 @@ module.exports = function(share, p3sim) {
 		terminal.reset();
 	});
 
-	p3sim.setIOHandlers({
-		// IO read addresses
-		0xfffd: function() { return terminal.state(); }, // terminal state
-		0xffff: function() { return terminal.read(); } // terminal read
-	}, {
-		// IO write addresses
-		0xfffc: function(v) { terminal.control(v); }, // terminal control
-		0xfffe: function(v) { terminal.write(v); } // terminal write
-	});
-
 };

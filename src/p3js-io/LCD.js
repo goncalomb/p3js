@@ -46,7 +46,7 @@ LCD.prototype.bindHandlers = function(addrControl, addrWrite) {
 	this._simulator._ioc.registerWriteHandler(addrControl || 0xfff4, function(value) {
 		self._control(value);
 	});
-	this._simulator._ioc.registerWriteHandler(addrControl || 0xfff5, function(value) {
+	this._simulator._ioc.registerWriteHandler(addrWrite || 0xfff5, function(value) {
 		self._write(value);
 	});
 }

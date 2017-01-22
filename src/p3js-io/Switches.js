@@ -11,11 +11,15 @@ Switches.prototype.bindHandlers = function(addrControl) {
 }
 
 Switches.prototype.set = function(i) {
-	this._value |= 1 << (7 - i);
+	this._value |= (1 << i);
 }
 
 Switches.prototype.unset = function(i) {
-	this._value &= ~(1 << (7 - i));
+	this._value &= ~(1 << i);
+}
+
+Switches.prototype.toggle = function(i) {
+	this._value ^= (1 << i);
 }
 
 Switches.prototype.reset = function() {

@@ -32,10 +32,10 @@ var IOBoard = module.exports = function(p3sim) {
 			var $this = $(this);
 			if ($this.hasClass("on")) {
 				$this.removeClass("on");
-				self._switches.unset(i);
+				self._switches.unset(7 - i);
 			} else {
 				$this.addClass("on");
-				self._switches.set(i);
+				self._switches.set(7 - i);
 			}
 		}).appendTo(self._$board_switches);
 	}

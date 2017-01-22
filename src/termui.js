@@ -7,9 +7,7 @@ var term_cur_x = 0;
 var term_cur_y = 0;
 
 var focus = 0;
-var switches_value = 0;
-var seg7_value = 0;
-var leds_value = 0;
+var seg7, lcd, timer, leds, switches;
 
 function hex_key_to_int(c) {
 	if (c >= 48 && c <= 57) {
@@ -32,7 +30,7 @@ function draw_inputs() {
 	if (focus == 2) { program.bg("blue"); }
 	program.write("SWT");
 	if (focus == 2) { program.bg("!blue"); }
-	var swt_str = ("00000000" + switches_value.toString(2)).substr(-8);
+	var swt_str = ("00000000" + switches._value.toString(2)).substr(-8);
 	program.write(": " + swt_str.substr(0, 4) + " " + swt_str.substr(4));
 	program.move(72, 4);
 	if (focus == 0) { program.bg("blue"); }
@@ -42,12 +40,29 @@ function draw_inputs() {
 
 function draw_7seg() {
 	program.move(28, 4);
-	program.write("7SEG: " + ("0000" + seg7_value.toString(16)).substr(-4));
+	program.write("7SEG: " + ("0000" + seg7._value.toString(16)).substr(-4));
+}
+
+function draw_lcd() {
+	program.move(9, 3);
+	program.bg("green");
+	if (lcd._active && lcd._text) {
+		program.write(program.text(lcd._text[0], "bold"));
+	} else {
+		program.write("                ");
+	}
+	program.move(9, 4);
+	if (lcd._active && lcd._text) {
+		program.write(program.text(lcd._text[1], "bold"));
+	} else {
+		program.write("                ");
+	}
+	program.bg("!green");
 }
 
 function draw_leds() {
 	program.move(28, 3);
-	var leds_str = ("0000000000000000" + leds_value.toString(2)).substr(-16);
+	var leds_str = ("0000000000000000" + leds._value.toString(2)).substr(-16);
 	program.write("LEDS: " + leds_str.substr(0, 4) + " " + leds_str.substr(4, 4) + " " + leds_str.substr(8, 4) + " " + leds_str.substr(12));
 }
 
@@ -74,28 +89,18 @@ function trigger_interrupt(c, p3sim) {
 function set_switches(c) {
 	var i = hex_key_to_int(c);
 	if (i != -1 && i < 8) {
-		switches_value ^= (1 << i);
+		switches.toggle(i);
 		//draw_inputs();
 		var ii = 61 + (i < 4 ? 8 : 7) - i;
 		program.move(ii, 4);
 		program.bg("red");
-		program.write(((switches_value >> i) & 1).toString());
+		program.write(((switches._value >> i) & 1).toString());
 		program.bg("!red");
 		setTimeout(function() {
 			program.move(ii, 4);
-			program.write(((switches_value >> i) & 1).toString());
+			program.write(((switches._value >> i) & 1).toString());
 		}, 100);
 	}
-}
-
-function set_7seg(v, mask) {
-	seg7_value = (seg7_value & mask) | v;
-	draw_7seg();
-}
-
-function set_leds(v) {
-	leds_value = v;
-	draw_leds();
 }
 
 termui.initialize = function(p3sim) {
@@ -134,8 +139,6 @@ termui.initialize = function(p3sim) {
 	process.once("SIGINT", termui.dispose);
 	process.once("exit", termui.dispose);
 
-	this.drawHeader();
-
 	p3sim.registerEventHandler("clock", function(c, i, s) {
 		var s_str;
 		if (s >= 1000000) {
@@ -153,6 +156,27 @@ termui.initialize = function(p3sim) {
 		program.move(64, 1);
 		program.write("i: " + i);
 	});
+
+	seg7 = new (require("./p3js-io/Seg7Display.js"))(p3sim);
+	seg7.bindHandlers();
+	seg7.onStateChange(draw_7seg);
+
+	lcd = new (require("./p3js-io/LCD.js"))(p3sim);
+	lcd.bindHandlers();
+	lcd.onStateChange(draw_lcd);
+	lcd.onTextChange(draw_lcd);
+
+	timer = new (require("./p3js-io/Timer.js"))(p3sim);
+	timer.bindHandlers();
+
+	leds = new (require("./p3js-io/Leds.js"))(p3sim);
+	leds.bindHandlers();
+	leds.onStateChange(draw_leds);
+
+	switches = new (require("./p3js-io/Switches.js"))(p3sim);
+	switches.bindHandlers();
+
+	this.drawHeader();
 }
 
 termui.drawHeader = function() {
@@ -176,12 +200,7 @@ termui.drawHeader = function() {
 	put_char(2, 5, 0x2534);
 	program.move(4, 3);
 	program.write("LCD:");
-	program.move(9, 3);
-	program.bg("green");
-	program.write("                ");
-	program.move(9, 4);
-	program.write("                ");
-	program.bg("!green");
+	draw_lcd();
 	put_char(26, 2, 0x252c);
 	put_char(26, 3, 0x2502);
 	put_char(26, 4, 0x2502);
@@ -224,13 +243,6 @@ termui.getLastKey = function() {
 	last_key = 0;
 	return k;
 }
-
-termui.getSwitches = function() {
-	return switches_value;
-}
-
-termui.set7Seg = set_7seg;
-termui.setLeds = set_leds;
 
 termui.dispose = function() {
 	process.removeListener("exit", termui.dispose);

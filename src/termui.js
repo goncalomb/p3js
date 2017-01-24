@@ -2,12 +2,9 @@ var blessed = require("blessed");
 var program = blessed.program();
 
 var termui = module.exports = { };
-var last_key = 0;
-var term_cur_x = 0;
-var term_cur_y = 0;
 
 var focus = 0;
-var seg7, lcd, timer, leds, switches;
+var seg7, lcd, timer, leds, switches, terminal;
 
 function hex_key_to_int(c) {
 	if (c >= 48 && c <= 57) {
@@ -132,7 +129,7 @@ termui.initialize = function(p3sim) {
 		} else if (focus == 2) {
 			set_switches(c);
 		} else {
-			last_key = c;
+			terminal.sendKey(c);
 		}
 	});
 	process.once("SIGTERM", termui.dispose);
@@ -176,6 +173,39 @@ termui.initialize = function(p3sim) {
 	switches = new (require("./p3js-io/Switches.js"))(p3sim);
 	switches.bindHandlers();
 
+	terminal = new (require("./p3js-io/Terminal.js"))(p3sim);
+	terminal.bindHandlers();
+	terminal.onClear(function(buffer, cursorMode) {
+		for (var i = 0; i < 24; i++) {
+			program.cursorPos(i + 6, 0);
+			program.eraseInLine("right");
+		}
+	});
+	terminal.onTextChange(function(buffer, cursorMode, x, y, v, c, lf) {
+		if (cursorMode) {
+			// cursor mode, just write the character at the right position
+			program.cursorPos(y + 6, x);
+			program.write(c);
+		} else if (buffer.length < 25 || !lf) {
+			// buffer is small or we don't need full repaint (not a line feed)
+			// find the last character and write it at the right position
+			var val = buffer[buffer.length - 1];
+			// check for empty line (line feed with nothing to write)
+			if (val.length) {
+				program.cursorPos((buffer.length < 24 ? buffer.length - 1 : 23) + 6, val.length - 1);
+				program.write(val.substr(-1));
+			}
+		} else {
+			// buffer is big (more than 24 lines) and line feed
+			// we need to repaint the screen (scroll one line)
+			for (var i = 0, j = buffer.length - 24; i < 24; i++, j++) {
+				program.cursorPos(i + 6, 0);
+				program.eraseInLine("right");
+				program.write(buffer[j]);
+			}
+		}
+	});
+
 	this.drawHeader();
 }
 
@@ -216,32 +246,6 @@ termui.drawHeader = function() {
 	put_char(77, 3, 0x2502);
 	put_char(77, 4, 0x2502);
 	put_char(77, 5, 0x2534);
-}
-
-termui.move = function(x, y) {
-	term_cur_x = x;
-	term_cur_y = y;
-}
-
-termui.putChar = function(code) {
-	program.cursorPos(term_cur_y + 6, term_cur_x);
-	if (code == 10) {
-		program.write("\n");
-	} else if (code < 0x20 || (code >= 0x7f && code <= 0xa0) || code == 0xad || code > 0xff) {
-		program.write("\ufffd");
-	} else {
-		program.write(String.fromCharCode(code));
-	}
-}
-
-termui.peekLastKey = function() {
-	return last_key;
-}
-
-termui.getLastKey = function() {
-	var k = last_key;
-	last_key = 0;
-	return k;
 }
 
 termui.dispose = function() {

@@ -6,12 +6,20 @@
   "dependencies": {
     "blessed": "^0.1.81",
     "minimist": "^1.2.0",
-    "webpack": "~1.12.14"
+    "webpack": "^2.2.1"
   },
   "scripts": {
     "start": "webpack --watch",
     "install": "webpack -p"
   },
-  "author": "goncalomb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goncalomb/p3js.git"
+  },
+  "author": {
+    "name": "Gonçalo Baltazar",
+    "email": "hello@goncalomb.com",
+    "url": "http://goncalomb.com/"
+  },
   "license": "MIT"
 }

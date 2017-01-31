@@ -5,6 +5,7 @@
   "main": "webpack.config.js",
   "dependencies": {
     "blessed": "^0.1.81",
+    "minimist": "^1.2.0",
     "webpack": "~1.12.14"
   },
   "scripts": {

@@ -6,10 +6,11 @@
   "dependencies": {
     "blessed": "^0.1.81",
     "minimist": "^1.2.0",
-    "webpack": "^2.2.1"
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^1.16.3"
   },
   "scripts": {
-    "start": "webpack --watch",
+    "start": "webpack-dev-server --content-base www/ --open",
     "install": "webpack -p"
   },
   "repository": {

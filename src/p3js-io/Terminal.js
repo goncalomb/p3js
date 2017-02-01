@@ -59,8 +59,8 @@ Terminal.prototype._write = function(v) {
 	} else if (this._x < 80 && this._y < 24) {
 		var c = this.constructor._charFromCode(v);
 		var val = this._buffer[this._y];
-		val = val.substr(0, this._x) + v + val.substr(this._x + 1, val.length);
-		this._buffer[this._y] = val
+		val = val.substr(0, this._x) + c + val.substr(this._x + 1, val.length);
+		this._buffer[this._y] = val;
 		if (this._onTextChange) this._onTextChange(this._buffer, this._cursorMode, this._x, this._y, v, c, false);
 	}
 }

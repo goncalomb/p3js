@@ -12,7 +12,7 @@ var Timer = module.exports = function(simulator, int) {
 			self._control(0);
 			simulator.interrupt(int);
 		} else {
-			this._value--;
+			self._value--;
 		}
 	});
 }

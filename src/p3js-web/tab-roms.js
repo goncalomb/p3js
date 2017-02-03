@@ -5,7 +5,7 @@
  * See LICENSE.txt for details.
  */
 
-module.exports = function(share, p3sim) {
+module.exports = function(p3sim) {
 
 	var dump_funcs = [];
 

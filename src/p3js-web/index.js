@@ -5,48 +5,46 @@
  * See LICENSE.txt for details.
  */
 
+var p3js_web = module.exports = { };
+
+p3js_web.downloadBuffer = function(buffer, name) {
+	var blob = new Blob([buffer], { type: "application/octet-stream" });
+	var url = URL.createObjectURL(blob);
+	var a = document.createElement("a");
+	if ("download" in a) {
+		a.href = url;
+		a.download = (name ? name : "file");
+		a.dispatchEvent(new MouseEvent("click"));
+	} else {
+		window.location = url;
+	}
+	setTimeout(function() {
+		URL.revokeObjectURL(url);
+	});
+}
+
+p3js_web.createDraggableElement = function($element) {
+	var $handle = $("<div>").prependTo($element);
+	$("<i>").addClass("fa fa-arrows").appendTo($handle);
+	$(document.createTextNode(" Drag Me")).appendTo($handle);
+	var bring_to_top = function() {
+		$(".ui-draggable").css("z-index", 0);
+		$element.css("z-index", 50);
+	};
+	$element.click(bring_to_top);
+	$element.draggable({
+		handle: $handle,
+		start: bring_to_top
+	});
+};
+
 $(window).ready(function() {
 
 	var $document = $(document);
 	var $body = $(document.body);
 
-	// variable to hold objects that are shared across modules
-	var share = {};
 	// the simulator instance
-	var p3sim = share.p3js = window.p3sim = new p3js.Simulator();
-
-	// helper functions
-
-	share.downloadBuffer = function(buffer, name) {
-		var blob = new Blob([buffer], { type: "application/octet-stream" });
-		var url = URL.createObjectURL(blob);
-		var a = document.createElement("a");
-		if ("download" in a) {
-			a.href = url;
-			a.download = (name ? name : "file");
-			a.dispatchEvent(new MouseEvent("click"));
-		} else {
-			window.location = url;
-		}
-		setTimeout(function() {
-			URL.revokeObjectURL(url);
-		});
-	}
-
-	share.createDraggableElement = function($element) {
-		var $handle = $("<div>").prependTo($element);
-		$("<i>").addClass("fa fa-arrows").appendTo($handle);
-		$(document.createTextNode(" Drag Me")).appendTo($handle);
-		var bring_to_top = function() {
-			$(".ui-draggable").css("z-index", 0);
-			$element.css("z-index", 50);
-		};
-		$element.click(bring_to_top);
-		$element.draggable({
-			handle: $handle,
-			start: bring_to_top
-		});
-	};
+	var p3sim = p3js_web.p3js = window.p3sim = new p3js.Simulator();
 
 	// fullscreen
 	function request_fullscreen(elem) {
@@ -121,10 +119,10 @@ $(window).ready(function() {
 
 	// load other modules
 
-	require("./tab-assembler.js")(share, p3sim);
-	require("./tab-program.js")(share, p3sim);
-	require("./tab-simulator.js")(share, p3sim);
-	require("./tab-io.js")(share, p3sim);
-	require("./tab-roms.js")(share, p3sim);
+	require("./tab-assembler.js")(p3sim);
+	require("./tab-program.js")(p3sim);
+	require("./tab-simulator.js")(p3sim);
+	require("./tab-io.js")(p3sim);
+	require("./tab-roms.js")(p3sim);
 
 });

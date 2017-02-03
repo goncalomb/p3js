@@ -20,7 +20,7 @@ module.exports = [{
 		)
 	]
 }, {
-	entry: ["./src/p3js-web/main.js"],
+	entry: ["./src/p3js-web/"],
 	output: {
 		path: path.join(__dirname, "www"),
 		filename: "static/js/p3js-web-bundle.js",

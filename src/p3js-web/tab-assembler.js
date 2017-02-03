@@ -5,7 +5,9 @@
  * See LICENSE.txt for details.
  */
 
-module.exports = function(share, p3sim) {
+var p3js_web = require(".");
+
+module.exports = function(p3sim) {
 
 	var $document = $(document);
 
@@ -267,9 +269,9 @@ module.exports = function(share, p3sim) {
 		if (!code) {
 			return;
 		} else if (current_file) {
-			share.downloadBuffer(code, current_file);
+			p3js_web.downloadBuffer(code, current_file);
 		} else {
-			share.downloadBuffer(code, "code.as");
+			p3js_web.downloadBuffer(code, "code.as");
 		}
 	});
 	$asm_editor_delete.click(function() {
@@ -299,13 +301,13 @@ module.exports = function(share, p3sim) {
 					asm_info_add(null)
 					asm_info_add("Assembling finished (" + (Date.now() - t) + " ms).", "text-success");
 					asm_info_add("Program loaded on simulator.", "text-info small");
-					share.buildProgramInfo(result);
+					p3js_web.buildProgramInfo(result);
 					p3sim.loadMemory(result.buffer);
 					if (callback) {
 						callback(result);
 					}
 				} catch (e) {
-					share.clearProgramInfo();
+					p3js_web.clearProgramInfo();
 					asm_info_add(null)
 					if (typeof e != "string") {
 						asm_info_add("Something is not right (" + e.toString() + ").", "text-danger");
@@ -346,7 +348,7 @@ module.exports = function(share, p3sim) {
 					name = current_file + ".exe";
 				}
 			}
-			share.downloadBuffer(p3js.writeObjectFormat(result.buffer, false, result.usedAddresses), name);
+			p3js_web.downloadBuffer(p3js.writeObjectFormat(result.buffer, false, result.usedAddresses), name);
 			asm_info_add("Download requested (p3as format).", "text-info small");
 		});
 	});

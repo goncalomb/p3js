@@ -5,7 +5,9 @@
  * See LICENSE.txt for details.
  */
 
-module.exports = function(share, p3sim) {
+var p3js_web = require(".");
+
+module.exports = function(p3sim) {
 
 	var $prog_mem_info = $("#prog-mem-info");
 	var $prog_memory_footprint = $("#prog-memory-footprint");
@@ -26,14 +28,14 @@ module.exports = function(share, p3sim) {
 	var IO_FIRST_ADDRESS = p3js.devices.IOC.IO_FIRST_ADDRESS;
 	var INTERRUPT_COUNT = p3js.devices.PIC.INTERRUPT_COUNT;
 
-	share.clearProgramInfo = function() {
+	p3js_web.clearProgramInfo = function() {
 		$prog_mem_info.text("");
 		$prog_label_info.text("");
 		mfc.clear();
 		$prog_labels.html("<em>Assemble a program first.</em>\n");
 	}
 
-	share.buildProgramInfo = function(data) {
+	p3js_web.buildProgramInfo = function(data) {
 		var memory_percent = Math.floor(data.memoryUsage*10000/MEMORY_SIZE)/100;
 		$prog_mem_info.text(data.memoryUsage + "/" + MEMORY_SIZE + " (" + memory_percent + "%) used");
 		$prog_label_info.text(data.labelCount);
@@ -70,6 +72,6 @@ module.exports = function(share, p3sim) {
 			}
 		});
 	}
-	share.clearProgramInfo();
+	p3js_web.clearProgramInfo();
 
 };

@@ -8,28 +8,47 @@ The P3 is a 16-bit CPU used at Instituto Superior Técnico (IST) as a learning t
 
 This repository contains an API and 2 implementations (web and terminal).
 
-## Quick Start ##
-
-### Online Assembler and Simulator ###
+## Online Assembler and Simulator (web) ##
 
 If you just want to use the assembler and simulator NOW, go to [p3js.goncalomb.com](http://p3js.goncalomb.com/).
 
-### Local Assembler and Simulator (web) ###
+## Local Installation and Usage
 
-* Install [node.js](https://nodejs.org/) (required to build the .js bundles).
-* Run `npm install`.
-* Visit `www/index.html` on your browser.
+* Install [node.js](https://nodejs.org/).
+* Run `npm install` to download the dependencies and build everything.
+
+### Assembler and Simulator (web) ###
+
+* Run `npm start` to start a dev-server and open your default browser.
+* OR open `www/index.html` on your browser (you won't be able to load the demos this way).
 
 This still requires an Internet connection when first opening the browser (to download some required .css and .js files), I'll change this in the future.
 
-### Local Assembler and Simulator (terminal)
+### Assembler (terminal) `node p3as.js`
 
-(This is a early prototype, it needs more work.)
+To assemble a program: `node p3as.js YOUR_PROGRAM.as`.
 
-* Install [node.js](https://nodejs.org/) (required to run the code).
-* Run `npm install`.
-* To asssemble a program run: `node p3as.js YOUR_PROGRAM.as`.
-* To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also assembles the program).
+#### Command-line options
+
+* `-o OUTPUT_FILE` to set a custom output file (defaults to YOUR_PROGRAM.exe);
+* `--show-refs` to show the references;
+
+### Simulator (terminal) `node p3sim.js`
+
+To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also assembles the program).
+
+#### Controls
+
+* `Ctrl-A`: change the keyboard focus between the terminal (TERM), interruptions (INT) and the switches (SWT);
+* `Ctrl-C`: exit the simulator;
+* `Ctrl-R`: reset the simulator;
+* `Ctrl-S`: start/stop the simulator;
+
+##### Keyboard Focus (Ctrl-A)
+
+* `TERM`: sends keystrokes to the terminal;
+* `INT`: use the keys 0-9 and A-F to trigger interrupts;
+* `SWT`: use the keys 0-7 toggle the switches;
 
 ## Documentation ##
 
@@ -51,7 +70,7 @@ See [doc/index.md](doc/index.md) for the documentation about the CPU and the sim
     * Create UI to allow custom instructions (requires API code first);
 * **Local Assembler** (p3as.js):
     * Cleanup the code;
-    * Add option to output references;
+    * Add option to output references to a file;
     * Add option to output raw memory image;
     * Add option to allow custom instructions (requires API code first);
 * **Local Simulator** (p3sim.js):

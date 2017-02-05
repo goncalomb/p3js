@@ -11,6 +11,15 @@ if (typeof window != "undefined") {
 	window.p3js = p3js;
 }
 
+p3js.inherit = function(base, constructor) {
+	var tmp = function() { };
+	tmp.prototype = base.prototype;
+	constructor.prototype = new tmp();
+	constructor.prototype.constructor = constructor;
+	constructor._super = base;
+	return constructor;
+}
+
 p3js.pseudoInstructions = {
 	"ORIG": { type: "0c", requiresLabel: false },
 	"EQU":  { type: "0c", requiresLabel: true  },

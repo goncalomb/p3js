@@ -14,7 +14,7 @@ var argv = require("minimist")(process.argv.slice(2), {
 	}
 });
 
-var p3sim = new p3js.Simulator();
+var p3sim = new p3js.SimulatorWithIO();
 
 if (!process.stdin.isTTY || !process.stdout.isTTY) {
 	console.error("Not connected to a tty.");

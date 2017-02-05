@@ -18,9 +18,4 @@ module.exports = function(p3sim) {
 	p3js_web.createDraggableElement($("#io-board"));
 	p3js_web.createDraggableElement($("#io-terminal-wrapper"));
 
-	p3sim.registerEventHandler("reset", function() {
-		board.reset();
-		terminal.reset();
-	});
-
 };

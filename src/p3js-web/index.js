@@ -44,7 +44,7 @@ $(window).ready(function() {
 	var $body = $(document.body);
 
 	// the simulator instance
-	var p3sim = p3js_web.p3js = window.p3sim = new p3js.Simulator();
+	var p3sim = p3js_web.p3js = window.p3sim = new p3js.SimulatorWithIO();
 
 	// fullscreen
 	function request_fullscreen(elem) {

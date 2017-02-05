@@ -4,7 +4,7 @@ var program = blessed.program();
 var termui = module.exports = { };
 
 var focus = 0;
-var seg7, lcd, timer, leds, switches, terminal;
+var seg7, lcd, leds, switches;
 
 function hex_key_to_int(c) {
 	if (c >= 48 && c <= 57) {
@@ -129,7 +129,7 @@ termui.initialize = function(p3sim) {
 		} else if (focus == 2) {
 			set_switches(c);
 		} else {
-			terminal.sendKey(c);
+			p3sim.io.terminal.sendKey(c);
 		}
 	});
 	process.once("SIGTERM", termui.dispose);
@@ -154,34 +154,23 @@ termui.initialize = function(p3sim) {
 		program.write("i: " + i);
 	});
 
-	seg7 = new (require("./p3js-io/Seg7Display.js"))(p3sim);
-	seg7.bindHandlers();
-	seg7.onStateChange(draw_7seg);
+	// TODO: clean this
+	seg7 = p3sim.io.seg7;
+	lcd = p3sim.io.lcd;
+	leds = p3sim.io.leds;
+	switches = p3sim.io.switches;
 
-	lcd = new (require("./p3js-io/LCD.js"))(p3sim);
-	lcd.bindHandlers();
-	lcd.onStateChange(draw_lcd);
-	lcd.onTextChange(draw_lcd);
-
-	timer = new (require("./p3js-io/Timer.js"))(p3sim);
-	timer.bindHandlers();
-
-	leds = new (require("./p3js-io/Leds.js"))(p3sim);
-	leds.bindHandlers();
-	leds.onStateChange(draw_leds);
-
-	switches = new (require("./p3js-io/Switches.js"))(p3sim);
-	switches.bindHandlers();
-
-	terminal = new (require("./p3js-io/Terminal.js"))(p3sim);
-	terminal.bindHandlers();
-	terminal.onClear(function(buffer, cursorMode) {
+	p3sim.io.seg7.onStateChange(draw_7seg);
+	p3sim.io.lcd.onStateChange(draw_lcd);
+	p3sim.io.lcd.onTextChange(draw_lcd);
+	p3sim.io.leds.onStateChange(draw_leds);
+	p3sim.io.terminal.onClear(function(buffer, cursorMode) {
 		for (var i = 0; i < 24; i++) {
 			program.cursorPos(i + 6, 0);
 			program.eraseInLine("right");
 		}
 	});
-	terminal.onTextChange(function(buffer, cursorMode, x, y, v, c, lf) {
+	p3sim.io.terminal.onTextChange(function(buffer, cursorMode, x, y, v, c, lf) {
 		if (cursorMode) {
 			// cursor mode, just write the character at the right position
 			program.cursorPos(y + 6, x);

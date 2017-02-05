@@ -4,12 +4,10 @@ var IOTerminal = module.exports = function(p3sim) {
 
 	var self = this;
 
-	this._terminal = new (require("../p3js-io/Terminal.js"))(p3sim);
-	this._terminal.bindHandlers();
-	this._terminal.onClear(function(buffer, cursorMode) {
+	p3sim.io.terminal.onClear(function(buffer, cursorMode) {
 		self._$content.text("");
 	});
-	this._terminal.onTextChange(function(buffer, cursorMode, x, y, v, c, lf) {
+	p3sim.io.terminal.onTextChange(function(buffer, cursorMode, x, y, v, c, lf) {
 		self._$content.text(buffer.join("\n"));
 	});
 
@@ -17,9 +15,9 @@ var IOTerminal = module.exports = function(p3sim) {
 		e.preventDefault();
 		if (p3sim.isRunning()) {
 			if (e.which == 13) {
-				self._terminal.sendKey(10) // send ENTER as LF insted of CR
+				p3sim.io.terminal.sendKey(10) // send ENTER as LF insted of CR
 			} else {
-				self._terminal.sendKey(e.which);
+				p3sim.io.terminal.sendKey(e.which);
 			}
 		}
 	});
@@ -27,12 +25,8 @@ var IOTerminal = module.exports = function(p3sim) {
 		if (e.which == 8 || e.which == 27) { // BS and ESC
 			e.preventDefault();
 			if (p3sim.isRunning()) {
-				self._terminal.sendKey(e.which);
+				p3sim.io.terminal.sendKey(e.which);
 			}
 		}
 	});
-}
-
-IOTerminal.prototype.reset = function() {
-	this._terminal.reset();
 }

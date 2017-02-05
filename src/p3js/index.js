@@ -179,3 +179,4 @@ p3js.writeObjectFormat = function(memory, oldFormat, usedAddresses) {
 p3js.devices = require("./devices");
 p3js.assembly = require("./assembly");
 p3js.Simulator = require("./Simulator.js");
+p3js.SimulatorWithIO = require("./SimulatorWithIO.js");

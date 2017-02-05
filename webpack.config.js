@@ -6,7 +6,7 @@ var copyright = "Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>\n\n"
 	+ "See LICENSE.txt for details.";
 
 module.exports = [{
-	entry: ["./src/p3js/p3js.js"],
+	entry: ["./src/p3js/"],
 	output: {
 		path: path.join(__dirname, "www"),
 		filename: "static/js/p3js-bundle.js",

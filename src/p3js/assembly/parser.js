@@ -6,7 +6,7 @@
  */
 
 var parser = module.exports = { };
-var p3js = require("../p3js.js");
+var p3js = require("../");
 var assembly = require("./");
 
 parser.parseConstant = function(text) {

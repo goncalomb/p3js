@@ -2,7 +2,7 @@ var fs = require("fs");
 var path = require("path");
 
 var termui = require("./src/termui.js");
-var p3js = require("./src/p3js/p3js.js");
+var p3js = require("./src/p3js/");
 
 var argv = require("minimist")(process.argv.slice(2), {
 	unknown: function(opt) {

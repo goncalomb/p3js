@@ -8,8 +8,9 @@ ___Under Construction!___
 
  * [Overview](p3/index.md)
  * [Technical Description](p3/technical.md)
+ * [Assembly Format](p3/assembly.md)
  * [P3 at IST](p3/ist.md)
 
 ## P3JS ##
 
- _nothing yet_
+( [See README.md](../README.md) )

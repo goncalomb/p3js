@@ -1,17 +1,16 @@
-var IOTerminal = module.exports = function(p3sim) {
-	this._$wrapper = $("#io-terminal-wrapper");
-	this._$content = $("#io-terminal");
-
-	var self = this;
+var TextAreaTerminal = module.exports = function($container, p3sim) {
+	$container.addClass("p3js-io-terminal").attr("tabindex", "0");
+	var $scroll = $("<div class=\"p3js-io-terminal-scroll\">").appendTo($container);
+	var $content = $("<div class=\"p3js-io-terminal-content\">").appendTo($scroll);
 
 	p3sim.io.terminal.onClear(function(buffer, cursorMode) {
-		self._$content.text("");
+		$content.text("");
 	});
 	p3sim.io.terminal.onTextChange(function(buffer, cursorMode, x, y, v, c, lf) {
-		self._$content.text(buffer.join("\n"));
+		$content.text(buffer.join("\n"));
 	});
 
-	this._$wrapper.on("keypress", function(e) {
+	$container.on("keypress", function(e) {
 		e.preventDefault();
 		if (p3sim.isRunning()) {
 			if (e.which == 13) {
@@ -21,7 +20,7 @@ var IOTerminal = module.exports = function(p3sim) {
 			}
 		}
 	});
-	this._$wrapper.on("keydown", function(e) {
+	$container.on("keydown", function(e) {
 		if (e.which == 8 || e.which == 27) { // BS and ESC
 			e.preventDefault();
 			if (p3sim.isRunning()) {

@@ -1,19 +1,17 @@
-var IOBoard = module.exports = function(p3sim) {
-	this._$board = $("#io-board");
-	this._$board_lcd = $("#io-board-lcd");
-	this._$board_leds = $("#io-board-leds");
-	this._$board_7seg = $("#io-board-7seg");
-	this._$board_buttons = $("#io-board-buttons");
-	this._$board_switches = $("#io-board-switches");
-	this._leds$array = $();
+var Board = module.exports = function($container, p3sim) {
+	$container.addClass("p3js-io-board");
+	var $board_lcd = $("<textarea class=\"p3js-io-board-lcd\" cols=\"12\" rows=\"2\" readonly>").appendTo($container);
+	var $board_leds = $("<div class=\"p3js-io-board-leds\">").appendTo($container);
+	var $board_7seg = $("<div class=\"p3js-io-board-7seg\">").text("0000").appendTo($container);
+	var $board_buttons = $("<div class=\"p3js-io-board-buttons\">").appendTo($container);
+	var $board_switches = $("<div class=\"p3js-io-board-switches\">").appendTo($container);
 
-	var self = this;
-
+	var leds$array = [ ];
 	for (var i = 0; i < 16; i++) {
-		this._leds$array.push($("<span>").appendTo(this._$board_leds));
+		leds$array.push($("<span>").appendTo($board_leds));
 	}
 
-	this._$board_7seg.text("0000");
+	// TODO: remove bootstrap classes from buttons.. maybe..
 
 	function create_button_row(arr) {
 		var $div = $("<div>");
@@ -22,7 +20,7 @@ var IOBoard = module.exports = function(p3sim) {
 				p3sim.interrupt(i);
 			}).appendTo($div);
 		});
-		$div.appendTo(self._$board_buttons);
+		$div.appendTo($board_buttons);
 	}
 	create_button_row([7,  8,  9, 12]);
 	create_button_row([4,  5,  6, 13]);
@@ -39,32 +37,33 @@ var IOBoard = module.exports = function(p3sim) {
 				$this.addClass("on");
 				p3sim.io.switches.set(7 - i);
 			}
-		}).appendTo(self._$board_switches);
+		}).appendTo($board_switches);
 	}
 	for (var i = 0; i < 8; i++) {
 		create_switch(i);
 	}
 
 	p3sim.io.seg7.onStateChange(function(value) {
-		self._$board_7seg.text(("0000" + value.toString(16)).substr(-4));
+		$board_7seg.text(("0000" + value.toString(16)).substr(-4));
 	});
 	p3sim.io.lcd.onStateChange(function(text, active) {
 		if (!active || !text) {
-			self._$board_lcd.val("");
+			$board_lcd.val("");
 		} else if (text) {
-			self._$board_lcd.val(text.join("\n"));
+			$board_lcd.val(text.join("\n"));
 		}
 	});
 	p3sim.io.lcd.onTextChange(function(text, active, x, y) {
-		self._$board_lcd.val(text.join("\n"));
+		$board_lcd.val(text.join("\n"));
 	});
 	p3sim.io.leds.onStateChange(function(value) {
 		for (var i = 0; i < 16; i++) {
 			if (((value << i) & 0x8000) == 0) {
-				self._leds$array[i].removeClass("on");
+				leds$array[i].removeClass("on");
 			} else {
-				self._leds$array[i].addClass("on");
+				leds$array[i].addClass("on");
 			}
 		}
 	});
+
 }

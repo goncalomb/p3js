@@ -1,0 +1,93 @@
+.p3js-io-terminal, .p3js-io-board {
+	display: table;
+	margin: 5px auto;
+	padding: 5px;
+	border: 2px solid gray;
+	border-radius: 5px;
+	background-color: #212121;
+}
+
+.p3js-io-terminal:focus {
+	outline: none;
+	box-shadow: #3498db 0 0 10px, #3498db 0 0 10px, #3498db 0 0 10px;
+}
+
+.p3js-io-terminal-scroll {
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+.p3js-io-terminal-content {
+	font-family: monospace;
+	font-size: 14px;
+	line-height: 15px;
+	color: #cfcfcf;
+	width: 80ch;
+	height: 360px;
+	margin-right: 5px;
+	white-space: pre-wrap;
+}
+
+.p3js-io-board > * {
+	margin: 10px;
+}
+
+.p3js-io-board-lcd {
+	display: block;
+	font-family: monospace;
+	font-size: 22px;
+	line-height: 22px;
+	color: #010053;
+	background-color: #217d34;
+	border: none;
+	box-sizing: content-box;
+	width: 16ch;
+	height: 44px;
+	padding: 5px;
+}
+
+.p3js-io-board-leds span {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 7px;
+	margin-right: 15px;
+	background-color: #727272;
+}
+
+.p3js-io-board-leds span:last-child {
+	margin-right: 0;
+}
+
+.p3js-io-board-leds span.on {
+	background-color: #de2626;
+}
+
+.p3js-io-board-7seg {
+	display: inline-block;
+	vertical-align: top;
+	font-family: monospace;
+	font-size: 110px;
+	line-height: 110px;
+	color: #de2626;
+}
+
+.p3js-io-board-buttons {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.p3js-io-board-buttons .btn {
+	width: 32px;
+	margin: 5px;
+}
+
+.p3js-io-board-switches .btn {
+	width: 32px;
+	height: 32px;
+	margin: 5px;
+}
+
+.p3js-io-board-switches .btn.on {
+	background-color: #3494de;
+}

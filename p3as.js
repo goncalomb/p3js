@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 
-var p3js = require("./src/p3js/p3js");
+var p3js = require("./src/p3js/");
 
 var argv = require("minimist")(process.argv.slice(2), {
 	string: ["o"],

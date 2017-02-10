@@ -23,5 +23,5 @@ AssemblerResult.prototype.getMemoryUsageString = function() {
 }
 
 AssemblerResult.prototype.buildProgramCode = function(oldFormat) {
-	return p3js.writeObjectFormat(this.buffer, oldFormat, this.usedAddresses);
+	return p3js.program.writeProgram(this.buffer, oldFormat, this.usedAddresses);
 }

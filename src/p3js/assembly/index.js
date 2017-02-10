@@ -15,6 +15,7 @@ var assembly = module.exports = {
 	OPRD_TYPE_SP: 8                 // SP
 };
 
+assembly.AssemblerResult = require("./AssemblerResult.js");
 assembly.ObjectCodeWriter = require("./ObjectCodeWriter.js");
 assembly.assembler = require("./assembler.js");
 assembly.parser = require("./parser.js");

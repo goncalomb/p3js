@@ -5,15 +5,11 @@
  * See LICENSE.txt for details.
  */
 
-var p3js_devices_RAM = require("../devices/RAM.js");
+var MEMORY_SIZE = require("../devices/RAM.js").MEMORY_SIZE;
 
-var MEMORY_SIZE = p3js_devices_RAM.MEMORY_SIZE;
-var MEMORY_WORD_SIZE = p3js_devices_RAM.MEMORY_WORD_SIZE;
-
-var ObjectCodeWriter = module.exports = function() {
-	this.buffer = new ArrayBuffer(MEMORY_SIZE * MEMORY_WORD_SIZE);
-	this._view = new DataView(this.buffer);
-	this._usedAddresses = Array.apply(null, Array(MEMORY_SIZE)).map(Number.prototype.valueOf, 0);
+var ObjectCodeWriter = module.exports = function(result) {
+	this._result = result;
+	this._view = new DataView(this._result.buffer);
 	this._position = 0;
 }
 
@@ -35,19 +31,16 @@ ObjectCodeWriter.prototype.movePosition = function(off) {
 	this._position += off;
 }
 
-ObjectCodeWriter.prototype.getUsedAddresses = function() {
-	return this._usedAddresses;
-};
-
 ObjectCodeWriter.prototype.write = function(value, t) {
 	if (this._position >= MEMORY_SIZE) {
 		throw "Assembling Error: end of memory reached"
 	}
-	if (this._usedAddresses[this._position]) {
+	if (this._result.usedAddresses[this._position]) {
 		throw "Assembling Error: overlapping memory"
 	}
 	this._view.setInt16(this._position * 2, value, true);
-	this._usedAddresses[this._position] = (t || 1);
+	this._result.usedAddresses[this._position] = (t || 1);
+	this._result.memoryUsage++;
 	this._position++;
 }
 

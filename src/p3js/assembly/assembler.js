@@ -37,18 +37,9 @@ assembler.DEFAULT_VALIDATOR = function(inst) {
 // less abstract but more similar to the official one.
 
 assembler.assembleData = function(data, validator) {
-	var writer = new assembly.ObjectCodeWriter();
-	var labels = { };
-
-	var result = {
-		buffer: writer.buffer,
-		usedAddresses: null,
-		labels: labels,
-		labelCount: 0,
-		pseudoCount: 0,
-		instructionCount: 0,
-		memoryUsage: 0
-	}
+	var result = new assembly.AssemblerResult();
+	var writer = new assembly.ObjectCodeWriter(result);
+	var labels = result.labels;
 
 	var set_label = function(label, value) {
 		if (labels[label] !== undefined) {
@@ -352,11 +343,5 @@ assembler.assembleData = function(data, validator) {
 		}
 	}
 
-	result.usedAddresses = writer.getUsedAddresses();
-	result.usedAddresses.forEach(function(v) {
-		if (v) {
-			result.memoryUsage++;
-		}
-	});
 	return result;
 };

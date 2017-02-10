@@ -6,7 +6,6 @@
  */
 
 var parser = module.exports = { };
-var p3js = require("../");
 var assembly = require("./");
 
 parser.parseConstant = function(text) {
@@ -131,7 +130,7 @@ function process_line(text, n) {
 	// process label
 	if (matches[1]) {
 		var lower = matches[1].toUpperCase();
-		if (p3js.pseudoInstructions[lower] || p3js.instructions[lower]) {
+		if (assembly.pseudoInstructions[lower] || assembly.instructions[lower]) {
 			// found label with instruction name, investigate
 			if (matches[2] || matches[4] || matches[5]) {
 				// dont allow labels with instruction names
@@ -151,18 +150,18 @@ function process_line(text, n) {
 
 	// process instruction
 	data.i = matches[3].toUpperCase() + (matches[4] ? "." : ""); // store instruction
-	if (p3js.instructions[data.i]) {
+	if (assembly.instructions[data.i]) {
 		if (data.l && !matches[2]) {
 			throw "Syntax error, invalid label (missing colon?), on line " + n;
 		} else if (matches[4]) {
 			// conditional instruction
 			data.c = matches[4].toUpperCase(); // store condition
-			if (!p3js.conditions[data.c]) {
+			if (assembly.conditions[data.c] === undefined) {
 				throw "Syntax error, invalid condition, on line " + n;
 			}
 		}
-	} else if (p3js.pseudoInstructions[data.i]) {
-		if (p3js.pseudoInstructions[data.i].requiresLabel) {
+	} else if (assembly.pseudoInstructions[data.i]) {
+		if (assembly.pseudoInstructions[data.i].requiresLabel) {
 			if (!data.l || matches[2]) {
 				throw "Syntax error, invalid or missing label, on line " + n;
 			}

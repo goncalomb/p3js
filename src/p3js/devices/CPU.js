@@ -7,6 +7,7 @@ var CPU = module.exports = function(busDevices) {
 	this._resetVariables();
 };
 
+CPU.INTERRUPT_VECTOR_ADDRESS = 0xfe00 // can be changed on ROM C
 CPU.ROM_A_SIZE = (1 << 6);   // 64 positions
 CPU.ROM_A_WORD_LENGTH = 9;   // 9 bits
 CPU.ROM_B_SIZE = (1 << 4);   // 16 positions

@@ -6,7 +6,6 @@
  */
 
 var assembler = module.exports = { };
-var p3js = require("../");
 var assembly = require("./");
 
 assembler.DEFAULT_VALIDATOR = function(inst) {
@@ -101,11 +100,11 @@ assembler.assembleData = function(data, validator) {
 	for (var i = 0, l = data.length; i < l; i++) {
 		var inst = data[i];
 
-		if (p3js.pseudoInstructions[inst.i]) {
-			inst.d = p3js.pseudoInstructions[inst.i];
+		if (assembly.pseudoInstructions[inst.i]) {
+			inst.d = assembly.pseudoInstructions[inst.i];
 			inst.p = true;
-		} else if (p3js.instructions[inst.i]) {
-			inst.d = p3js.instructions[inst.i];
+		} else if (assembly.instructions[inst.i]) {
+			inst.d = assembly.instructions[inst.i];
 			inst.p = false;
 		} else {
 			throw "Internal Error: unknown instruction";
@@ -123,7 +122,7 @@ assembler.assembleData = function(data, validator) {
 		// inst.d = instruction declaration
 		// inst.p = is pseudo instruction?
 
-		var num_operands = p3js.getNumOperands(inst.d.type);
+		var num_operands = assembly.getNumOperands(inst.d.type);
 		if (num_operands === null && inst.o.length < 1) {
 			throw "Instruction " + inst.i + " expects at least 1 operand, on line " + inst.n;
 		} else if (num_operands !== null && num_operands != inst.o.length) {
@@ -305,7 +304,7 @@ assembler.assembleData = function(data, validator) {
 				break;
 			case "jc":
 				var m = get_m(operand_0);
-				var c = p3js.conditions[inst.c].code;
+				var c = assembly.conditions[inst.c];
 				var r = get_r(operand_0);
 				var w = get_w(operand_0);
 				writer.writeJumpC(inst.d.opcode, c, m, r, w);
@@ -322,7 +321,7 @@ assembler.assembleData = function(data, validator) {
 				if (inst.d.type == "jr") {
 					writer.writeJumpR(inst.d.opcode, d);
 				} else {
-					var c = p3js.conditions[inst.c].code;
+					var c = assembly.conditions[inst.c];
 					writer.writeJumpRC(inst.d.opcode, c, d);
 				}
 				break;

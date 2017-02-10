@@ -1,20 +1,27 @@
-/*
- * Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>
- *
- * P3JS is released under the terms of the MIT License.
- * See LICENSE.txt for details.
- */
+var INTERRUPT_VECTOR_ADDRESS = p3js.constants.INTERRUPT_VECTOR_ADDRESS;
+var MEMORY_SIZE = p3js.devices.RAM.MEMORY_SIZE;
+var IO_FIRST_ADDRESS = p3js.devices.IOC.IO_FIRST_ADDRESS;
+var INTERRUPT_COUNT = p3js.devices.PIC.INTERRUPT_COUNT;
 
 var MemoryFootprintChart = module.exports = function(canvas) {
 	this._canvas = canvas;
 	this._labelDx = 5;
-	// canvas style
+
 	this._canvas.width = this.constructor.WIDTH;
 	this._canvas.height = this.constructor.HEIGHT;
-	// initialize
+
 	this._ctx = this._canvas.getContext("2d");
 	this._ctx.textBaseline = "top";
 	this._ctx.font = "12px monospace";
+
+	this.addLabel("Empty");
+	this.addLabel("WORD", "#12d");
+	this.addLabel("STR", "#2d1");
+	this.addLabel("TAB", "#d21");
+	this.addLabel("Instructions", "#222");
+	this.addLabel("INT Vector (using default ROM C)", "#fb1");
+	this.addLabel("IO Addresses (reserved)", "#b1f");
+
 	this.clear();
 };
 
@@ -49,4 +56,27 @@ MemoryFootprintChart.prototype.drawSquare = function(i, color) {
 		}
 		this._ctx.fillRect(x*2, y*2, 2, 2);
 	}
+}
+
+MemoryFootprintChart.prototype.displayData = function(assemblerResult) {
+	for (var i = INTERRUPT_VECTOR_ADDRESS, l = i + INTERRUPT_COUNT; i < l; i++) {
+		this.drawSquare(i, "#fb1");
+	}
+	for (var i = IO_FIRST_ADDRESS; i < MEMORY_SIZE; i++) {
+		this.drawSquare(i, "#b1f");
+	}
+	var self = this;
+	assemblerResult.usedAddresses.forEach(function(value, i) {
+		if (value == 1) {
+			self.drawSquare(i, "#222");
+		} else if (value == 2) {
+			self.drawSquare(i, "#12d");
+		} else if (value == 3) {
+			self.drawSquare(i, "#2d1");
+		} else if (value == 4) {
+			self.drawSquare(i, "#d21");
+		} else if (i < INTERRUPT_VECTOR_ADDRESS) {
+			self.drawSquare(i);
+		}
+	});
 }

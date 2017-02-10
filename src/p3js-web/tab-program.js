@@ -17,8 +17,6 @@ module.exports = function(p3sim) {
 	var MemoryFootprintChart = require("../p3js-dom/MemoryFootprintChart.js");
 	var mfc = new MemoryFootprintChart($prog_memory_footprint[0]);
 
-	var MEMORY_SIZE = p3js.devices.RAM.MEMORY_SIZE;
-
 	p3js_web.clearProgramInfo = function() {
 		$prog_mem_info.text("");
 		$prog_label_info.text("");
@@ -27,8 +25,7 @@ module.exports = function(p3sim) {
 	}
 
 	p3js_web.buildProgramInfo = function(data) {
-		var memory_percent = Math.floor(data.memoryUsage*10000/MEMORY_SIZE)/100;
-		$prog_mem_info.text(data.memoryUsage + "/" + MEMORY_SIZE + " (" + memory_percent + "%) used");
+		$prog_mem_info.text(data.getMemoryUsageString() + " used");
 		mfc.displayData(data);
 		$prog_label_info.text(data.labelCount);
 		var references = [];

@@ -348,7 +348,7 @@ module.exports = function(p3sim) {
 					name = current_file + ".exe";
 				}
 			}
-			p3js_web.downloadBuffer(p3js.writeObjectFormat(result.buffer, false, result.usedAddresses), name);
+			p3js_web.downloadBuffer(result.buildProgramCode(), name);
 			asm_info_add("Download requested (p3as format).", "text-info small");
 		});
 	});

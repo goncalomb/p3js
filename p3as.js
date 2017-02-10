@@ -38,7 +38,7 @@ try {
 console.log("Assembling '" + input_file + "'...");
 try {
 	var result = p3js.assembly.assembleWithDefaultValidator(data);
-	var buffer = p3js.writeObjectFormat(result.buffer, false, result.usedAddresses);
+	var buffer = result.buildProgramCode();
 } catch (e) {
 	console.error("Assembly Error: " + e);
 	process.exit(4);
@@ -48,8 +48,7 @@ console.log("Statistics:");
 console.log("  References: " + result.labelCount);
 console.log("  Pseudo Instructions: " + result.pseudoCount);
 console.log("  Instructions: " + result.instructionCount);
-var memory_percent = Math.floor(result.memoryUsage*10000/p3js.devices.RAM.MEMORY_SIZE)/100;
-console.log("  Memory: " + result.memoryUsage + "/" + p3js.devices.RAM.MEMORY_SIZE + " (" + memory_percent + "%)");
+console.log("  Memory: " + result.getMemoryUsageString());
 
 if (argv["show-refs"]) {
 	console.log("References:");

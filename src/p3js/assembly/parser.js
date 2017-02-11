@@ -116,8 +116,6 @@ function process_operand(operand, n) {
 }
 
 function process_line(text, n) {
-	var data = { n: n, l: null, i: null, c: null, o: [ ] };
-	// n: line #; l: label; i: instruction; c: condition; o: operands;
 	var matches = text.match(/^\s*(?:([a-z_]\w*)(?:\s+|\s*(:)\s*))?([a-z]+)(?:\s*\.\s*([a-z]+))?(?:\s+(.*?)\s*)?$/i);
 	// 1: label; 2: colon; 3: instruction; 4: condition; 5: operands;
 	if (!matches) {
@@ -126,6 +124,10 @@ function process_line(text, n) {
 		// should not happen
 		throw "Internal Error: invalid regex result";
 	}
+
+	var instruction = new assembly.Instruction(true);
+	instruction.debug.text = text;
+	instruction.debug.line = n;
 
 	// process label
 	if (matches[1]) {
@@ -144,29 +146,29 @@ function process_line(text, n) {
 				matches[1] = undefined;
 			}
 		} else {
-			data.l = matches[1]; // store label
+			instruction.label = matches[1]; // store label
 		}
 	}
 
 	// process instruction
-	data.i = matches[3].toUpperCase() + (matches[4] ? "." : ""); // store instruction
-	if (assembly.instructions[data.i]) {
-		if (data.l && !matches[2]) {
+	instruction.name = matches[3].toUpperCase() + (matches[4] ? "." : ""); // store instruction name
+	if (instruction.isInstruction()) {
+		if (instruction.label && !matches[2]) {
 			throw "Syntax error, invalid label (missing colon?), on line " + n;
 		} else if (matches[4]) {
 			// conditional instruction
-			data.c = matches[4].toUpperCase(); // store condition
-			if (assembly.conditions[data.c] === undefined) {
+			instruction.condition = matches[4].toUpperCase(); // store condition
+			if (instruction.getConditionCode() === null) { // TODO: move this check to the assembler
 				throw "Syntax error, invalid condition, on line " + n;
 			}
 		}
-	} else if (assembly.pseudoInstructions[data.i]) {
-		if (assembly.pseudoInstructions[data.i].requiresLabel) {
-			if (!data.l || matches[2]) {
+	} else if (instruction.isPseudoInstruction()) {
+		if (instruction.requiresLabel()) {
+			if (!instruction.label || matches[2]) {
 				throw "Syntax error, invalid or missing label, on line " + n;
 			}
-		} else if (data.l) {
-			throw "Syntax error, '" + data.i + "' cannot have a label, on line " + n;
+		} else if (instruction.label) {
+			throw "Syntax error, '" + instruction.name + "' cannot have a label, on line " + n;
 		}
 	} else {
 		throw "Syntax error, invalid instruction, on line " + n;
@@ -178,7 +180,7 @@ function process_line(text, n) {
 		for (var operand = "", i = 0, l = matches[5].length; i < l; i++) {
 			var c = matches[5].charAt(i);
 			if (c == "," && !inside_string) {
-				data.o.push(process_operand(operand, n));
+				instruction.operands.push(process_operand(operand, n));
 				operand = "";
 			} else {
 				if (c == "'") {
@@ -187,9 +189,9 @@ function process_line(text, n) {
 				operand += c;
 			}
 		}
-		data.o.push(process_operand(operand, n));
+		instruction.operands.push(process_operand(operand, n));
 	}
-	return data;
+	return instruction;
 }
 
 parser.parseString = function(text) {

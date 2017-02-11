@@ -106,6 +106,7 @@ assembly.getNumOperands = function(type) {
 }
 
 assembly.AssemblerResult = require("./AssemblerResult.js");
+assembly.Instruction = require("./Instruction.js");
 assembly.ObjectCodeWriter = require("./ObjectCodeWriter.js");
 assembly.assembler = require("./assembler.js");
 assembly.parser = require("./parser.js");

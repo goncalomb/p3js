@@ -40,7 +40,11 @@ try {
 	var result = p3js.assembly.assembleWithDefaultValidator(data);
 	var buffer = result.buildProgramCode();
 } catch (e) {
-	console.error("Assembly Error: " + e);
+	if (e instanceof p3js.assembly.AssemblerError) {
+		console.error("Assembler Error: " + e.getFullMessage());
+	} else {
+		console.error(e.message);
+	}
 	process.exit(4);
 }
 

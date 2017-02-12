@@ -7,6 +7,7 @@
 
 var assembler = module.exports = { };
 var assembly = require("./");
+var AssemblerError = require("./AssemblerError.js");
 
 assembler.DEFAULT_VALIDATOR = function(instruction) {
 	var name = instruction.name;
@@ -43,7 +44,7 @@ assembler.assembleData = function(data, validator) {
 
 	var set_label = function(label, value) {
 		if (labels[label] !== undefined) {
-			throw "Label " + label + " already defined, on line " + instruction.debug.line;
+			throw new AssemblerError("Label " + label + " already defined");
 		}
 		labels[label] = value;
 		result.labelCount++;
@@ -53,7 +54,7 @@ assembler.assembleData = function(data, validator) {
 		if (has_w(operand)) {
 			if (typeof operand.w == "string") {
 				if (labels[operand.w] === undefined) {
-					throw "Undefined label " + operand.w + ", on line " + instruction.debug.line;
+					throw new AssemblerError("Undefined label " + operand.w);
 				} if (operand.s == "-") {
 					return -labels[operand.w];
 				} else {
@@ -81,7 +82,7 @@ assembler.assembleData = function(data, validator) {
 			case assembly.OPRD_TYPE_BASED:
 				return 3;
 		}
-		throw "Invalid operand for " + instruction.name + ", on line " + instruction.debug.line;
+		throw new AssemblerError("Invalid operand for {name}");
 	}
 
 	// call get_r after a successful get_m
@@ -100,6 +101,7 @@ assembler.assembleData = function(data, validator) {
 	// first pass, record labels
 	for (var i = 0, l = data.length; i < l; i++) {
 		var instruction = data[i];
+		AssemblerError.prepare(instruction, result);
 
 		if (!instruction.isPseudoInstruction() && !instruction.isInstruction()) {
 			throw "Internal Error: unknown instruction";
@@ -113,18 +115,18 @@ assembler.assembleData = function(data, validator) {
 
 		var num_operands = instruction.getNumOperands();
 		if (num_operands === null && instruction.operands.length < 1) {
-			throw "Instruction " + instruction.name + " expects at least 1 operand, on line " + instruction.debug.line;
+			throw new AssemblerError("{name} expects at least 1 operand");
 		} else if (num_operands !== null && num_operands != instruction.operands.length) {
-			throw "Instruction " + instruction.name + " expects " + num_operands + " operand(s), on line " + instruction.debug.line;
+			throw new AssemblerError("{name} expects " + num_operands + " operand(s)");
 		}
 
 		// process pseudo-instructions
 		if ((instruction.name == "ORIG" || instruction.name == "EQU" || instruction.name == "WORD" || instruction.name == "TAB") && instruction.operands[0].type != assembly.OPRD_TYPE_IMMEDIATE) {
-			throw "Invalid operand for " + instruction.name + " (expects constant), on line " + instruction.debug.line;
+			throw new AssemblerError("Invalid operand for {name} (expects constant)");
 		}
 
 		if ((instruction.name == "ORIG" || instruction.name == "EQU") && typeof instruction.operands[0].w == "string") {
-			throw "Invalid operand for " + instruction.name + " (cannot be a label), on line " + instruction.debug.line;
+			throw new AssemblerError("Invalid operand for {name} (cannot be a label)");
 		}
 
 		switch (instruction.name) {
@@ -146,7 +148,7 @@ assembler.assembleData = function(data, validator) {
 					} else if (o.type == assembly.OPRD_TYPE_IMMEDIATE) {
 						writer.movePosition(1);
 					} else {
-						throw "Invalid operand for STR, on line " + instruction.debug.line;
+						throw new AssemblerError("Invalid operand for STR");
 					}
 				});
 				continue;
@@ -188,6 +190,7 @@ assembler.assembleData = function(data, validator) {
 	// second pass, assemble
 	for (var i = 0, l = data.length; i < l; i++) {
 		var instruction = data[i];
+		AssemblerError.prepare(instruction, result);
 		// no need to recheck number of operands
 
 		// process pseudo-instructions
@@ -211,7 +214,7 @@ assembler.assembleData = function(data, validator) {
 					} else if (o.type == assembly.OPRD_TYPE_IMMEDIATE) {
 						writer.write(get_w(o), 3);
 					} else {
-						throw "Invalid operand for STR, on line " + instruction.debug.line;
+						throw new AssemblerError("Invalid operand for STR");
 					}
 				});
 				continue;
@@ -242,11 +245,11 @@ assembler.assembleData = function(data, validator) {
 				break;
 			case "0c":
 				if (operand_0.type != assembly.OPRD_TYPE_IMMEDIATE) {
-					throw "Operand must be immediate, on line " + instruction.debug.line;
+					throw new AssemblerError("Operand must be immediate");
 				}
 				var w = get_w(operand_0);
 				if (w < 0 || w > 1023) {
-					throw "Constant must be between 0 and 1023, on line " + instruction.debug.line;
+					throw new AssemblerError("Constant must be between 0 and 1023");
 				}
 				writer.writeInstConstant(instruction.getOpcode(), w);
 				break;
@@ -260,11 +263,11 @@ assembler.assembleData = function(data, validator) {
 			case "1c":
 				var m = get_m(operand_0);
 				if (operand_1.type != assembly.OPRD_TYPE_IMMEDIATE) {
-					throw "Second operand must be a constant, on line " + instruction.debug.line;
+					throw new AssemblerError("Second operand must be a constant");
 				}
 				var c = get_w(operand_1);
 				if (c < 0 || c > 15) {
-					throw "Constant must be between 0 and 15, on line " + instruction.debug.line;
+					throw new AssemblerError("Constant must be between 0 and 15");
 				}
 				var r = get_r(operand_0);
 				var w = get_w(operand_0);
@@ -272,7 +275,7 @@ assembler.assembleData = function(data, validator) {
 				break;
 			case "2":
 				if (operand_0.type == assembly.OPRD_TYPE_IMMEDIATE) {
-					throw "Fist operand cannot be immediate, on line " + instruction.debug.line;
+					throw new AssemblerError("First operand cannot be immediate");
 				}
 				var s, reg, other_operand;
 				if (operand_0.type == assembly.OPRD_TYPE_REGISTER) {
@@ -284,7 +287,7 @@ assembler.assembleData = function(data, validator) {
 					reg = operand_1.r;
 					other_operand = operand_0;
 				} else {
-					throw "One of the operands must be a register, on line " + instruction.debug.line;
+					throw new AssemblerError("One of the operands must be a register");
 				}
 				var m = get_m(other_operand);
 				var r = get_r(other_operand);
@@ -301,11 +304,11 @@ assembler.assembleData = function(data, validator) {
 			case "jr":
 			case "jrc":
 				if (operand_0.type != assembly.OPRD_TYPE_IMMEDIATE) {
-					throw "Invalid operand for " + instruction.name + ", on line " + instruction.debug.line;
+					throw new AssemblerError("Invalid operand for {name}");
 				}
 				var d = get_w(operand_0) - writer.getPosition() - 1;
 				if (d < -32 || d > 31) {
-					throw "Target too far for branch jump, on line " + instruction.debug.line;
+					throw new AssemblerError("Target too far for branch jump");
 				}
 				if (instruction.getType() == "jr") {
 					writer.writeJumpR(instruction.getOpcode(), d);
@@ -331,5 +334,6 @@ assembler.assembleData = function(data, validator) {
 		}
 	}
 
+	AssemblerError.clear();
 	return result;
 };

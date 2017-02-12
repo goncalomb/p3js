@@ -38,15 +38,17 @@ module.exports = function(p3sim) {
 	var use_linter = true;
 	CodeMirror.registerHelper("lint", null, function(text) {
 		if (use_linter) {
+			asm_info_add(null);
 			try {
 				p3js.assembly.assembleWithDefaultValidator(text);
+				asm_info_add("No errors.");
 			} catch (e) {
-				var matches = e.toString().match(/^(.*), on line (\d+)$/);
-				if (matches) {
+				if (e instanceof p3js.assembly.AssemblerError && e.line !== null) {
+					asm_info_add(e.getFullMessage(), "text-danger");
 					return [{
-						from: CodeMirror.Pos(matches[2] - 1, 0),
-						to: CodeMirror.Pos(matches[2] - 1, 80),
-						message: matches[1]
+						from: CodeMirror.Pos(e.line - 1, 0),
+						to: CodeMirror.Pos(e.line - 1, 80),
+						message: e.message
 					}];
 				}
 			}
@@ -309,16 +311,12 @@ module.exports = function(p3sim) {
 				} catch (e) {
 					p3js_web.clearProgramInfo();
 					asm_info_add(null)
-					if (typeof e != "string") {
+					if (e instanceof p3js.assembly.AssemblerError) {
+						asm_info_add(e.getFullMessage(), "text-danger");
+					} else {
 						asm_info_add("Something is not right (" + e.toString() + ").", "text-danger");
 						asm_info_add("Please contact me so I can look into it. Thanks.", "text-info small");
 						console.error(e);
-					} else if (e.substr(0, 15) == "Internal Error:") {
-						asm_info_add("Something is not right with the assembler (" + e.substr(16) + ").", "text-danger");
-						asm_info_add("Please contact me so I can look into it. Thanks.", "text-info small");
-						console.error(e);
-					} else {
-						asm_info_add(e, "text-danger");
 					}
 				}
 				is_assembling = false;
@@ -366,6 +364,7 @@ module.exports = function(p3sim) {
 	});
 
 	$code_mirror.addClass("asm-show-rulers");
+	asm_info_add(null);
 	asm_info_add("Initialized.");
 
 };

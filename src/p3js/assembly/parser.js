@@ -7,6 +7,7 @@
 
 var parser = module.exports = { };
 var assembly = require("./");
+var AssemblerError = require("./AssemblerError.js");
 
 parser.parseConstant = function(text) {
 	var match, i = null;
@@ -66,7 +67,7 @@ function process_constant_or_label(value, sign, n) {
 		w = value;
 	}
 	if (w === null) {
-		throw "Syntax error, invalid operand constant, on line " + n;
+		throw new AssemblerError("Syntax error, invalid operand constant", n);
 	}
 	return w;
 }
@@ -74,7 +75,7 @@ function process_constant_or_label(value, sign, n) {
 function process_operand(operand, n) {
 	operand = operand.trim();
 	if (!operand) {
-		throw "Syntax error, invalid operand (empty?), on line " + n;
+		throw new AssemblerError("Syntax error, invalid operand (empty?)", n);
 	}
 	var matches;
 	if (matches = operand.match(/^R([0-7])$/i)) {
@@ -119,7 +120,7 @@ function process_line(text, n) {
 	var matches = text.match(/^\s*(?:([a-z_]\w*)(?:\s+|\s*(:)\s*))?([a-z]+)(?:\s*\.\s*([a-z]+))?(?:\s+(.*?)\s*)?$/i);
 	// 1: label; 2: colon; 3: instruction; 4: condition; 5: operands;
 	if (!matches) {
-		throw "Syntax error, on line " + n;
+		throw new AssemblerError("Syntax error", n);
 	} else if (!matches[3]) {
 		// should not happen
 		throw "Internal Error: invalid regex result";
@@ -136,7 +137,7 @@ function process_line(text, n) {
 			// found label with instruction name, investigate
 			if (matches[2] || matches[4] || matches[5]) {
 				// dont allow labels with instruction names
-				throw "Syntax error, invalid label, on line " + n;
+				throw new AssemblerError("Syntax error, invalid label", n);
 			} else {
 				// a simple instruction like 'JMP SomeLabel' will only use match group 1 and 3
 				// with these instructions the label match group is the instruction
@@ -154,24 +155,24 @@ function process_line(text, n) {
 	instruction.name = matches[3].toUpperCase() + (matches[4] ? "." : ""); // store instruction name
 	if (instruction.isInstruction()) {
 		if (instruction.label && !matches[2]) {
-			throw "Syntax error, invalid label (missing colon?), on line " + n;
+			throw new AssemblerError("Syntax error, invalid label (missing colon?)", n);
 		} else if (matches[4]) {
 			// conditional instruction
 			instruction.condition = matches[4].toUpperCase(); // store condition
 			if (instruction.getConditionCode() === null) { // TODO: move this check to the assembler
-				throw "Syntax error, invalid condition, on line " + n;
+				throw new AssemblerError("Syntax error, invalid condition", n);
 			}
 		}
 	} else if (instruction.isPseudoInstruction()) {
 		if (instruction.requiresLabel()) {
 			if (!instruction.label || matches[2]) {
-				throw "Syntax error, invalid or missing label, on line " + n;
+				throw new AssemblerError("Syntax error, invalid or missing label", n);
 			}
 		} else if (instruction.label) {
-			throw "Syntax error, '" + instruction.name + "' cannot have a label, on line " + n;
+			throw new AssemblerError("Syntax error, '" + instruction.name + "' cannot have a label", n);
 		}
 	} else {
-		throw "Syntax error, invalid instruction, on line " + n;
+		throw new AssemblerError("Syntax error, invalid instruction", n);
 	}
 
 	// process operands
@@ -195,6 +196,7 @@ function process_line(text, n) {
 }
 
 parser.parseString = function(text) {
+	AssemblerError.clear();
 	var data = [];
 	var n = 1;
 	var inside_comment = false;

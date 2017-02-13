@@ -3,17 +3,17 @@ var p3js = require("./");
 var SimulatorWithIO = module.exports = p3js.inherit(p3js.Simulator, function() {
 	this.constructor._super.call(this);
 	this.io = { };
-	this.io.seg7 = new (require("../p3js-io/Seg7Display.js"))(this);
+	this.io.seg7 = new p3js.io.Seg7Display(this);
 	this.io.seg7.bindHandlers();
-	this.io.lcd = new (require("../p3js-io/LCD.js"))(this);
+	this.io.lcd = new p3js.io.LCD(this);
 	this.io.lcd.bindHandlers();
-	this.io.timer = new (require("../p3js-io/Timer.js"))(this);
+	this.io.timer = new p3js.io.Timer(this);
 	this.io.timer.bindHandlers();
-	this.io.leds = new (require("../p3js-io/Leds.js"))(this);
+	this.io.leds = new p3js.io.Leds(this);
 	this.io.leds.bindHandlers();
-	this.io.switches = new (require("../p3js-io/Switches.js"))(this);
+	this.io.switches = new p3js.io.Switches(this);
 	this.io.switches.bindHandlers();
-	this.io.terminal = new (require("../p3js-io/Terminal.js"))(this);
+	this.io.terminal = new p3js.io.Terminal(this);
 	this.io.terminal.bindHandlers();
 });
 

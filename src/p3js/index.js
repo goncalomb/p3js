@@ -22,6 +22,7 @@ p3js.inherit = function(base, constructor) {
 
 p3js.devices = require("./devices");
 p3js.assembly = require("./assembly");
+p3js.io = require("./io");
 p3js.program = require("./program.js");
 p3js.Simulator = require("./Simulator.js");
 p3js.SimulatorWithIO = require("./SimulatorWithIO.js");

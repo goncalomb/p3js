@@ -14,8 +14,7 @@ module.exports = function(p3sim) {
 	var $prog_label_info = $("#prog-label-info");
 	var $prog_labels = $("#prog-labels");
 
-	var MemoryFootprintChart = require("../p3js-dom/MemoryFootprintChart.js");
-	var mfc = new MemoryFootprintChart($prog_memory_footprint[0]);
+	var mfc = new p3js.dom.MemoryFootprintChart($prog_memory_footprint[0]);
 
 	p3js_web.clearProgramInfo = function() {
 		$prog_mem_info.text("");

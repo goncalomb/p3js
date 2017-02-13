@@ -6,7 +6,6 @@
  */
 
 var p3js_web = require(".");
-var AssemblyEditor = require("../p3js-dom/AssemblyEditor.js");
 
 module.exports = function(p3sim) {
 
@@ -58,7 +57,7 @@ module.exports = function(p3sim) {
 	});
 
 	// editor
-	var editor = new AssemblyEditor(
+	var editor = new p3js.dom.AssemblyEditor(
 		$("#code-editor"),
 		$asm_editor_files,
 		$asm_editor_demos

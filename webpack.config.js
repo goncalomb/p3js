@@ -1,7 +1,7 @@
 var webpack = require("webpack");
 var CopyWebpackPlugin = require("copy-webpack-plugin");
 var path = require("path");
-var copyright = "Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>\n\n"
+var copyright = "Copyright (c) 2016, 2017 Gonçalo Baltazar <me@goncalomb.com>\n\n"
 	+ "Source Code on GitHub: https://github.com/goncalomb/p3js\n\n"
 	+ "P3JS is released under the terms of the MIT License.\n"
 	+ "See LICENSE.txt for details.";

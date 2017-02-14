@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2016 Gonçalo Baltazar <me@goncalomb.com>
- *
- * P3JS is released under the terms of the MIT License.
- * See LICENSE.txt for details.
- */
-
 var parser = module.exports = { };
 var assembly = require("./");
 var AssemblerError = require("./AssemblerError.js");

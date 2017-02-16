@@ -50,9 +50,9 @@ To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also asse
 * `INT`: use the keys 0-9 and A-F to trigger interrupts;
 * `SWT`: use the keys 0-7 toggle the switches;
 
-## Documentation ##
+## P2 CPU Documentation ##
 
-See [doc/index.md](doc/index.md) for the documentation about the CPU and the simulator (under construction).
+See [goncalomb.github.io/p3doc/](https://goncalomb.github.io/p3doc/) for the documentation about the CPU itself.
 
 ## The Future (what needs to be done) ##
 

@@ -1,10 +1,8 @@
 # P3JS #
 
-P3JS is a JavaScript assembler and simulator for the P3 CPU.
+The P3JS is a JavaScript assembler and simulator for the P3 CPU.
 
-**Live P3 simulator at [p3js.goncalomb.com](http://p3js.goncalomb.com/).**
-
-The P3 is a 16-bit CPU used at Instituto Superior Técnico (IST) as a learning tool for Computer Engineering students.
+The P3 is a 16-bit CPU used at [Instituto Superior Técnico](https://tecnico.ulisboa.pt/en/) (IST) as a learning tool for Computer Engineering students. Check [p3doc on GitHub Pages](https://goncalomb.github.io/p3doc/) for more information about the CPU itself.
 
 This repository contains an API and 2 implementations (web and terminal).
 
@@ -12,12 +10,13 @@ This repository contains an API and 2 implementations (web and terminal).
 
 If you just want to use the assembler and simulator NOW, go to [p3js.goncalomb.com](http://p3js.goncalomb.com/).
 
-## Local Installation and Usage
+## Local Installation and Usage ##
 
-* Install [node.js](https://nodejs.org/).
+* Install [Node.js](https://nodejs.org/).
+* Download the source code from this repository.
 * Run `npm install` to download the dependencies and build everything.
 
-### Assembler and Simulator (web) ###
+### Assembler and Simulator (web)
 
 * Run `npm start` to start a dev-server and open your default browser.
 * OR open `www/index.html` on your browser (you won't be able to load the demos this way).
@@ -44,15 +43,11 @@ To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also asse
 * `Ctrl-R`: reset the simulator;
 * `Ctrl-S`: start/stop the simulator;
 
-##### Keyboard Focus (Ctrl-A)
+#### Keyboard Focus (Ctrl-A)
 
 * `TERM`: sends keystrokes to the terminal;
 * `INT`: use the keys 0-9 and A-F to trigger interrupts;
 * `SWT`: use the keys 0-7 toggle the switches;
-
-## P2 CPU Documentation ##
-
-See [goncalomb.github.io/p3doc/](https://goncalomb.github.io/p3doc/) for the documentation about the CPU itself.
 
 ## The Future (what needs to be done) ##
 

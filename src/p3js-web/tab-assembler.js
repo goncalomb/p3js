@@ -87,6 +87,7 @@ module.exports = function(p3sim) {
 			files: [
 				"automaton.as",
 				"keyboard-test.as",
+				"logo.as",
 				"template.as"
 			]
 		},

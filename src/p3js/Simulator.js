@@ -106,7 +106,7 @@ Simulator.prototype.start = function() {
 			sim._fireStatusEvent("clock");
 			// ajust m to keep loop within 30ms
 			m += Math.max(1, Math.floor((30 - td) * 0.8 / (td/m)));
-		});
+		}, 10);
 		this._fireStatusEvent("start");
 	}
 }

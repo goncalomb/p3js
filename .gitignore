@@ -1,2 +1,4 @@
 /node_modules
 /www/static/p3js/
+/www/static/remote/
+/www/index-offline.html

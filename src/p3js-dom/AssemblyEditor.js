@@ -93,9 +93,18 @@ AssemblyEditor.prototype._loadFile = function(name, isDemo) {
 		this._setSelectFiles(null);
 		this._setText("");
 		var self = this;
-		$.get("demos/" + name, null, function(data) {
-			self._setText(data);
-		}, "text");
+		$.get({
+			url: "demos/" + name,
+			dataType: "text",
+			success: function(data) {
+				self._setText(data);
+			},
+			error: function() {
+				if (window.location.protocol == "file:") {
+					self._setText("; Failed to load demo.\n; Some browsers won't be able to load demos when running locally (file://).\n")
+				}
+			}
+		});
 		localStorage.removeItem("p3js-current-file");
 	} else {
 		this._setSelectDemos(null);

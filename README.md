@@ -21,7 +21,7 @@ If you just want to use the assembler and simulator NOW, go to [p3js.goncalomb.c
 * Run `npm start` to start a dev-server and open your default browser.
 * OR open `www/index.html` on your browser (you won't be able to load the demos this way).
 
-This still requires an Internet connection when first opening the browser (to download some required .css and .js files), I'll change this in the future.
+This still requires an Internet connection when first opening the browser. Running `node install-offline.js` will download the required remote files and create a new file, `www/index-offine.html` that doesn't require Internet connection.
 
 ### Assembler (terminal) `node p3as.js`
 
@@ -60,7 +60,6 @@ To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also asse
     * Implement Web Worker API (simulator/cpu) to take advantage of multiple threads (maybe?), make some performance tests first;
 * **Web Simulator** (src/p3js-web/\*):
     * Modularize the code;
-    * Remove Internet dependency when running locally (by creating script to download the required .css and .js files);
     * Create UI for the disassembler and breakpoints (requires API code first);
     * Create UI to allow custom instructions (requires API code first);
 * **Local Assembler** (p3as.js):

@@ -39,9 +39,23 @@ footer p{
 	content: "\f10c";
 }
 
-.sim-running .nav-tabs *[href="#simulator"],
-.sim-running .nav-tabs *[href="#io"] {
-	color: maroon !important;
+.nav-tabs [href="#simulator"] .text-danger,
+.nav-tabs [href="#simulator"] .text-info {
+	font-weight: bold;
+	padding-left: 5px;
+}
+
+body.sim-running .nav-tabs .text-danger {
+	display: none;
+}
+
+body:not(.sim-running) .nav-tabs .text-info {
+	display: none;
+}
+
+body.sim-running .nav-tabs [href="#simulator"],
+body.sim-running .nav-tabs [href="#io"] {
+	font-weight: bold;
 }
 
 textarea {

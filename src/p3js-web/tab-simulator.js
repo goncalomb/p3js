@@ -17,18 +17,15 @@ module.exports = function(p3sim) {
 	var show_ctrl = false;
 	var show_io = false;
 
-	var MemoryViewPanel = require("./MemoryViewPanel.js");
-	var memory_panel0 = new MemoryViewPanel($sim_memory0, 32768, 32768 + 256);
-	var memory_panel1 = new MemoryViewPanel($sim_memory1, 64768, 64768 + 256);
+	var memory_panel0 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory0, 32768, 32768 + 256);
+	var memory_panel1 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory1, 64768, 64768 + 256);
 
 	$("#sim-memory0-edit").click(function() {
-		memory_panel0.promptLimits();
-		memory_panel0.update(p3sim._ram._memoryView);
+		memory_panel0.promptRange();
 	});
 
 	$("#sim-memory1-edit").click(function() {
-		memory_panel1.promptLimits();
-		memory_panel1.update(p3sim._ram._memoryView);
+		memory_panel1.promptRange();
 	});
 
 	function sim_update_debug_panel() {
@@ -143,14 +140,8 @@ module.exports = function(p3sim) {
 		sim_update_debug_panel();
 		sim_update_status(0, 0, 0);
 	});
-	p3sim.registerEventHandler("memory", function(addr) {
-		memory_panel0.updateConditionally(p3sim._ram._memoryView, addr);
-		memory_panel1.updateConditionally(p3sim._ram._memoryView, addr);
-	});
 
 	sim_update_debug_panel();
 	sim_update_status(0, 0, 0);
-	memory_panel0.update(p3sim._ram._memoryView);
-	memory_panel1.update(p3sim._ram._memoryView);
 
 };

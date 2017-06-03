@@ -1,10 +1,21 @@
-var MemoryViewPanel = module.exports = function($area, begin, end) {
+var MemoryViewPanel = module.exports = function(p3sim, $area, begin, end) {
+	this._p3sim = p3sim;
 	this._$area = $area;
 	this._begin = begin;
 	this._end = end;
+
+	var self = this;
+
+	this._p3sim.registerEventHandler("memory", function(addr) {
+		if (addr === null || (addr >= self._begin && addr < self._end)) {
+			self.update();
+		}
+	});
+
+	self.update();
 }
 
-MemoryViewPanel.prototype.promptLimits = function() {
+MemoryViewPanel.prototype.promptRange = function() {
 	var regex = /^([0-9a-f]{1,4})\s?:\s?([0-9a-f]{1,4})$/i;
 	var value = ("000" + this._begin.toString(16)).substr(-4) + ":" + ("000" + (this._end - 1).toString(16)).substr(-4);
 	value = prompt("New memory range:", value);
@@ -19,6 +30,7 @@ MemoryViewPanel.prototype.promptLimits = function() {
 				if (e >= b) {
 					this._begin = b;
 					this._end = e + 1;
+					this.update();
 					return;
 				}
 			}
@@ -27,20 +39,15 @@ MemoryViewPanel.prototype.promptLimits = function() {
 	}
 }
 
-MemoryViewPanel.prototype.updateConditionally = function(data_view, addr) {
-	if (addr === null || (addr >= this._begin && addr < this._end)) {
-		this.update(data_view);
-	}
-}
-
-MemoryViewPanel.prototype.update = function(data_view) {
+MemoryViewPanel.prototype.update = function() {
+	var mem_view = this._p3sim._ram._memoryView;
 	var arr = [];
 	for (var i = this._begin, l = this._end; i < l; ) {
 		var line = "";
 		var ascii = "";
 		line += ("000" + i.toString(16)).substr(-4) + " : ";
 		for (var j = 0; j < 8 && i < l; j++, i++) {
-			var v = data_view.getInt16(i * 2, true) & 0xffff;
+			var v = mem_view.getInt16(i * 2, true) & 0xffff;
 			line += ("000" + v.toString(16)).substr(-4) + " ";
 			if (v > 32 && v < 127) {
 				// only printable characters

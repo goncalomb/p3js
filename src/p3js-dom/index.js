@@ -14,6 +14,8 @@ if (typeof window != "undefined" && typeof window.p3js != "undefined") {
 }
 
 dom.AssemblyEditor = require("./AssemblyEditor.js");
+dom.DebugPanel = require("./DebugPanel.js");
+dom.InfoPanel = require("./InfoPanel.js");
 dom.IOBoard = require("./IOBoard.js");
 dom.IOTextAreaTerminal = require("./IOTextAreaTerminal.js");
 dom.MemoryFootprintChart = require("./MemoryFootprintChart.js");

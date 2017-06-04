@@ -6,16 +6,13 @@ module.exports = function(p3sim) {
 	var $sim_debug_control = $("#sim-debug-control");
 	var $sim_memory0 = $("#sim-memory0");
 	var $sim_memory1 = $("#sim-memory1");
-	var $sim_status = $("#sim-status");
 	var $sim_start = $("#sim-start");
 	var $sim_step_i = $("#sim-step-i");
 	var $sim_step_c = $("#sim-step-c");
 	var $sim_reset = $("#sim-reset");
-	var $sim_show_ctrl = $("#sim-show-ctrl");
-	var $sim_show_io = $("#sim-show-io");
 
-	var show_ctrl = false;
-	var show_io = false;
+	var info_panel = new p3js.dom.InfoPanel(p3sim, $("#sim-status"));
+	var debug_panel = new p3js.dom.DebugPanel(p3sim, $sim_debug_main, $sim_debug_control);
 
 	var memory_panel0 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory0, 32768, 32768 + 256);
 	var memory_panel1 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory1, 64768, 64768 + 256);
@@ -27,50 +24,6 @@ module.exports = function(p3sim) {
 	$("#sim-memory1-edit").click(function() {
 		memory_panel1.promptRange();
 	});
-
-	function sim_update_debug_panel() {
-		function hex(n) {
-			return ("000" + (n & 0xffff).toString(16)).substr(-4);
-		}
-		// XXX: the debug panel should not be using "private" p3sim variables
-		var text = [];
-		for (var i = 0; i < 8; i++) {
-			text.push("R" + i + ":  " + hex(p3sim._cpu._registers[i]));
-		}
-		text.push("", "SP:  " + hex(p3sim._cpu._registers[14]));
-		text.push("PC:  " + hex(p3sim._cpu._registers[15]));
-		text.push("", "Flags:", "E Z C N O");
-		text.push(("000000" + (p3sim._cpu._re & 0x1f).toString(2)).substr(-5).split("").join(" "));
-		$sim_debug_main.val(text.join("\n"));
-		if (show_ctrl) {
-			var text = [];
-			for (var i = 8; i < 16; i++) {
-				text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(p3sim._cpu._registers[i]));
-			}
-			text.push("", "CAR: " + hex(p3sim._cpu._car));
-			text.push("SBR: " + hex(p3sim._cpu._sbr));
-			text.push("RI:  " + hex(p3sim._cpu._ri));
-			text.push("", "INT: " + p3sim._cpu._int);
-			text.push("z: " + (p3sim._cpu._re >> 6 & 0x1) + " c: " + (p3sim._cpu._re >> 5 & 0x1));
-			$sim_debug_control.val(text.join("\n"));
-		}
-	}
-
-	function sim_update_status(c, i, s) {
-		var s_str;
-		if (s >= 1000000) {
-			s_str = Math.round(s/100000)/10 + " MHz";
-		} else if (s >= 1000) {
-			s_str = Math.round(s/100)/10 + " kHz";
-		} else {
-			s_str = Math.round(s*10)/10 + " Hz";
-		}
-		$sim_status.html(
-			"Speed: " + s_str + "\n" +
-			"Clock: " + c.toLocaleString() + "\n" +
-			"Instructions: " + i.toLocaleString() + "\n"
-		);
-	}
 
 	$sim_start.click(function() {
 		if (p3sim.isRunning()) {
@@ -92,9 +45,9 @@ module.exports = function(p3sim) {
 		p3sim.reset();
 	});
 
-	$sim_show_ctrl.change(function() {
-		show_ctrl = this.checked;
-		if (show_ctrl) {
+	$("#sim-show-ctrl").change(function() {
+		debug_panel.showCtrl(this.checked);
+		if (this.checked) {
 			$sim_step_i.text("Step (Instruction)");
 			$sim_step_c.removeClass("hidden");
 			$sim_debug_control.parent().removeClass("hidden");
@@ -104,16 +57,14 @@ module.exports = function(p3sim) {
 			$sim_debug_control.val("");
 			$sim_debug_control.parent().addClass("hidden");
 		}
-		sim_update_debug_panel();
 	});
 
-	$sim_show_io.change(function() {
-		show_io = this.checked;
+	$("#sim-show-io").change(function() {
 		$(".tab-page-io .ui-draggable").css({
 			top: "0px",
 			left: "0px"
 		});
-		if (show_io) {
+		if (this.checked) {
 			$body.addClass("sim-io-visible");
 		} else {
 			$body.removeClass("sim-io-visible");
@@ -127,21 +78,9 @@ module.exports = function(p3sim) {
 			$sim_memory1[0].scrollTop = $sim_memory1[0].scrollHeight;
 		});
 	});
-	p3sim.registerEventHandler("stop", function(c, i, s) {
-		sim_update_status(c, i, s);
+	p3sim.registerEventHandler("stop", function() {
 		$body.removeClass("sim-running");
 		$sim_start.text("Start");
 	});
-	p3sim.registerEventHandler("clock", function(c, i, s) {
-		sim_update_debug_panel();
-		sim_update_status(c, i, s);
-	});
-	p3sim.registerEventHandler("reset", function() {
-		sim_update_debug_panel();
-		sim_update_status(0, 0, 0);
-	});
-
-	sim_update_debug_panel();
-	sim_update_status(0, 0, 0);
 
 };

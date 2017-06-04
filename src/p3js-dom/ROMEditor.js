@@ -1,5 +1,5 @@
-var ROMEditor = module.exports = function(p3sim, n, $contents, $changes) {
-	this._rw = new p3js.ROMReaderWriter(p3sim, n);
+var ROMEditor = module.exports = function(simulator, n, $contents, $changes) {
+	this._rw = new p3js.ROMReaderWriter(simulator, n);
 	this._$contents = $contents;
 	this._$changes = $changes;
 	this._dump();

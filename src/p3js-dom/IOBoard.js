@@ -1,4 +1,4 @@
-var Board = module.exports = function($container, p3sim) {
+var Board = module.exports = function($container, simulator) {
 	$container.addClass("p3js-io-board");
 	var $board_lcd = $("<textarea class=\"p3js-io-board-lcd\" cols=\"12\" rows=\"2\" readonly>").appendTo($container);
 	var $board_leds = $("<div class=\"p3js-io-board-leds\">").appendTo($container);
@@ -17,7 +17,7 @@ var Board = module.exports = function($container, p3sim) {
 		var $div = $("<div>");
 		arr.forEach(function(i) {
 			$("<button>").addClass("btn btn-xs").text("I" + i.toString(16).toUpperCase()).click(function() {
-				p3sim.interrupt(i);
+				simulator.interrupt(i);
 			}).appendTo($div);
 		});
 		$div.appendTo($board_buttons);
@@ -32,10 +32,10 @@ var Board = module.exports = function($container, p3sim) {
 			var $this = $(this);
 			if ($this.hasClass("on")) {
 				$this.removeClass("on");
-				p3sim.io.switches.unset(7 - i);
+				simulator.io.switches.unset(7 - i);
 			} else {
 				$this.addClass("on");
-				p3sim.io.switches.set(7 - i);
+				simulator.io.switches.set(7 - i);
 			}
 		}).appendTo($board_switches);
 	}
@@ -43,20 +43,20 @@ var Board = module.exports = function($container, p3sim) {
 		create_switch(i);
 	}
 
-	p3sim.io.seg7.onStateChange(function(value) {
+	simulator.io.seg7.onStateChange(function(value) {
 		$board_7seg.text(("0000" + value.toString(16)).substr(-4));
 	});
-	p3sim.io.lcd.onStateChange(function(text, active) {
+	simulator.io.lcd.onStateChange(function(text, active) {
 		if (!active || !text) {
 			$board_lcd.val("");
 		} else if (text) {
 			$board_lcd.val(text.join("\n"));
 		}
 	});
-	p3sim.io.lcd.onTextChange(function(text, active, x, y) {
+	simulator.io.lcd.onTextChange(function(text, active, x, y) {
 		$board_lcd.val(text.join("\n"));
 	});
-	p3sim.io.leds.onStateChange(function(value) {
+	simulator.io.leds.onStateChange(function(value) {
 		for (var i = 0; i < 16; i++) {
 			if (((value << i) & 0x8000) == 0) {
 				leds$array[i].removeClass("on");

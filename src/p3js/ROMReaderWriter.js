@@ -1,6 +1,5 @@
 var ROMReaderWriter = module.exports = function(simulator, n) {
 	this._simulator = simulator;
-	this.n;
 	this.c = String.fromCharCode(65 + n)
 	this.size = p3js.devices.CPU["ROM_" + this.c + "_SIZE"];
 	this.wordLength = p3js.devices.CPU["ROM_" + this.c + "_WORD_LENGTH"];

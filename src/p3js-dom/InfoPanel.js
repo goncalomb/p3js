@@ -4,7 +4,7 @@ var InfoPanel = module.exports = function(simulator, $textarea) {
 
 	var self = this;
 
-	p3sim.registerEventHandler("stop", function(c, i, s) {
+	simulator.registerEventHandler("stop", function(c, i, s) {
 		self._update(c, i, s);
 	});
 	simulator.registerEventHandler("clock", function(c, i, s) {

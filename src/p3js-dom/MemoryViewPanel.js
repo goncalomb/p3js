@@ -1,12 +1,12 @@
-var MemoryViewPanel = module.exports = function(p3sim, $area, begin, end) {
-	this._p3sim = p3sim;
+var MemoryViewPanel = module.exports = function(simulator, $area, begin, end) {
+	this._simulator = simulator;
 	this._$area = $area;
 	this._begin = begin;
 	this._end = end;
 
 	var self = this;
 
-	this._p3sim.registerEventHandler("memory", function(addr) {
+	this._simulator.registerEventHandler("memory", function(addr) {
 		if (addr === null || (addr >= self._begin && addr < self._end)) {
 			self.update();
 		}
@@ -40,7 +40,7 @@ MemoryViewPanel.prototype.promptRange = function() {
 }
 
 MemoryViewPanel.prototype.update = function() {
-	var mem_view = this._p3sim._ram._memoryView;
+	var mem_view = this._simulator._ram._memoryView;
 	var arr = [];
 	for (var i = this._begin, l = this._end; i < l; ) {
 		var line = "";

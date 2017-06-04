@@ -2,17 +2,12 @@ module.exports = function(p3sim) {
 
 	var $body = $(document.body);
 
-	var $sim_debug_main = $("#sim-debug-main");
-	var $sim_debug_control = $("#sim-debug-control");
 	var $sim_memory0 = $("#sim-memory0");
 	var $sim_memory1 = $("#sim-memory1");
 	var $sim_start = $("#sim-start");
-	var $sim_step_i = $("#sim-step-i");
-	var $sim_step_c = $("#sim-step-c");
-	var $sim_reset = $("#sim-reset");
 
 	var info_panel = new p3js.dom.InfoPanel(p3sim, $("#sim-status"));
-	var debug_panel = new p3js.dom.DebugPanel(p3sim, $sim_debug_main, $sim_debug_control);
+	var debug_panel = new p3js.dom.DebugPanel(p3sim, $("#sim-debug-main"), $("#sim-debug-control"));
 
 	var memory_panel0 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory0, 32768, 32768 + 256);
 	var memory_panel1 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory1, 64768, 64768 + 256);
@@ -33,29 +28,24 @@ module.exports = function(p3sim) {
 		}
 	});
 
-	$sim_step_i.click(function() {
+	$("#sim-step-i").click(function() {
 		p3sim.stepInstruction();
 	});
 
-	$sim_step_c.click(function() {
+	$("#sim-step-c").click(function() {
 		p3sim.stepClock();
 	});
 
-	$sim_reset.click(function() {
+	$("#sim-reset").click(function() {
 		p3sim.reset();
 	});
 
 	$("#sim-show-ctrl").change(function() {
 		debug_panel.showCtrl(this.checked);
 		if (this.checked) {
-			$sim_step_i.text("Step (Instruction)");
-			$sim_step_c.removeClass("hidden");
-			$sim_debug_control.parent().removeClass("hidden");
+			$(".tab-page-simulator").removeClass("ctrl-hide");
 		} else {
-			$sim_step_i.text("Step");
-			$sim_step_c.addClass("hidden");
-			$sim_debug_control.val("");
-			$sim_debug_control.parent().addClass("hidden");
+			$(".tab-page-simulator").addClass("ctrl-hide");
 		}
 	});
 
@@ -76,7 +66,7 @@ module.exports = function(p3sim) {
 		$sim_start.text("Stop");
 		setTimeout(function() {
 			$sim_memory1[0].scrollTop = $sim_memory1[0].scrollHeight;
-		});
+		}, 10);
 	});
 	p3sim.registerEventHandler("stop", function() {
 		$body.removeClass("sim-running");

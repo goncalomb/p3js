@@ -2,8 +2,6 @@ var p3js_web = require(".");
 
 module.exports = function(p3sim) {
 
-	var $document = $(document);
-
 	var $asm_editor_files = $("#asm-editor-files");
 	var $asm_editor_new = $("#asm-editor-new");
 	var $asm_editor_save = $("#asm-editor-save");
@@ -57,7 +55,7 @@ module.exports = function(p3sim) {
 	);
 
 	var $code_mirror = $(editor.codeMirror.getWrapperElement());
-	$document.on("fullscreenon", function() {
+	$(document).on("fullscreenon", function() {
 		$code_mirror.height($(window).height() - $code_mirror.offset().top - 20);
 	}).on("fullscreenoff", function() {
 		$code_mirror.css("height", "");

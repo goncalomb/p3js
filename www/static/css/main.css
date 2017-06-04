@@ -112,6 +112,10 @@ textarea {
 	height: 200px;
 }
 
+.tab-page-simulator.ctrl-hide .ctrl-elem {
+	display: none;
+}
+
 /* IO */
 
 .sim-io-visible .nav-tabs *[href="#io"] {

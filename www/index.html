@@ -103,12 +103,12 @@ See LICENSE.txt for details.
 				<pre id="prog-labels" class="well"></pre>
 			</div>
 		</div>
-		<div class="row tab-page tab-page-simulator hidden">
+		<div class="row tab-page tab-page-simulator hidden ctrl-hide">
 			<div class="col-md-9">
 				<table>
 					<tr>
 						<td><textarea id="sim-debug-main" rows="15" readonly></textarea></td>
-						<td class="hidden"><textarea id="sim-debug-control" rows="15" readonly></textarea></td>
+						<td class="ctrl-elem"><textarea id="sim-debug-control" rows="15" readonly></textarea></td>
 						<td>
 							<textarea id="sim-memory0" readonly></textarea>
 							<textarea id="sim-memory1" readonly></textarea>
@@ -123,8 +123,8 @@ See LICENSE.txt for details.
 			<div class="col-md-3">
 				<pre id="sim-status" class="well well-sm"></pre>
 				<button id="sim-start" class="btn btn-primary btn-sm btn-block">Start</button>
-				<button id="sim-step-i" class="btn btn-primary btn-sm btn-block">Step</button>
-				<button id="sim-step-c" class="btn btn-primary btn-sm btn-block hidden">Step (Clock)</button>
+				<button id="sim-step-i" class="btn btn-primary btn-sm btn-block">Step <span class="ctrl-elem"> (Instruction)</span></button>
+				<button id="sim-step-c" class="btn btn-primary btn-sm btn-block ctrl-elem">Step (Clock)</button>
 				<button id="sim-reset" class="btn btn-primary btn-sm btn-block">Reset</button>
 				<div class="checkbox"><label><input id="sim-show-ctrl" type="checkbox">Show Control Unit</label></div>
 				<div class="checkbox"><label><input id="sim-show-io" type="checkbox">Show IO</label></div>

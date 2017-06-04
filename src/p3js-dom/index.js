@@ -18,3 +18,4 @@ dom.IOBoard = require("./IOBoard.js");
 dom.IOTextAreaTerminal = require("./IOTextAreaTerminal.js");
 dom.MemoryFootprintChart = require("./MemoryFootprintChart.js");
 dom.MemoryViewPanel = require("./MemoryViewPanel.js");
+dom.ROMEditor = require("./ROMEditor.js");

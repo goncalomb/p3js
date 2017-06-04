@@ -7,6 +7,7 @@
     "blessed": "^0.1.81",
     "copy-webpack-plugin": "^4.0.1",
     "minimist": "^1.2.0",
+    "request": "^2.81.0",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^1.16.3"
   },

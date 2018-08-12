@@ -49,15 +49,6 @@ Simulator.prototype.registerEventHandler = function(name, fn) {
 	}
 }
 
-Simulator.prototype.setIOHandlers = function(read, write) {
-	for (var key in read) {
-		this._ioc.registerReadHandler(key, read[key]);
-	}
-	for (var key in write) {
-		this._ioc.registerWriteHandler(key, write[key]);
-	}
-}
-
 Simulator.prototype.loadMemory = function(buffer) {
 	this.stop();
 	this._ram.load(buffer)

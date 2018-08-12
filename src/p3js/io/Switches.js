@@ -1,27 +1,28 @@
-var Switches = module.exports = function(simulator) {
-	this._simulator = simulator;
-	this._value = 0;
-}
+export class Switches {
+  constructor(simulator) {
+    this._simulator = simulator;
+    this._value = 0;
+  }
 
-Switches.prototype.bindHandlers = function(addrControl) {
-	var self = this;
-	this._simulator._ioc.registerReadHandler(addrControl || 0xfff9, function() {
-		return self._value;
-	});
-}
+  bindHandlers(addrControl) {
+    this._simulator._ioc.registerReadHandler(addrControl || 0xfff9, () => {
+      return this._value;
+    });
+  }
 
-Switches.prototype.set = function(i) {
-	this._value |= (1 << i);
-}
+  set(i) {
+    this._value |= (1 << i);
+  }
 
-Switches.prototype.unset = function(i) {
-	this._value &= ~(1 << i);
-}
+  unset(i) {
+    this._value &= ~(1 << i);
+  }
 
-Switches.prototype.toggle = function(i) {
-	this._value ^= (1 << i);
-}
+  toggle(i) {
+    this._value ^= (1 << i);
+  }
 
-Switches.prototype.reset = function() {
-	this._value = 0;
+  reset() {
+    this._value = 0;
+  }
 }

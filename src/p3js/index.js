@@ -5,25 +5,17 @@
  * See LICENSE.txt for details.
  */
 
-var p3js = module.exports = { };
+export * from './ROMReaderWriter.js';
+export * from './Simulator.js';
+export * from './SimulatorWithIO.js';
 
-if (typeof window != "undefined") {
-	window.p3js = p3js;
+import * as assembly from './assembly/';
+import * as devices from './devices/';
+import * as io from './io/';
+import * as program from './program.js';
+
+export { assembly, devices, io, program };
+
+if (typeof window != 'undefined') {
+  window.p3js = this;
 }
-
-p3js.inherit = function(base, constructor) {
-	var tmp = function() { };
-	tmp.prototype = base.prototype;
-	constructor.prototype = new tmp();
-	constructor.prototype.constructor = constructor;
-	constructor._super = base;
-	return constructor;
-}
-
-p3js.devices = require("./devices");
-p3js.assembly = require("./assembly");
-p3js.io = require("./io");
-p3js.program = require("./program.js");
-p3js.ROMReaderWriter = require("./ROMReaderWriter.js");
-p3js.Simulator = require("./Simulator.js");
-p3js.SimulatorWithIO = require("./SimulatorWithIO.js");

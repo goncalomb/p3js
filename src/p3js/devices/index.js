@@ -1,5 +1,4 @@
-var devices = module.exports = { };
-devices.CPU = require("./CPU.js");
-devices.IOC = require("./IOC.js");
-devices.PIC = require("./PIC.js");
-devices.RAM = require("./RAM.js");
+export * from './CPU.js';
+export * from './IOC.js';
+export * from './PIC.js';
+export * from './RAM.js';

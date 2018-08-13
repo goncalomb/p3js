@@ -1,3 +1,7 @@
+require('babel-register')({
+	presets: ['es2015']
+});
+
 var fs = require("fs");
 var path = require("path");
 

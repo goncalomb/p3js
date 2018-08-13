@@ -9,8 +9,20 @@ var copyright = "Copyright (c) 2016, 2017 Gonçalo Baltazar <me@goncalomb.com>\n
 module.exports = [{
 	entry: ["./src/p3js/"],
 	output: {
+		library: 'p3js',
 		path: path.join(__dirname, "www"),
 		filename: "static/p3js/p3js-bundle.js",
+	},
+	module: {
+		loaders: [
+			{
+				test: /\.js$/,
+				loader: 'babel-loader',
+				query: {
+					presets: ['es2015']
+				}
+			}
+		]
 	},
 	plugins: [
 		new webpack.BannerPlugin(
@@ -25,6 +37,17 @@ module.exports = [{
 	output: {
 		path: path.join(__dirname, "www"),
 		filename: "static/p3js/p3js-dom-bundle.js",
+	},
+	module: {
+		loaders: [
+			{
+				test: /\.js$/,
+				loader: 'babel-loader',
+				query: {
+					presets: ['es2015']
+				}
+			}
+		]
 	},
 	plugins: [
 		new webpack.BannerPlugin(
@@ -41,6 +64,17 @@ module.exports = [{
 	output: {
 		path: path.join(__dirname, "www"),
 		filename: "static/p3js/p3js-web-bundle.js",
+	},
+	module: {
+		loaders: [
+			{
+				test: /\.js$/,
+				loader: 'babel-loader',
+				query: {
+					presets: ['es2015']
+				}
+			}
+		]
 	},
 	plugins: [
 		new webpack.BannerPlugin(

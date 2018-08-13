@@ -15,7 +15,3 @@ import * as io from './io/';
 import * as program from './program.js';
 
 export { assembly, devices, io, program };
-
-if (typeof window != 'undefined') {
-  window.p3js = this;
-}

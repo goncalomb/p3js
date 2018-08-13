@@ -7,6 +7,7 @@ var copyright = "Copyright (c) 2016, 2017 Gonçalo Baltazar <me@goncalomb.com>\n
 	+ "See LICENSE.txt for details.";
 
 module.exports = [{
+	mode: 'none',
 	entry: ["./src/p3js/"],
 	output: {
 		library: 'p3js',
@@ -14,7 +15,7 @@ module.exports = [{
 		filename: "static/p3js/p3js-bundle.js",
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
 				loader: 'babel-loader',
@@ -33,13 +34,14 @@ module.exports = [{
 		)
 	]
 }, {
+	mode: 'none',
 	entry: ["./src/p3js-dom/"],
 	output: {
 		path: path.join(__dirname, "www"),
 		filename: "static/p3js/p3js-dom-bundle.js",
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
 				loader: 'babel-loader',
@@ -60,13 +62,14 @@ module.exports = [{
 		])
 	]
 }, {
+	mode: 'none',
 	entry: ["./src/p3js-web/"],
 	output: {
 		path: path.join(__dirname, "www"),
 		filename: "static/p3js/p3js-web-bundle.js",
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
 				loader: 'babel-loader',

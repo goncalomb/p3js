@@ -1,13 +1,13 @@
-var p3js_devices = require("./devices");
+import * as devices from './devices/';
 
 export class Simulator {
   constructor() {
     this._eventHandlers = { };
     this._busDevices = [ ];
-    this._cpu = new p3js_devices.CPU(this._busDevices);
-    this._ram = new p3js_devices.RAM(this);
-    this._ioc = new p3js_devices.IOC();
-    this._pic = new p3js_devices.PIC(this._cpu);
+    this._cpu = new devices.CPU(this._busDevices);
+    this._ram = new devices.RAM(this);
+    this._ioc = new devices.IOC();
+    this._pic = new devices.PIC(this._cpu);
     this._busDevices.push(this._pic);
     this._busDevices.push(this._ioc);
     this._busDevices.push(this._ram);

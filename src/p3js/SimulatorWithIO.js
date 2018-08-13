@@ -1,4 +1,4 @@
-var p3js = require("./");
+import * as p3js from './';
 
 export class SimulatorWithIO extends p3js.Simulator {
   constructor() {

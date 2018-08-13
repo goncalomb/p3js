@@ -37,6 +37,7 @@ module.exports = [{
 	mode: 'none',
 	entry: ["./src/p3js-dom/"],
 	output: {
+		library: ['p3js', 'dom'],
 		path: path.join(__dirname, "www"),
 		filename: "static/p3js/p3js-dom-bundle.js",
 	},

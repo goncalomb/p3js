@@ -1,8 +1,59 @@
 {
   "extends": "airbnb-base",
+  "env": {
+    "browser": true,
+    "jquery": true
+  },
+  "globals": {
+    "CodeMirror": false,
+    "p3js": false
+  },
   "rules": {
+    "space-before-function-paren": 0,
+    "import/no-extraneous-dependencies": 0,
+    "import/no-useless-path-segments": 0,
+    "import/prefer-default-export": 0,
+    "import/no-cycle": 0,
+    "import/extensions": 0,
+    "prefer-template": 0,
+    "consistent-return": 0,
+    "newline-per-chained-call": 0,
+    "prefer-destructuring": 1,
+    "space-infix-ops": 0,
+    "arrow-body-style": 0,
+    "object-curly-newline": 0,
+    "class-methods-use-this": 1,
+    "no-restricted-properties": 1,
     "no-underscore-dangle": 0,
+    "no-mixed-operators": 0,
+    "no-param-reassign": 0,
+    "no-useless-return": 0,
+    "no-multi-spaces": [2, {
+      "ignoreEOLComments": true,
+      "exceptions": {
+        "BinaryExpression": true
+      }
+    }],
+    "no-throw-literal": 1,
+    "no-unused-vars": [2, {
+      "args": "none"
+    }],
+    "no-cond-assign": 1,
+    "no-else-return": 0,
+    "no-plusplus": 0,
+    "no-continue": 1,
+    "no-console": 0,
     "no-bitwise": 0,
+    "no-shadow": 0,
+    "no-alert": 0,
+    "no-new": 0,
+    "no-nested-ternary": 1,
+    "default-case": 1,
+    "prefer-spread": 0,
+    "prefer-const": 0,
+    "camelcase": 0,
+    "eqeqeq": 0,
+    "max-len": 0,
     "quotes": 0
   }
 }

@@ -11,9 +11,9 @@ export class PIC {
 
   readFromAddress(addr, iak) {
     if (iak) {
-      var int_number = null;
+      let int_number = null;
       this._cpu.setIntSignal(0);
-      for (var i = 0; i < this.constructor.INTERRUPT_COUNT; i++) {
+      for (let i = 0; i < this.constructor.INTERRUPT_COUNT; i++) {
         if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {
           if (int_number === null) {
             this._intPending[i] = false;
@@ -38,7 +38,7 @@ export class PIC {
   writeToAddress(addr, val) {
     if (addr == this.constructor.INTERRUPT_MASK_ADDRESS) {
       this._intMask = val & 0xffff;
-      for (var i = 0; i < this.constructor.INTERRUPT_COUNT; i++) {
+      for (let i = 0; i < this.constructor.INTERRUPT_COUNT; i++) {
         if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {
           this._cpu.setIntSignal(1);
           return true;

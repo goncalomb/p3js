@@ -1,24 +1,27 @@
 require('babel-register')({
-  presets: ['es2015']
+  presets: ['es2015'],
 });
 
-var fs = require("fs");
-var path = require("path");
+let fs = require("fs");
+let path = require("path");
+let minimist = require("minimist");
 
-var TerminalUI = require("./src/TerminalUI.js").TerminalUI;
-var p3js = require("./src/p3js/");
+let TerminalUI = require("./src/TerminalUI.js").TerminalUI;
+let p3js = require("./src/p3js/");
 
-var argv = require("minimist")(process.argv.slice(2), {
-  unknown: function(opt) {
+let argv = minimist(process.argv.slice(2), {
+  unknown(opt) {
     if (opt[0] == '-') {
       console.error("Unknown option '" + opt + "'.");
       process.exit(1);
       return false;
     }
-  }
+  },
 });
 
-var p3sim = new p3js.SimulatorWithIO();
+let p3sim = new p3js.SimulatorWithIO();
+let data;
+let result;
 
 if (!process.stdin.isTTY || !process.stdout.isTTY) {
   console.error("Not connected to a tty.");
@@ -31,14 +34,14 @@ if (typeof argv._[0] == "undefined") {
 }
 
 try {
-  var data = fs.readFileSync(path.normalize(argv._[0]), "utf8");
+  data = fs.readFileSync(path.normalize(argv._[0]), "utf8");
 } catch (e) {
   console.error(e.message);
   process.exit(4);
 }
 
 try {
-  var result = p3js.assembly.assembleWithDefaultValidator(data);
+  result = p3js.assembly.assembleWithDefaultValidator(data);
 } catch (e) {
   if (e instanceof p3js.assembly.AssemblerError) {
     console.error("Assembler Error: " + e.getFullMessage());

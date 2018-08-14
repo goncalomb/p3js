@@ -17,7 +17,7 @@ export class InfoPanel {
   }
 
   _update(c, i, s) {
-    var s_str;
+    let s_str;
     if (s >= 1000000) {
       s_str = Math.round(s/100000)/10 + " MHz";
     } else if (s >= 1000) {
@@ -26,9 +26,9 @@ export class InfoPanel {
       s_str = Math.round(s*10)/10 + " Hz";
     }
     this._$textarea.html(
-      "Speed: " + s_str + "\n" +
-      "Clock: " + c.toLocaleString() + "\n" +
-      "Instructions: " + i.toLocaleString() + "\n"
+      "Speed: " + s_str + "\n"
+      + "Clock: " + c.toLocaleString() + "\n"
+      + "Instructions: " + i.toLocaleString() + "\n",
     );
   }
 }

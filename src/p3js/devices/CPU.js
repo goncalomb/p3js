@@ -1,12 +1,16 @@
+/* eslint-disable no-multi-spaces, key-spacing */
+
 export class CPU {
   constructor(busDevices) {
     this._busDevices = busDevices;
-    this._romA = this._romB = this._romC = null;
+    this._romA = null;
+    this._romB = null;
+    this._romC = null;
     this.resetRomA();
     this.resetRomB();
     this.resetRomC();
     this._resetVariables();
-  };
+  }
 
   _resetVariables() {
     // registers
@@ -18,7 +22,7 @@ export class CPU {
       0,                   // R12   = EA (effective address)
       0,                   // R13   = RD (result data)
       0,                   // R14   = SP (stack pointer)
-      0                    // R15   = PC (program counter)
+      0,                   // R15   = PC (program counter)
     ];
     this._ri = 0;          // RI    (instruction register)
     this._re = 0;          // RE    (status register)
@@ -42,8 +46,8 @@ export class CPU {
       m:   (i >>  4 & 0x3),
       ir1: (i >>  0 & 0xf),
       c:   (i >>  6 & 0xf),
-      d:   (i >>  0 & 0x3f)
-    }
+      d:   (i >>  0 & 0x3f),
+    };
   }
 
   _unpackMicro(i) {
@@ -73,15 +77,15 @@ export class CPU {
       li:    (i >> 21 & 0x1),
       cc:    (i >> 22 & 0x1),
       mcond: (i >> 23 & 0x7),
-      ls:    (i >> 26 & 0x1)
-    }
+      ls:    (i >> 26 & 0x1),
+    };
   }
 
   _fillCache() {
     if (!this._cachedMicro) {
       this._cachedMicro = [];
-      var sim = this;
-      this._romC.forEach(function(i) {
+      let sim = this;
+      this._romC.forEach((i) => {
         sim._cachedMicro.push(sim._unpackMicro(i));
       });
     }
@@ -92,8 +96,8 @@ export class CPU {
 
   _readMemory(addr) {
     addr &= 0xffff;
-    for (var i = 0, l = this._busDevices.length; i < l; i++) {
-      var v = this._busDevices[i].readFromAddress(addr, this._iak);
+    for (let i = 0, l = this._busDevices.length; i < l; i++) {
+      let v = this._busDevices[i].readFromAddress(addr, this._iak);
       if (v !== undefined) {
         return v;
       }
@@ -103,7 +107,7 @@ export class CPU {
 
   _writeMemory(addr, val) {
     addr &= 0xffff;
-    for (var i = 0, l = this._busDevices.length; i < l; i++) {
+    for (let i = 0, l = this._busDevices.length; i < l; i++) {
       if (this._busDevices[i].writeToAddress(addr, val) !== undefined) {
         return;
       }
@@ -125,7 +129,7 @@ export class CPU {
       // Integers please.
       throw "ALU error, invalid operand (not integer)";
     }
-    var t = (a & 0xffff8000) ^ (b & 0xffff8000);
+    let t = (a & 0xffff8000) ^ (b & 0xffff8000);
     if (t != 0 && (t ^ 0xffff8000) != 0) {
       // This basically checks if both operands (a, b) have all the upper
       // 16 bits equal to the 15th bit (sign).
@@ -134,8 +138,11 @@ export class CPU {
     }
     cula &= 0x1f;
     c &= 0x1;
-    var result = 0;
-    var zero = 0, carry = 0, negative = 0, overflow = 0;
+    let result = 0;
+    let zero = 0;
+    let carry = 0;
+    let negative = 0;
+    let overflow = 0;
     switch (cula) {
       case 4: cula = 1; b = 1; break;
       case 5: cula = 0; b = 1; break;
@@ -251,25 +258,25 @@ export class CPU {
       negative = 1;
     }
     return {
-      result: result,
-      zcno: (zero << 3) | (carry << 2) | (negative << 1) | overflow
+      result,
+      zcno: (zero << 3) | (carry << 2) | (negative << 1) | overflow,
     };
   }
 
   clock() {
     this._fillCache();
-    var inst = this._cachedInstruction;
-    var micro = this._cachedMicro[this._car];
+    let inst = this._cachedInstruction;
+    let micro = this._cachedMicro[this._car];
     // control unit
     if (micro.f && micro.ls) {
       this._sbr = (this._car + 1) & 0xffff;
     }
     if (micro.m5 == 0) {
-      var c0 = 0;
+      let c0 = 0;
       if (micro.f) {
-        var c1;
+        let c1;
         switch (micro.mcond) {
-          case 0: c1 = 1;   break;
+          case 0: c1 = 1; break;
           case 1: c1 = this._re >> 6 & 0x1; break; // z
           case 2: c1 = this._re >> 5 & 0x1; break; // c
           case 3: c1 = this._re >> 4 & this._int & 0x1; break; // E & INT
@@ -285,7 +292,7 @@ export class CPU {
               case 4: c1 = ~((this._re >> 3) | (this._re >> 1)) & 0x1; break; // P = ~(Z|N)
               case 5: c1 = this._int & 0x1; break; // INT
             }
-            c1 = c1 ^ (inst.c & 0x1);
+            c1 ^= (inst.c & 0x1);
             break;
         }
         c0 = c1 ^ micro.cc;
@@ -302,11 +309,12 @@ export class CPU {
     } else if (micro.m5 == 3) {
       this._car = this._romB[(micro.sr2 << 3) | ((micro.sr2 ? inst.s : micro.sr1) << 2) | inst.m];
     }
-    var sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1));
-    var sel_ad = (micro.mad ? micro.rad : ((micro.m2 ^ inst.s) && (inst.op & 0x20) ? inst.ir2 : inst.ir1));
+    let sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1));
+    let sel_ad = (micro.mad ? micro.rad : ((micro.m2 ^ inst.s) && (inst.op & 0x20) ? inst.ir2 : inst.ir1));
     // data circuit
     // get operands (MUXA and MUXB)
-    var a, b;
+    let a; let
+      b;
     if (!micro.f && micro.ma) {
       a = this._registers[sel_b];
     } else {
@@ -318,8 +326,8 @@ export class CPU {
       b = this._registers[sel_b];
     }
     // cumpute result (MUXD)
-    var alu = this._alu(a, b, micro.cula, this._re >> 2 & 0x1);
-    var result;
+    let alu = this._alu(a, b, micro.cula, this._re >> 2 & 0x1);
+    let result;
     switch (micro.md) {
       case 0: result = alu.result; break;
       case 1: result = this._readMemory(a); break;
@@ -363,7 +371,7 @@ export class CPU {
   }
 
   reset() {
-    for (var i = 0, l = this._busDevices.length; i < l; i++) {
+    for (let i = 0, l = this._busDevices.length; i < l; i++) {
       this._busDevices[i].reset();
     }
     this._resetVariables();
@@ -378,7 +386,7 @@ export class CPU {
       0x00c2, 0x00b4, 0x00b6, 0x00b8, 0x00ba, 0x00cf, 0x00dd, 0x00c4,
       0x00bc, 0x00be, 0x00c0, 0x00a8, 0x00af, 0x00aa, 0x00ca,      0,
       0x0102, 0x0105, 0x0109, 0x010d,      0,      0,      0,      0,
-      0x00f9, 0x00f8,      0,      0,      0,      0,      0,      0
+      0x00f9, 0x00f8,      0,      0,      0,      0,      0,      0,
       // empty addresses: 10 to 15, 22, 23, 47, 52 to 55, 58 to 63
     ];
   }
@@ -386,7 +394,7 @@ export class CPU {
   resetRomB() {
     this._romB = [
       0x000a, 0x000b, 0x000d, 0x000f, 0x002d, 0x002f, 0x002d, 0x002f,
-      0x0013, 0x0017, 0x001d, 0x0023, 0x0015, 0x001a, 0x0020, 0x0028
+      0x0013, 0x0017, 0x001d, 0x0023, 0x0015, 0x001a, 0x0020, 0x0028,
     ];
   }
 
@@ -476,12 +484,12 @@ export class CPU {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ];
   }
 }
 
-CPU.INTERRUPT_VECTOR_ADDRESS = 0xfe00 // can be changed on ROM C
+CPU.INTERRUPT_VECTOR_ADDRESS = 0xfe00; // can be changed on ROM C
 CPU.ROM_A_SIZE = (1 << 6);   // 64 positions
 CPU.ROM_A_WORD_LENGTH = 9;   // 9 bits
 CPU.ROM_B_SIZE = (1 << 4);   // 16 positions

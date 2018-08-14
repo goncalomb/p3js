@@ -23,8 +23,8 @@ export class Terminal {
       this._cursorMode = true;
       this._x = 0;
       this._y = 0;
-      var empty_line = Array(80 + 1).join(" ");
-      this._buffer = Array.apply(null, new Array(24)).map(function () { return empty_line; });
+      let empty_line = Array(80 + 1).join(" ");
+      this._buffer = Array.apply(null, new Array(24)).map(() => { return empty_line; });
       if (this._onClear) this._onClear(this._buffer, this._cursorMode);
     } else {
       this._x = v & 0xff;
@@ -37,8 +37,8 @@ export class Terminal {
       if (this._buffer.length == 0) {
         this._buffer.push("");
       }
-      var lf = false;
-      var val = this._buffer[this._buffer.length - 1];
+      let lf = false;
+      let val = this._buffer[this._buffer.length - 1];
       if (v == 10) { // LF
         this._buffer.push("");
         lf = true;
@@ -55,8 +55,8 @@ export class Terminal {
       }
       if (this._onTextChange) this._onTextChange(this._buffer, this._cursorMode, -1, -1, 0, "\u0000", lf);
     } else if (this._x < 80 && this._y < 24) {
-      var c = this.constructor._charFromCode(v);
-      var val = this._buffer[this._y];
+      let c = this.constructor._charFromCode(v);
+      let val = this._buffer[this._y];
       val = val.substr(0, this._x) + c + val.substr(this._x + 1, val.length);
       this._buffer[this._y] = val;
       if (this._onTextChange) this._onTextChange(this._buffer, this._cursorMode, this._x, this._y, v, c, false);
@@ -74,7 +74,7 @@ export class Terminal {
       this._write(value);
     });
     this._simulator._ioc.registerReadHandler(addrRead || 0xffff, () => {
-      var k = this._lastKey;
+      let k = this._lastKey;
       this._lastKey = 0;
       return k;
     });

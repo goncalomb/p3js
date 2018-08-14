@@ -1,21 +1,21 @@
 import * as p3js_web from './';
 
 export default function(p3sim) {
-  var $asm_editor_files = $("#asm-editor-files");
-  var $asm_editor_new = $("#asm-editor-new");
-  var $asm_editor_save = $("#asm-editor-save");
-  var $asm_editor_download = $("#asm-editor-download");
-  var $asm_editor_delete = $("#asm-editor-delete");
-  var $asm_editor_demos = $("#asm-editor-demos");
+  let $asm_editor_files = $("#asm-editor-files");
+  let $asm_editor_new = $("#asm-editor-new");
+  let $asm_editor_save = $("#asm-editor-save");
+  let $asm_editor_download = $("#asm-editor-download");
+  let $asm_editor_delete = $("#asm-editor-delete");
+  let $asm_editor_demos = $("#asm-editor-demos");
 
-  var $assemble = $("#assemble");
-  var $assemble_run = $("#assemble-run");
-  var $assemble_dl = $("#assemble-dl");
-  var $asm_info = $("#asm-info");
+  let $assemble = $("#assemble");
+  let $assemble_run = $("#assemble-run");
+  let $assemble_dl = $("#assemble-dl");
+  let $asm_info = $("#asm-info");
 
   function asm_info_add(message, cssClass) {
     if (message) {
-      var $li = $("<li>").text(message).appendTo($asm_info);
+      let $li = $("<li>").text(message).appendTo($asm_info);
       if (cssClass) {
         $li.attr("class", cssClass);
       }
@@ -25,8 +25,8 @@ export default function(p3sim) {
   }
 
   // linter
-  var use_linter = true;
-  CodeMirror.registerHelper("lint", null, function(text) {
+  let use_linter = true;
+  CodeMirror.registerHelper("lint", null, (text) => {
     if (use_linter) {
       asm_info_add(null);
       try {
@@ -38,7 +38,7 @@ export default function(p3sim) {
           return [{
             from: CodeMirror.Pos(e.line - 1, 0),
             to: CodeMirror.Pos(e.line - 1, 80),
-            message: e.message
+            message: e.message,
           }];
         }
       }
@@ -47,20 +47,20 @@ export default function(p3sim) {
   });
 
   // editor
-  var editor = new p3js.dom.AssemblyEditor(
+  let editor = new p3js.dom.AssemblyEditor(
     $("#code-editor"),
     $asm_editor_files,
-    $asm_editor_demos
+    $asm_editor_demos,
   );
 
-  var $code_mirror = $(editor.codeMirror.getWrapperElement());
-  $(document).on("fullscreenon", function() {
+  let $code_mirror = $(editor.codeMirror.getWrapperElement());
+  $(document).on("fullscreenon", () => {
     $code_mirror.height($(window).height() - $code_mirror.offset().top - 20);
-  }).on("fullscreenoff", function() {
+  }).on("fullscreenoff", () => {
     $code_mirror.css("height", "");
-  }).on("p3js-tab-change", function(e, tab) {
+  }).on("p3js-tab-change", (e, tab) => {
     if (tab == "assembler") {
-      setTimeout(function() {
+      setTimeout(() => {
         if ($(document.body).hasClass("fullscreen")) {
           $code_mirror.height($(window).height() - $code_mirror.offset().top - 20);
         }
@@ -69,11 +69,11 @@ export default function(p3sim) {
     }
   });
 
-  $asm_editor_new.click(function() { editor.new(); });
-  $asm_editor_save.click(function() { editor.save(); });
-  $asm_editor_delete.click(function() { editor.delete(); });
+  $asm_editor_new.click(() => { editor.new(); });
+  $asm_editor_save.click(() => { editor.save(); });
+  $asm_editor_delete.click(() => { editor.delete(); });
 
-  editor.onFileChange(function(currentFile, currentFileIsDemo) {
+  editor.onFileChange((currentFile, currentFileIsDemo) => {
     $asm_editor_delete.attr("disabled", !(currentFile && !currentFileIsDemo));
   });
 
@@ -85,17 +85,17 @@ export default function(p3sim) {
         "automaton.as",
         "keyboard-test.as",
         "logo.as",
-        "template.as"
-      ]
+        "template.as",
+      ],
     },
     {
       label: "IST Demos",
-      files: [ "Demo1-clean.as" ]
-    }
+      files: ["Demo1-clean.as"],
+    },
   ]);
 
-  $asm_editor_download.click(function() {
-    var code = editor.getValue();
+  $asm_editor_download.click(() => {
+    let code = editor.getValue();
     if (code) {
       p3js_web.downloadBuffer(code, editor.getFileName());
     }
@@ -103,18 +103,18 @@ export default function(p3sim) {
 
   // assembler
 
-  var is_assembling = false;
+  let is_assembling = false;
 
   function assemble_program(callback) {
     if (!is_assembling) {
       is_assembling = true;
-      asm_info_add(null)
+      asm_info_add(null);
       asm_info_add("Assembling...");
-      setTimeout(function() {
-        var t = Date.now();
+      setTimeout(() => {
+        let t = Date.now();
         try {
-          var result = p3js.assembly.assembleWithDefaultValidator(editor.getValue());
-          asm_info_add(null)
+          let result = p3js.assembly.assembleWithDefaultValidator(editor.getValue());
+          asm_info_add(null);
           asm_info_add("Assembling finished (" + (Date.now() - t) + " ms).", "text-success");
           asm_info_add("Program loaded on simulator.", "text-info small");
           p3js_web.buildProgramInfo(result);
@@ -124,7 +124,7 @@ export default function(p3sim) {
           }
         } catch (e) {
           p3js_web.clearProgramInfo();
-          asm_info_add(null)
+          asm_info_add(null);
           if (e instanceof p3js.assembly.AssemblerError) {
             asm_info_add(e.getFullMessage(), "text-danger");
           } else {
@@ -138,37 +138,37 @@ export default function(p3sim) {
     }
   }
 
-  $assemble.click(function() {
+  $assemble.click(() => {
     assemble_program();
   });
 
-  $assemble_run.click(function() {
-    assemble_program(function(result) {
+  $assemble_run.click(() => {
+    assemble_program((result) => {
       p3sim.start();
       window.location.hash = "#simulator";
     });
   });
 
-  $assemble_dl.click(function() {
-    assemble_program(function(result) {
+  $assemble_dl.click(() => {
+    assemble_program((result) => {
       p3js_web.downloadBuffer(result.buildProgramCode(), editor.getFileName("exe"));
       asm_info_add("Download requested (p3as format).", "text-info small");
     });
   });
 
-  $("#asm-use-linter").change(function() {
+  $("#asm-use-linter").change(() => {
     use_linter = this.checked;
   });
 
-  $("#asm-show-rulers").change(function() {
+  $("#asm-show-rulers").change(() => {
     $code_mirror[this.checked ? "addClass" : "removeClass"]("asm-show-rulers");
   });
 
-  $("#asm-show-extra-rulers").change(function() {
+  $("#asm-show-extra-rulers").change(() => {
     $code_mirror[this.checked ? "addClass" : "removeClass"]("asm-show-extra-rulers");
   });
 
   $code_mirror.addClass("asm-show-rulers");
   asm_info_add(null);
   asm_info_add("Initialized.");
-};
+}

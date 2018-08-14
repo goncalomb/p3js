@@ -21,12 +21,12 @@ export class DebugPanel {
   }
 
   update() {
-    var cpu = this._simulator._cpu;
+    let cpu = this._simulator._cpu;
     function hex(n) {
       return ("000" + (n & 0xffff).toString(16)).substr(-4);
     }
-    var text = [];
-    for (var i = 0; i < 8; i++) {
+    let text = [];
+    for (let i = 0; i < 8; i++) {
       text.push("R" + i + ":  " + hex(cpu._registers[i]));
     }
     text.push("", "SP:  " + hex(cpu._registers[14]));
@@ -35,9 +35,9 @@ export class DebugPanel {
     text.push(("000000" + (cpu._re & 0x1f).toString(2)).substr(-5).split("").join(" "));
     this._$textarea0.val(text.join("\n"));
     if (this._showCtrl) {
-      var text = [];
-      for (var i = 8; i < 16; i++) {
-        text.push("R" + i + ": " + (i < 10 ? " " : "" ) + hex(cpu._registers[i]));
+      let text = [];
+      for (let i = 8; i < 16; i++) {
+        text.push("R" + i + ": " + (i < 10 ? " " : "") + hex(cpu._registers[i]));
       }
       text.push("", "CAR: " + hex(cpu._car));
       text.push("SBR: " + hex(cpu._sbr));

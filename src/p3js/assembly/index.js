@@ -1,3 +1,6 @@
+import * as assembler from './assembler.js';
+import * as parser from './parser.js';
+
 export const REGISTER_0 = 0;
 export const REGISTER_SP = 14;
 export const REGISTER_PC = 15;
@@ -14,15 +17,15 @@ export const OPRD_TYPE_PC = 7;                // PC
 export const OPRD_TYPE_SP = 8;                 // SP
 
 export const pseudoInstructions = {
-  "ORIG": { type: "0c", requiresLabel: false },
-  "EQU":  { type: "0c", requiresLabel: true  },
-  "WORD": { type: "0c", requiresLabel: true  },
-  "STR":  { type: "s",  requiresLabel: true  },
-  "TAB":  { type: "0c", requiresLabel: true  }
+  ORIG: { type: "0c", requiresLabel: false },
+  EQU: { type: "0c", requiresLabel: true },
+  WORD: { type: "0c", requiresLabel: true },
+  STR: { type: "s", requiresLabel: true },
+  TAB: { type: "0c", requiresLabel: true },
 };
 
 //   Name  Opcode   Type
-var instructions_raw = [
+let instructions_raw = [
   // 0 operands
   "NOP   000000   0",
   "ENI   000001   0",
@@ -76,43 +79,50 @@ var instructions_raw = [
   // jump relative
   "BR    111000   jr",
   // jump relative conditional
-  "BR.   111001   jrc"
+  "BR.   111001   jrc",
 ];
 
 export const instructions = { };
-for (var i = 0, l = instructions_raw.length; i < l; i++) {
-  var parts = instructions_raw[i].replace(/\s+/g, " ").split(" ");
+for (let i = 0, l = instructions_raw.length; i < l; i++) {
+  let parts = instructions_raw[i].replace(/\s+/g, " ").split(" ");
   instructions[parts[0].toUpperCase()] = {
     opcode: parseInt(parts[1], 2),
-    type: parts[2]
+    type: parts[2],
   };
 }
 
 export const conditions = {
-  "Z": 0, "NZ": 1, "C": 2, "NC": 3, "N": 4, "NN": 5,
-  "O": 6, "NO": 7, "P": 8, "NP": 9, "I": 10, "NI": 11
-}
+  Z: 0,
+  NZ: 1,
+  C: 2,
+  NC: 3,
+  N: 4,
+  NN: 5,
+  O: 6,
+  NO: 7,
+  P: 8,
+  NP: 9,
+  I: 10,
+  NI: 11,
+};
 
 export function getNumOperands(type) {
-  if (type == "0")  return 0;
+  if (type == "0") return 0;
   if (type == "0c") return 1;
-  if (type == "1")  return 1;
+  if (type == "1") return 1;
   if (type == "1c") return 2;
-  if (type == "2")  return 2;
+  if (type == "2") return 2;
   if (type.charAt(0) == "j") return 1;
-  return null
-};
+  return null;
+}
 
 export * from './AssemblerError.js';
 export * from './AssemblerResult.js';
 export * from './Instruction.js';
 export * from './ObjectCodeWriter.js';
-
-import * as assembler from './assembler.js';
-import * as parser from './parser.js';
 export { assembler, parser };
 
 export function assembleWithDefaultValidator(text) {
-  var data = parser.parseString(text);
+  let data = parser.parseString(text);
   return assembler.assembleData(data, assembler.DEFAULT_VALIDATOR);
 }

@@ -1,5 +1,5 @@
 export class AssemblyEditor {
-  constructor($container, $selectFiles, $selectDemos, demos) {
+  constructor($container, $selectFiles, $selectDemos) {
     this.$container = $container;
     this.$selectFiles = $selectFiles;
     this.$selectDemos = $selectDemos;
@@ -9,8 +9,8 @@ export class AssemblyEditor {
     this._savedFiles = { };
     this._onFileChange = null;
 
-    var rulers = [];
-    for (var i = 0; i <= 80; i+= 8) {
+    let rulers = [];
+    for (let i = 0; i <= 80; i += 8) {
       rulers.push({ column: i, className: "asm-ruler-extra", color: "#dadada" });
     }
     rulers.push({ column: 16, className: "asm-ruler", color: "#c0c0ff" });
@@ -23,11 +23,11 @@ export class AssemblyEditor {
       gutters: ["CodeMirror-lint-markers"],
       lint: true,
       extraKeys: {
-        Tab: function(cm) {
-          var selections = cm.listSelections();
-          var strings = [];
-          for (var i = 0, l = selections.length; i < l; i++) {
-            var p = selections[i].from().ch;
+        Tab(cm) {
+          let selections = cm.listSelections();
+          let strings = [];
+          for (let i = 0, l = selections.length; i < l; i++) {
+            let p = selections[i].from().ch;
             if (p < 16) {
               strings.push(Array(16 - p + 1).join(" "));
             } else if (p < 24) {
@@ -37,9 +37,9 @@ export class AssemblyEditor {
             }
           }
           cm.replaceSelections(strings);
-        }
+        },
       },
-      rulers: rulers
+      rulers,
     });
     this.codeMirror.on("change", () => {
       this._dirty = true;
@@ -47,7 +47,7 @@ export class AssemblyEditor {
     this.codeMirror.addKeyMap({
       "Ctrl-S": () => {
         this.save();
-      }
+      },
     });
     this.$codeMirror = $(this.codeMirror.getWrapperElement());
 
@@ -67,7 +67,7 @@ export class AssemblyEditor {
   }
 
   _confirm() {
-    return !this._dirty || confirm("It appears that you have unsaved changes. Continue?");
+    return !this._dirty || window.confirm("It appears that you have unsaved changes. Continue?");
   }
 
   _confirmForSelect($select) {
@@ -97,9 +97,9 @@ export class AssemblyEditor {
         },
         error: () => {
           if (window.location.protocol == "file:") {
-            this._setText("; Failed to load demo.\n; Some browsers won't be able to load demos when running locally (file://).\n")
+            this._setText("; Failed to load demo.\n; Some browsers won't be able to load demos when running locally (file://).\n");
           }
-        }
+        },
       });
       localStorage.removeItem("p3js-current-file");
     } else {
@@ -109,7 +109,7 @@ export class AssemblyEditor {
     }
     this._currentFile = name;
     this._currentFileIsDemo = isDemo;
-    if (this._onFileChange) this._onFileChange(this._currentFile, this._currentFileIsDemo)
+    if (this._onFileChange) this._onFileChange(this._currentFile, this._currentFileIsDemo);
   }
 
   onFileChange(fn) {
@@ -121,30 +121,30 @@ export class AssemblyEditor {
     this.$selectDemos.html("<option style=\"display: none;\" value=\"\" disabled selected> -- select a demo -- </option>");
 
     this._savedFiles = JSON.parse(localStorage.getItem("p3js-saved-files")) || { };
-    for (var key in this._savedFiles) {
+    Object.keys(this._savedFiles).forEach((key) => {
       this.$selectFiles.append($("<option>").val(key).text(key));
-    }
+    });
 
     demos.forEach((demo) => {
       if (typeof demo == "string") {
         this.$selectDemos.append($("<option>").val(demo).text(demo));
       } else {
-        var $optgroup = $("<optgroup>").attr("label", demo.label);
-        demo.files.forEach(function(demo) {
-          $optgroup.append($("<option>").val(demo).text(demo));
+        let $optgroup = $("<optgroup>").attr("label", demo.label);
+        demo.files.forEach((file) => {
+          $optgroup.append($("<option>").val(file).text(file));
         });
         this.$selectDemos.append($optgroup);
       }
     });
 
     this.$selectFiles.change((e) => {
-      var $this = $(e.currentTarget);
+      let $this = $(e.currentTarget);
       if (this._confirmForSelect($this)) {
         this._loadFile($this.val(), false);
       }
     });
     this.$selectDemos.change((e) => {
-      var $this = $(e.currentTarget);
+      let $this = $(e.currentTarget);
       if (this._confirmForSelect($this)) {
         this._loadFile($this.val(), true);
       }
@@ -177,7 +177,7 @@ export class AssemblyEditor {
     this._currentFile = null;
     this._currentFileIsDemo = false;
     localStorage.removeItem("p3js-current-file");
-    if (this._onFileChange) this._onFileChange(this._currentFile, this._currentFileIsDemo)
+    if (this._onFileChange) this._onFileChange(this._currentFile, this._currentFileIsDemo);
   }
 
   new() {
@@ -188,7 +188,7 @@ export class AssemblyEditor {
 
   save() {
     if (!this._currentFile || this._currentFileIsDemo) {
-      var new_name = prompt(this.constructor.SAVE_MESSAGE + "\nFilename:");
+      let new_name = prompt(this.constructor.SAVE_MESSAGE + "\nFilename:");
       while (true) {
         if (new_name === null) {
           return;
@@ -218,10 +218,10 @@ export class AssemblyEditor {
   }
 
   delete() {
-    if (this._currentFile && !this._currentFileIsDemo && confirm("Are you sure you want to delete \"" + this._currentFile + "\"?")) {
+    if (this._currentFile && !this._currentFileIsDemo && window.confirm("Are you sure you want to delete \"" + this._currentFile + "\"?")) {
       delete this._savedFiles[this._currentFile];
-      var name = this._currentFile;
-      this.$selectFiles.children().filter(function() {
+      let name = this._currentFile;
+      this.$selectFiles.children().filter(() => {
         return $(this).val() == name;
       }).remove();
       localStorage.setItem("p3js-saved-files", JSON.stringify(this._savedFiles));
@@ -235,7 +235,7 @@ export class AssemblyEditor {
     } else if (!ext) {
       return this._currentFile;
     } else {
-      var i = this._currentFile.lastIndexOf(".");
+      let i = this._currentFile.lastIndexOf(".");
       if (i != -1) {
         return this._currentFile.substr(0, i + 1) + ext;
       }

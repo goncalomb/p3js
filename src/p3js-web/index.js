@@ -6,62 +6,62 @@
  */
 
 import tab_assembler from './tab-assembler.js';
-import tab_io from  './tab-io.js';
-import tab_program from  './tab-program.js';
-import tab_roms from  './tab-roms.js';
-import tab_simulator from  './tab-simulator.js';
+import tab_io from './tab-io.js';
+import tab_program from './tab-program.js';
+import tab_roms from './tab-roms.js';
+import tab_simulator from './tab-simulator.js';
 
 export function downloadBuffer(buffer, name) {
-  var blob = new Blob([buffer], { type: "application/octet-stream" });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
+  let blob = new Blob([buffer], { type: "application/octet-stream" });
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement("a");
   if ("download" in a) {
     a.href = url;
-    a.download = (name ? name : "file");
+    a.download = (name || "file");
     a.dispatchEvent(new MouseEvent("click"));
   } else {
     window.location = url;
   }
-  setTimeout(function() {
+  setTimeout(() => {
     URL.revokeObjectURL(url);
   });
 }
 
 export function createDraggableElement($element) {
-  var $handle = $("<div>").prependTo($element);
+  let $handle = $("<div>").prependTo($element);
   $("<i>").addClass("fa fa-arrows").appendTo($handle);
   $(document.createTextNode(" Drag Me")).appendTo($handle);
-  var bring_to_top = function() {
+  function bring_to_top() {
     $(".ui-draggable").css("z-index", 0);
     $element.css("z-index", 50);
-  };
+  }
   $element.click(bring_to_top);
   $element.draggable({
     handle: $handle,
-    start: bring_to_top
+    start: bring_to_top,
   });
-};
+}
 
-$(window).ready(function() {
-
-  var $document = $(document);
-  var $body = $(document.body);
+$(window).ready(() => {
+  let $document = $(document);
+  let $body = $(document.body);
 
   // the simulator instance
-  var p3sim = window.p3sim = new p3js.SimulatorWithIO();
+  let p3sim = new p3js.SimulatorWithIO();
+  window.p3sim = p3sim;
 
   // fullscreen
   function request_fullscreen(elem) {
-    var fn = (
-      elem.requestFullscreen || elem.msRequestFullscreen ||
-      elem.mozRequestFullScreen || elem.webkitRequestFullscreen
+    let fn = (
+      elem.requestFullscreen || elem.msRequestFullscreen
+      || elem.mozRequestFullScreen || elem.webkitRequestFullscreen
     );
     if (fn) fn.apply(elem);
   }
   function exit_fullscreen() {
-    var fn = (
-      document.exitFullscreen || document.msExitFullscreen ||
-      document.mozCancelFullScreen || document.webkitExitFullscreen
+    let fn = (
+      document.exitFullscreen || document.msExitFullscreen
+      || document.mozCancelFullScreen || document.webkitExitFullscreen
     );
     if (fn) fn.apply(document);
   }
@@ -72,7 +72,7 @@ $(window).ready(function() {
       request_fullscreen(document.documentElement);
     }
   }
-  $(document).on("webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange", function() {
+  $(document).on("webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange", () => {
     if ($body.hasClass("fullscreen")) {
       $body.removeClass("fullscreen");
       $document.trigger("fullscreenoff");
@@ -82,12 +82,12 @@ $(window).ready(function() {
     }
   });
   // event for fullscreen button
-  $("#fullscr").click(function() {
+  $("#fullscr").click(() => {
     fullscreen_toogle();
     return false;
   });
   // F11 doesn't trigger fullscreenchange, so we hijack the key
-  $(document).on("keydown", function(e) {
+  $(document).on("keydown", (e) => {
     if (e.which == 122) {
       fullscreen_toogle();
       return false;
@@ -95,13 +95,13 @@ $(window).ready(function() {
   });
 
   // tabs
-  var $all_tab_lis = $(".nav-tabs li");
-  var $all_tabs = $(".tab-page");
-  $(window).on("load hashchange", function() {
-    var hash = window.location.hash.substr(1);
+  let $all_tab_lis = $(".nav-tabs li");
+  let $all_tabs = $(".tab-page");
+  $(window).on("load hashchange", () => {
+    let hash = window.location.hash.substr(1);
     if (hash == "assembler") {
-      if (history.replaceState !== undefined) {
-        history.replaceState({ }, document.title, window.location.pathname);
+      if (window.history.replaceState !== undefined) {
+        window.history.replaceState({ }, document.title, window.location.pathname);
       } else {
         window.location.hash = "";
         return;
@@ -111,7 +111,7 @@ $(window).ready(function() {
     } else if (hash == "io" && $(document.body).hasClass("sim-io-visible")) {
       return;
     }
-    var $tab = $(".tab-page-" + hash);
+    let $tab = $(".tab-page-" + hash);
     if ($tab.length > 0) {
       $all_tabs.addClass("hidden");
       $tab.removeClass("hidden");

@@ -3,7 +3,7 @@ import * as devices from './devices/';
 export class Simulator {
   constructor() {
     this._eventHandlers = { };
-    this._busDevices = [ ];
+    this._busDevices = [];
     this._cpu = new devices.CPU(this._busDevices);
     this._ram = new devices.RAM(this);
     this._ioc = new devices.IOC();
@@ -22,8 +22,8 @@ export class Simulator {
 
   _fireEvent(name, args) {
     if (this._eventHandlers[name]) {
-      var sim = this;
-      this._eventHandlers[name].forEach(function(fn) {
+      let sim = this;
+      this._eventHandlers[name].forEach((fn) => {
         fn.apply(sim, args);
       });
     }
@@ -52,7 +52,7 @@ export class Simulator {
 
   loadMemory(buffer) {
     this.stop();
-    this._ram.load(buffer)
+    this._ram.load(buffer);
     this.reset();
     this._fireEvent("load");
   }
@@ -63,15 +63,15 @@ export class Simulator {
 
   start() {
     if (!this._interval) {
-      var sim = this;
+      let sim = this;
       // start loop
-      var m = 1;
-      var s = 0;
-      var ss = 0;
-      var t0 = Date.now();
-      this._interval = setInterval(function() {
+      let m = 1;
+      let s = 0;
+      let ss = 0;
+      let t0 = Date.now();
+      this._interval = setInterval(() => {
         try {
-          for (var i = 0; i < m; i++) {
+          for (let i = 0; i < m; i++) {
             if (sim._cpu.clock() && sim._oneInstruction) {
               // stop simulation if just running one instruction
               sim._fireStatusEvent("clock");
@@ -84,8 +84,8 @@ export class Simulator {
           throw e;
         }
         // find time
-        var t1 = Date.now();
-        var td = t1 - t0 + 1; // + 1 to avoid divide by zero
+        let t1 = Date.now();
+        let td = t1 - t0 + 1; // + 1 to avoid divide by zero
         t0 = t1;
         // calculate speed with 20 samples
         if (s == 20) {

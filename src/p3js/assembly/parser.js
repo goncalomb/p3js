@@ -2,7 +2,8 @@ import * as assembly from './';
 import { AssemblerError } from './AssemblerError.js';
 
 export function parseConstant(text) {
-  var match, i = null;
+  let match;
+  let i = null;
   function tryParseInt(regex, base) {
     if (match = text.match(regex)) {
       i = parseInt(match[1], base);
@@ -14,27 +15,27 @@ export function parseConstant(text) {
     return false;
   }
   if (
-    tryParseInt(/^[-+]?([01]{1,16})b$/i,     2) === false && // bin
-    tryParseInt(/^[-+]?([0-7]{1,6})o$/i,     8) === false && // oct
-    tryParseInt(/^[-+]?([0-9]{1,5})d?$/i,   10) === false && // dec
-    tryParseInt(/^[-+]?([0-9a-f]{1,4})h$/i, 16) === false && // hex
+    tryParseInt(/^[-+]?([01]{1,16})b$/i, 2) === false // bin
+    && tryParseInt(/^[-+]?([0-7]{1,6})o$/i, 8) === false // oct
+    && tryParseInt(/^[-+]?([0-9]{1,5})d?$/i, 10) === false // dec
+    && tryParseInt(/^[-+]?([0-9a-f]{1,4})h$/i, 16) === false // hex
     // If everything fails, try parse ASCII constant.
-    text.length == 3 && text.charAt(0) == "'" && text.charAt(2) == "'"
+    && text.length == 3 && text.charAt(0) == "'" && text.charAt(2) == "'"
   ) {
     i = text.charCodeAt(1);
   }
   if (i == null || i < -32768 || i > 65535) {
     return null;
   }
-  i = i & 0xffff; // 16 bit unsigned, please
+  i &= 0xffff; // 16 bit unsigned, please
   return i;
 }
 
 export function parseStringConstant(text) {
-  var str = "";
-  var l = text.length;
+  let str = "";
+  let l = text.length;
   if (l > 3 && text.charAt(0) == "'" && text.charAt(l - 1) == "'") {
-    for (var i = 1; i < l - 1; i++) {
+    for (let i = 1; i < l - 1; i++) {
       if (text.charAt(i) == "'") {
         // found "'" in the middle of string, error
         // XXX: the official assembler doesn't escape "'", it's
@@ -54,7 +55,7 @@ export function isValidLabel(value) {
 }
 
 function process_constant_or_label(value, sign, n) {
-  var w = parseConstant(sign + value);
+  let w = parseConstant(sign + value);
   if (w === null && isValidLabel(value)) {
     w = value;
   }
@@ -69,17 +70,17 @@ function process_operand(operand, n) {
   if (!operand) {
     throw new AssemblerError("Syntax error, invalid operand (empty?)", n);
   }
-  var matches;
+  let matches;
   if (matches = operand.match(/^R([0-7])$/i)) {
     return { type: assembly.OPRD_TYPE_REGISTER, r: matches[1].charCodeAt(0) - 48 };
   } else if (operand.toUpperCase() == "SP") {
     return { type: assembly.OPRD_TYPE_SP, r: assembly.REGISTER_SP };
-  } else if (matches = operand.match(/^\M\s*\[\s*(?:(SP|PC|R[0-7])(?:\s*(\+|\-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
+  } else if (matches = operand.match(/^M\s*\[\s*(?:(SP|PC|R[0-7])(?:\s*(\+|-)\s*([^\s].*?))?|([^\s].*?))\s*\]$/i)) {
     if (matches[4]) {
-      var w = process_constant_or_label(matches[4], '', n);
-      return { type: assembly.OPRD_TYPE_DIRECT, w: w };
+      let w = process_constant_or_label(matches[4], '', n);
+      return { type: assembly.OPRD_TYPE_DIRECT, w };
     } else if (matches[1]) {
-      var op = { type: assembly.OPRD_TYPE_INDEXED, w: 0 }
+      let op = { type: assembly.OPRD_TYPE_INDEXED, w: 0 };
       if (matches[1].toUpperCase() == "SP") {
         op.type = assembly.OPRD_TYPE_BASED;
         op.r = assembly.REGISTER_SP;
@@ -98,18 +99,18 @@ function process_operand(operand, n) {
       return op;
     }
   } else {
-    var w = parseStringConstant(operand);
+    let w = parseStringConstant(operand);
     if (w) {
-      return { type: assembly.OPRD_TYPE_STRING, w: w };
+      return { type: assembly.OPRD_TYPE_STRING, w };
     }
     w = process_constant_or_label(operand, '', n);
-    return { type: assembly.OPRD_TYPE_IMMEDIATE, w: w };
+    return { type: assembly.OPRD_TYPE_IMMEDIATE, w };
   }
   return null;
 }
 
 function process_line(text, n) {
-  var matches = text.match(/^\s*(?:([a-z_]\w*)(?:\s+|\s*(:)\s*))?([a-z]+)(?:\s*\.\s*([a-z]+))?(?:\s+(.*?)\s*)?$/i);
+  let matches = text.match(/^\s*(?:([a-z_]\w*)(?:\s+|\s*(:)\s*))?([a-z]+)(?:\s*\.\s*([a-z]+))?(?:\s+(.*?)\s*)?$/i);
   // 1: label; 2: colon; 3: instruction; 4: condition; 5: operands;
   if (!matches) {
     throw new AssemblerError("Syntax error", n);
@@ -118,13 +119,13 @@ function process_line(text, n) {
     throw "Internal Error: invalid regex result";
   }
 
-  var instruction = new assembly.Instruction(true);
+  let instruction = new assembly.Instruction(true);
   instruction.debug.text = text;
   instruction.debug.line = n;
 
   // process label
   if (matches[1]) {
-    var lower = matches[1].toUpperCase();
+    let lower = matches[1].toUpperCase();
     if (assembly.pseudoInstructions[lower] || assembly.instructions[lower]) {
       // found label with instruction name, investigate
       if (matches[2] || matches[4] || matches[5]) {
@@ -169,9 +170,10 @@ function process_line(text, n) {
 
   // process operands
   if (matches[5]) {
-    var inside_string = false;
-    for (var operand = "", i = 0, l = matches[5].length; i < l; i++) {
-      var c = matches[5].charAt(i);
+    let inside_string = false;
+    let operand = "";
+    for (let i = 0, l = matches[5].length; i < l; i++) {
+      let c = matches[5].charAt(i);
       if (c == "," && !inside_string) {
         instruction.operands.push(process_operand(operand, n));
         operand = "";
@@ -189,12 +191,13 @@ function process_line(text, n) {
 
 export function parseString(text) {
   AssemblerError.clear();
-  var data = [];
-  var n = 1;
-  var inside_comment = false;
-  var inside_string = false;
-  for (var line = "", i = 0, l = text.length; i < l; i++) {
-    var c = text.charAt(i);
+  let data = [];
+  let n = 1;
+  let inside_comment = false;
+  let inside_string = false;
+  let line = "";
+  for (let i = 0, l = text.length; i < l; i++) {
+    let c = text.charAt(i);
     if (c == "\n") {
       if (line && line.trim()) {
         data.push(process_line(line, n));
@@ -218,4 +221,4 @@ export function parseString(text) {
     data.push(process_line(line, n));
   }
   return data;
-};
+}

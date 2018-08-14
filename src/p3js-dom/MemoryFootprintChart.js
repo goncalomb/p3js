@@ -1,7 +1,7 @@
-var INTERRUPT_VECTOR_ADDRESS = p3js.devices.CPU.INTERRUPT_VECTOR_ADDRESS;
-var MEMORY_SIZE = p3js.devices.RAM.MEMORY_SIZE;
-var IO_FIRST_ADDRESS = p3js.devices.IOC.IO_FIRST_ADDRESS;
-var INTERRUPT_COUNT = p3js.devices.PIC.INTERRUPT_COUNT;
+let INTERRUPT_VECTOR_ADDRESS = p3js.devices.CPU.INTERRUPT_VECTOR_ADDRESS;
+let MEMORY_SIZE = p3js.devices.RAM.MEMORY_SIZE;
+let IO_FIRST_ADDRESS = p3js.devices.IOC.IO_FIRST_ADDRESS;
+let INTERRUPT_COUNT = p3js.devices.PIC.INTERRUPT_COUNT;
 
 export class MemoryFootprintChart {
   constructor(canvas) {
@@ -33,7 +33,7 @@ export class MemoryFootprintChart {
   }
 
   addLabel(name, color) {
-    this._ctx.fillStyle = (color ? color : "#d7d7d7");
+    this._ctx.fillStyle = (color || "#d7d7d7");
     this._ctx.fillRect(this._labelDx, 256 + 5, 10, 10);
     this._ctx.fillStyle = "#222";
     this._ctx.fillText(name, this._labelDx + 12, 256 + 4);
@@ -42,8 +42,8 @@ export class MemoryFootprintChart {
 
   drawSquare(i, color) {
     if (i >= 0 && i < this.constructor.SIZE) {
-      var x = (i%512);
-      var y = Math.floor(i/512);
+      let x = (i%512);
+      let y = Math.floor(i/512);
       if (color) {
         this._ctx.fillStyle = color;
       } else if (i%2 == y%2) {
@@ -56,10 +56,10 @@ export class MemoryFootprintChart {
   }
 
   displayData(assemblerResult) {
-    for (var i = INTERRUPT_VECTOR_ADDRESS, l = i + INTERRUPT_COUNT; i < l; i++) {
+    for (let i = INTERRUPT_VECTOR_ADDRESS, l = i + INTERRUPT_COUNT; i < l; i++) {
       this.drawSquare(i, "#fb1");
     }
-    for (var i = IO_FIRST_ADDRESS; i < MEMORY_SIZE; i++) {
+    for (let i = IO_FIRST_ADDRESS; i < MEMORY_SIZE; i++) {
       this.drawSquare(i, "#b1f");
     }
     assemblerResult.usedAddresses.forEach((value, i) => {

@@ -38,7 +38,7 @@ export class Instruction {
   }
 
   getConditionCode() {
-    var c = assembly.conditions[this.condition];
+    let c = assembly.conditions[this.condition];
     return (c === undefined ? null : c);
   }
 

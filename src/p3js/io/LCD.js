@@ -31,10 +31,10 @@ export class LCD {
     if (!this._text) {
       this._text = [
         Array(16 + 1).join(" "),
-        Array(16 + 1).join(" ")
+        Array(16 + 1).join(" "),
       ];
     }
-    var str = this._text[this._y];
+    let str = this._text[this._y];
     str = str.substr(0, this._x) + String.fromCharCode(v) + str.substr(this._x + 1, str.length);
     this._text[this._y] = str;
     if (this._active) {

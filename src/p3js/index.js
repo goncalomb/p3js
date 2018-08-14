@@ -5,13 +5,13 @@
  * See LICENSE.txt for details.
  */
 
-export * from './ROMReaderWriter.js';
-export * from './Simulator.js';
-export * from './SimulatorWithIO.js';
-
 import * as assembly from './assembly/';
 import * as devices from './devices/';
 import * as io from './io/';
 import * as program from './program.js';
+
+export * from './ROMReaderWriter.js';
+export * from './Simulator.js';
+export * from './SimulatorWithIO.js';
 
 export { assembly, devices, io, program };

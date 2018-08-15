@@ -29,6 +29,11 @@ function createBundleConfig(entry, filename, library, plugins) {
             presets: ['es2015'],
           },
         },
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          loader: 'eslint-loader',
+        },
       ],
     },
   };

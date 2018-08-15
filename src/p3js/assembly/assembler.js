@@ -160,19 +160,19 @@ export function assembleData(data, validator) {
     let operand_1 = instruction.operands[1];
 
     switch (instruction.getType()) {
-      case "0":
-      case "0c":
-      case "jr":
-      case "jrc":
+      case assembly.INST_TYPE_ZERO:
+      case assembly.INST_TYPE_ZERO_CONST:
+      case assembly.INST_TYPE_JUMP_REL:
+      case assembly.INST_TYPE_JUMP_REL_COND:
         writer.movePosition(1);
         continue;
-      case "1":
-      case "1c":
-      case "j":
-      case "jc":
+      case assembly.INST_TYPE_ONE:
+      case assembly.INST_TYPE_ONE_CONST:
+      case assembly.INST_TYPE_JUMP:
+      case assembly.INST_TYPE_JUMP_COND:
         writer.movePosition(has_w(operand_0) ? 2 : 1);
         continue;
-      case "2":
+      case assembly.INST_TYPE_TWO:
         writer.movePosition(has_w(operand_0) || has_w(operand_1) ? 2 : 1);
         continue;
     }
@@ -233,10 +233,10 @@ export function assembleData(data, validator) {
 
     result.instructionCount++;
     switch (instruction.getType()) {
-      case "0":
+      case assembly.INST_TYPE_ZERO:
         writer.writeInstZero(instruction.getOpcode());
         break;
-      case "0c": {
+      case assembly.INST_TYPE_ZERO_CONST: {
         if (operand_0.type != assembly.OPRD_TYPE_IMMEDIATE) {
           throw new AssemblerError("Operand must be immediate");
         }
@@ -247,15 +247,15 @@ export function assembleData(data, validator) {
         writer.writeInstConstant(instruction.getOpcode(), w);
         break;
       }
-      case "1":
-      case "j": {
+      case assembly.INST_TYPE_ONE:
+      case assembly.INST_TYPE_JUMP: {
         let m = get_m(operand_0);
         let r = get_r(operand_0);
         let w = get_w(operand_0);
         writer.writeInstOne(instruction.getOpcode(), m, r, w);
         break;
       }
-      case "1c": {
+      case assembly.INST_TYPE_ONE_CONST: {
         let m = get_m(operand_0);
         if (operand_1.type != assembly.OPRD_TYPE_IMMEDIATE) {
           throw new AssemblerError("Second operand must be a constant");
@@ -269,7 +269,7 @@ export function assembleData(data, validator) {
         writer.writeInstOneC(instruction.getOpcode(), c, m, r, w);
         break;
       }
-      case "2": {
+      case assembly.INST_TYPE_TWO: {
         if (operand_0.type == assembly.OPRD_TYPE_IMMEDIATE) {
           throw new AssemblerError("First operand cannot be immediate");
         }
@@ -293,7 +293,7 @@ export function assembleData(data, validator) {
         writer.writeInstTwo(instruction.getOpcode(), s, reg, m, r, w);
         break;
       }
-      case "jc": {
+      case assembly.INST_TYPE_JUMP_COND: {
         let m = get_m(operand_0);
         let c = instruction.getConditionCode();
         let r = get_r(operand_0);
@@ -301,8 +301,8 @@ export function assembleData(data, validator) {
         writer.writeJumpC(instruction.getOpcode(), c, m, r, w);
         break;
       }
-      case "jr":
-      case "jrc": {
+      case assembly.INST_TYPE_JUMP_REL:
+      case assembly.INST_TYPE_JUMP_REL_COND: {
         if (operand_0.type != assembly.OPRD_TYPE_IMMEDIATE) {
           throw new AssemblerError("Invalid operand for {name}");
         }

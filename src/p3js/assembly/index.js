@@ -1,3 +1,5 @@
+/* eslint-disable no-multi-spaces */
+
 import * as assembler from './assembler.js';
 import * as parser from './parser.js';
 
@@ -14,7 +16,17 @@ export const OPRD_TYPE_INDEXED = 4;           // M[Rx+W]
 export const OPRD_TYPE_RELATIVE = 5;          // M[PC+W]
 export const OPRD_TYPE_BASED = 6;             // M[SP+W]
 export const OPRD_TYPE_PC = 7;                // PC
-export const OPRD_TYPE_SP = 8;                 // SP
+export const OPRD_TYPE_SP = 8;                // SP
+
+export const INST_TYPE_ZERO = '0';            // zero operands
+export const INST_TYPE_ZERO_CONST = '0c';     // zero operands with constant
+export const INST_TYPE_ONE = '1';             // one operand
+export const INST_TYPE_ONE_CONST = '1c';      // one operand with constant
+export const INST_TYPE_TWO = '2';             // two operands
+export const INST_TYPE_JUMP = 'j';            // absolute jump
+export const INST_TYPE_JUMP_COND = 'jc';      // conditional absolute jump
+export const INST_TYPE_JUMP_REL = 'jr';       // relative jump
+export const INST_TYPE_JUMP_REL_COND = 'jrc'; // conditional relative jump
 
 export const pseudoInstructions = {
   ORIG: { type: "0c", requiresLabel: false },
@@ -24,72 +36,73 @@ export const pseudoInstructions = {
   TAB: { type: "0c", requiresLabel: true },
 };
 
-//   Name  Opcode   Type
-let instructions_raw = [
-  // 0 operands
-  "NOP   000000   0",
-  "ENI   000001   0",
-  "DSI   000010   0",
-  "STC   000011   0",
-  "CLC   000100   0",
-  "CMC   000101   0",
-  "RET   000110   0",
-  "RTI   000111   0",
-  // 0 operands with constant
-  "INT   001000   0c",
-  "RETN  001001   0c",
-  // 1 operand
-  "NEG   010000   1",
-  "INC   010001   1",
-  "DEC   010010   1",
-  "COM   010011   1",
-  "PUSH  010100   1",
-  "POP   010101   1",
-  // 1 operand with constant
-  "SHR   011000   1c",
-  "SHL   011001   1c",
-  "SHRA  011010   1c",
-  "SHLA  011011   1c",
-  "ROR   011100   1c",
-  "ROL   011101   1c",
-  "RORC  011110   1c",
-  "ROLC  011111   1c",
-  // 2 operands
-  "CMP   100000   2",
-  "ADD   100001   2",
-  "ADDC  100010   2",
-  "SUB   100011   2",
-  "SUBB  100100   2",
-  "MUL   100101   2",
-  "DIV   100110   2",
-  "TEST  100111   2",
-  "AND   101000   2",
-  "OR    101001   2",
-  "XOR   101010   2",
-  "MOV   101011   2",
-  "MVBH  101100   2",
-  "MVBL  101101   2",
-  "XCH   101110   2",
-  // jump
-  "JMP   110000   j",
-  "CALL  110010   j",
-  // jump conditional
-  "JMP.  110001   jc",
-  "CALL. 110011   jc",
-  // jump relative
-  "BR    111000   jr",
-  // jump relative conditional
-  "BR.   111001   jrc",
-];
+export const instructions = {};
 
-export const instructions = { };
-for (let i = 0, l = instructions_raw.length; i < l; i++) {
-  let parts = instructions_raw[i].replace(/\s+/g, " ").split(" ");
-  instructions[parts[0].toUpperCase()] = {
-    opcode: parseInt(parts[1], 2),
-    type: parts[2],
-  };
+export function registerInstruction(name, opcode, type) {
+  instructions[name.toUpperCase()] = { opcode, type };
 }
+
+export function resetInstructions() {
+  [
+    // Name   Opcode    Type
+    // 0 operands
+    ['NOP',   0b000000, INST_TYPE_ZERO],
+    ['ENI',   0b000001, INST_TYPE_ZERO],
+    ['DSI',   0b000010, INST_TYPE_ZERO],
+    ['STC',   0b000011, INST_TYPE_ZERO],
+    ['CLC',   0b000100, INST_TYPE_ZERO],
+    ['CMC',   0b000101, INST_TYPE_ZERO],
+    ['RET',   0b000110, INST_TYPE_ZERO],
+    ['RTI',   0b000111, INST_TYPE_ZERO],
+    // 0 operands with constant
+    ['INT',   0b001000, INST_TYPE_ZERO_CONST],
+    ['RETN',  0b001001, INST_TYPE_ZERO_CONST],
+    // 1 operand
+    ['NEG',   0b010000, INST_TYPE_ONE],
+    ['INC',   0b010001, INST_TYPE_ONE],
+    ['DEC',   0b010010, INST_TYPE_ONE],
+    ['COM',   0b010011, INST_TYPE_ONE],
+    ['PUSH',  0b010100, INST_TYPE_ONE],
+    ['POP',   0b010101, INST_TYPE_ONE],
+    // 1 operand with constant
+    ['SHR',   0b011000, INST_TYPE_ONE_CONST],
+    ['SHL',   0b011001, INST_TYPE_ONE_CONST],
+    ['SHRA',  0b011010, INST_TYPE_ONE_CONST],
+    ['SHLA',  0b011011, INST_TYPE_ONE_CONST],
+    ['ROR',   0b011100, INST_TYPE_ONE_CONST],
+    ['ROL',   0b011101, INST_TYPE_ONE_CONST],
+    ['RORC',  0b011110, INST_TYPE_ONE_CONST],
+    ['ROLC',  0b011111, INST_TYPE_ONE_CONST],
+    // 2 operands
+    ['CMP',   0b100000, INST_TYPE_TWO],
+    ['ADD',   0b100001, INST_TYPE_TWO],
+    ['ADDC',  0b100010, INST_TYPE_TWO],
+    ['SUB',   0b100011, INST_TYPE_TWO],
+    ['SUBB',  0b100100, INST_TYPE_TWO],
+    ['MUL',   0b100101, INST_TYPE_TWO],
+    ['DIV',   0b100110, INST_TYPE_TWO],
+    ['TEST',  0b100111, INST_TYPE_TWO],
+    ['AND',   0b101000, INST_TYPE_TWO],
+    ['OR',    0b101001, INST_TYPE_TWO],
+    ['XOR',   0b101010, INST_TYPE_TWO],
+    ['MOV',   0b101011, INST_TYPE_TWO],
+    ['MVBH',  0b101100, INST_TYPE_TWO],
+    ['MVBL',  0b101101, INST_TYPE_TWO],
+    ['XCH',   0b101110, INST_TYPE_TWO],
+    // jump
+    ['JMP',   0b110000, INST_TYPE_JUMP],
+    ['CALL',  0b110010, INST_TYPE_JUMP],
+    // jump conditional
+    ['JMP.',  0b110001, INST_TYPE_JUMP_COND],
+    ['CALL.', 0b110011, INST_TYPE_JUMP_COND],
+    // jump relative
+    ['BR',    0b111000, INST_TYPE_JUMP_REL],
+    // jump relative conditional
+    ['BR.',   0b111001, INST_TYPE_JUMP_REL_COND],
+  ].forEach(props => registerInstruction(...props));
+}
+
+resetInstructions();
 
 export const conditions = {
   Z: 0,

@@ -156,16 +156,16 @@ export default function(p3sim) {
     });
   });
 
-  $("#asm-use-linter").change(() => {
-    use_linter = this.checked;
+  $("#asm-use-linter").change((e) => {
+    use_linter = e.currentTarget.checked;
   });
 
-  $("#asm-show-rulers").change(() => {
-    $code_mirror[this.checked ? "addClass" : "removeClass"]("asm-show-rulers");
+  $("#asm-show-rulers").change((e) => {
+    $code_mirror[e.currentTarget.checked ? "addClass" : "removeClass"]("asm-show-rulers");
   });
 
-  $("#asm-show-extra-rulers").change(() => {
-    $code_mirror[this.checked ? "addClass" : "removeClass"]("asm-show-extra-rulers");
+  $("#asm-show-extra-rulers").change((e) => {
+    $code_mirror[e.currentTarget.checked ? "addClass" : "removeClass"]("asm-show-extra-rulers");
   });
 
   $code_mirror.addClass("asm-show-rulers");

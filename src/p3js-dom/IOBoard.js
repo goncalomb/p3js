@@ -29,8 +29,8 @@ export class IOBoard {
     create_button_row([0, 10, 11]);
 
     function create_switch(i) {
-      $("<button>").addClass("btn").click(() => {
-        let $this = $(this);
+      $("<button>").addClass("btn").click((e) => {
+        let $this = $(e.currentTarget);
         if ($this.hasClass("on")) {
           $this.removeClass("on");
           simulator.io.switches.unset(7 - i);

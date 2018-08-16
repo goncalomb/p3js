@@ -39,21 +39,21 @@ export default function(p3sim) {
     p3sim.reset();
   });
 
-  $("#sim-show-ctrl").change(() => {
-    debugPanel.showCtrl(this.checked);
-    if (this.checked) {
+  $("#sim-show-ctrl").change((e) => {
+    debugPanel.showCtrl(e.currentTarget.checked);
+    if (e.currentTarget.checked) {
       $(".tab-page-simulator").removeClass("ctrl-hide");
     } else {
       $(".tab-page-simulator").addClass("ctrl-hide");
     }
   });
 
-  $("#sim-show-io").change(() => {
+  $("#sim-show-io").change((e) => {
     $(".tab-page-io .ui-draggable").css({
       top: "0px",
       left: "0px",
     });
-    if (this.checked) {
+    if (e.currentTarget.checked) {
       $body.addClass("sim-io-visible");
     } else {
       $body.removeClass("sim-io-visible");

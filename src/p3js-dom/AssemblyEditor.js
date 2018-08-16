@@ -221,8 +221,8 @@ export class AssemblyEditor {
     if (this._currentFile && !this._currentFileIsDemo && window.confirm("Are you sure you want to delete \"" + this._currentFile + "\"?")) {
       delete this._savedFiles[this._currentFile];
       let name = this._currentFile;
-      this.$selectFiles.children().filter(() => {
-        return $(this).val() == name;
+      this.$selectFiles.children().filter((index, elem) => {
+        return $(elem).val() == name;
       }).remove();
       localStorage.setItem("p3js-saved-files", JSON.stringify(this._savedFiles));
       this.clear();

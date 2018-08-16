@@ -8,7 +8,7 @@
 import tab_assembler from './tab-assembler.js';
 import tab_io from './tab-io.js';
 import tab_program from './tab-program.js';
-import tab_roms from './tab-roms.js';
+import tab_settings from './tab-settings.js';
 import tab_simulator from './tab-simulator.js';
 
 export function downloadBuffer(buffer, name) {
@@ -124,6 +124,6 @@ $(window).ready(() => {
   tab_assembler(p3sim);
   tab_io(p3sim);
   tab_program(p3sim);
-  tab_roms(p3sim);
+  tab_settings(p3sim);
   tab_simulator(p3sim);
 });

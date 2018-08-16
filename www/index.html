@@ -50,7 +50,7 @@ See LICENSE.txt for details.
 				</a>
 			</li>
 			<li><a href="#io"><i class="fa fa-laptop"></i> Input/Output</a></li>
-			<li><a href="#roms"><i class="fa fa-tasks"></i> ROMs</a></li>
+			<li><a href="#settings"><i class="fa fa-wrench"></i> Settings</a></li>
 			<li><a href="#about"><i class="fa fa-question-circle"></i> About P3JS</a></li>
 			<li class="pull-right"><a id="fullscr" href="#"><i class="fa fa-arrows-alt"></i> Fullscreen Mode</a></li>
 		</ul>
@@ -136,10 +136,17 @@ See LICENSE.txt for details.
 				<div id="io-terminal"></div>
 			</div>
 		</div>
-		<div class="row tab-page tab-page-roms hidden">
-			<div id="rom-a-wrapper" class="col-md-4"></div>
-			<div id="rom-b-wrapper" class="col-md-4"></div>
-			<div id="rom-c-wrapper" class="col-md-4"></div>
+		<div class="row tab-page tab-page-settings hidden">
+			<div class="col-md-3">
+				<h3>Instructions</h3>
+				<p>Add/Remove/Edit assembly instructions here. The 'type' controls the instruction format (and how the operands are translated to binary). Check the documentation on the P3 assembly instruction format for more information.</p>
+				<p><strong>Format:<br>&lt;name&gt; &lt;opcode&gt; &lt;type&gt;</strong></p>
+				<button id="inst-editor-btn" class="btn btn-block btn-secundary btn-xs" style="margin-bottom: 5px;">Apply Instructions</button>
+				<textarea id="inst-editor-textarea" rows="32"></textarea>
+			</div>
+			<div id="rom-a-wrapper" class="col-md-3"></div>
+			<div id="rom-b-wrapper" class="col-md-3"></div>
+			<div id="rom-c-wrapper" class="col-md-3"></div>
 		</div>
 		<div class="row tab-page tab-page-about hidden">
 			<div class="col-md-12">

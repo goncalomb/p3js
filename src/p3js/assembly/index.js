@@ -135,6 +135,64 @@ export * from './Instruction.js';
 export * from './ObjectCodeWriter.js';
 export { assembler, parser };
 
+export function clearInstructions() {
+  Object.keys(instructions).forEach((name) => {
+    delete instructions[name];
+  });
+}
+
+export function dumpInstructionsList() {
+  let instNameMap = {};
+  Object.keys(this).forEach((prop) => {
+    if (prop.startsWith('INST_TYPE')) {
+      instNameMap[this[prop]] = prop.substr(10);
+    }
+  });
+  let text = [];
+  let longestName = 0;
+  Object.keys(instructions).forEach((name) => {
+    if (name.length > longestName) {
+      longestName = name.length;
+    }
+  });
+  Object.keys(instructions).forEach((name) => {
+    let { opcode, type } = instructions[name];
+    name += ' '.repeat(longestName - name.length);
+    opcode = opcode.toString(2);
+    opcode = '0'.repeat(6 - opcode.length) + opcode;
+    type = instNameMap[type];
+    text.push(`${name} ${opcode} ${type}`);
+  });
+  return text.join('\n');
+}
+
+export function registerInstructionList(text) {
+  let newInstructions = {};
+  let regex = /^([A-Z]+\.?)\s+([01]{6})\s+([A-Z_]+)(?:\s*#|$)/;
+  let lines = text.split('\n');
+  for (let i = 0, l = lines.length; i < l; i++) {
+    let line = lines[i].trim();
+    if (line.length == 0 || line[0] == "#") continue;
+    let matches = line.match(regex);
+    if (matches) {
+      let type = 'INST_TYPE_' + matches[3];
+      if (this[type] !== undefined) {
+        if (newInstructions[matches[1]] === undefined) {
+          newInstructions[matches[1]] = { opcode: parseInt(matches[2], 2), type: this[type] };
+        } else {
+          throw new Error("Duplicate instruction '" + matches[1] + "', on line " + (i + 1));
+        }
+      } else {
+        throw new Error("Invalid type '" + type + "', on line " + (i + 1));
+      }
+    } else {
+      throw new Error("Syntax error, on line " + (i + 1));
+    }
+  }
+  clearInstructions();
+  Object.assign(instructions, newInstructions);
+}
+
 export function assembleWithDefaultValidator(text) {
   let data = parser.parseString(text);
   return assembler.assembleData(data, assembler.DEFAULT_VALIDATOR);

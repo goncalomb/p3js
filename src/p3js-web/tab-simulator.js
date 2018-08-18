@@ -19,6 +19,10 @@ export default function(p3sim) {
     memoryPanel1.promptRange();
   });
 
+  $('#sim-speed-factor').on('input', (e) => {
+    p3sim.setSpeedFactor(e.currentTarget.value/1000);
+  });
+
   $sim_start.click(() => {
     if (p3sim.isRunning()) {
       p3sim.stop();

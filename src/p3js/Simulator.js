@@ -11,6 +11,7 @@ export class Simulator {
     this._busDevices.push(this._pic);
     this._busDevices.push(this._ioc);
     this._busDevices.push(this._ram);
+    this._speedFactor = 1;
     this._resetVariables();
   }
 
@@ -61,46 +62,72 @@ export class Simulator {
     this._pic.triggerInterrupt(i);
   }
 
+  setSpeedFactor(factor) {
+    this._speedFactor = factor;
+  }
+
   start() {
     if (!this._interval) {
-      let sim = this;
-      // start loop
-      let m = 1;
-      let s = 0;
-      let ss = 0;
-      let t0 = Date.now();
+      // clock sample variables
+      let cs_count = 0;
+      let cs_time = 0;
+      // loop sample variables
+      let ls_count = 0;
+      let ls_speed = 0;
+
+      // iterations to perform
+      let it = 1;
+
+      let t0 = window.performance.now();
       this._interval = setInterval(() => {
+        // adjust number of iterations
+        let it_adjusted = it*this._speedFactor + 1;
+
+        // do the work
+        let t1 = window.performance.now();
         try {
-          for (let i = 0; i < m; i++) {
-            if (sim._cpu.clock() && sim._oneInstruction) {
+          for (let i = 0; i < it_adjusted; i++) {
+            if (this._cpu.clock() && this._oneInstruction) {
               // stop simulation if just running one instruction
-              sim._fireStatusEvent("clock");
-              sim.stop();
+              this._fireStatusEvent('clock');
+              this.stop();
               return;
             }
           }
         } catch (e) {
-          sim.stop();
+          this.stop();
           throw e;
         }
-        // find time
-        let t1 = Date.now();
-        let td = t1 - t0 + 1; // + 1 to avoid divide by zero
-        t0 = t1;
-        // calculate speed with 20 samples
-        if (s == 20) {
-          ss -= ss/s; // remove mean
+        let t2 = window.performance.now();
+
+        let time_full = t2 - t0; // loop duration
+        let time_work = t2 - t1; // work duration
+        t0 = t2;
+
+        // calculate real clock speed with 20 loop samples
+        if (ls_count == 20) {
+          ls_speed -= ls_speed/ls_count; // remove mean
         } else {
-          s++;
+          ls_count++;
         }
-        ss += (m*1000)/td; // add speed
-        sim._speed = ss/s;
+        ls_speed += it_adjusted*1000/(time_full + 0.01); // use 0.01 to prevent division by 0
+        this._speed = ls_speed/ls_count; // Hz
+
+        // calculate clock speed with 100 clock samples
+        cs_count += it_adjusted;
+        cs_time += time_work;
+        if (cs_count > 1000) {
+          cs_time -= (cs_count - 1000)*(cs_time/cs_count); // remove mean
+          cs_count = 1000;
+        }
+
+        // adjust iterations to keep loop close to 20ms (use 0.01 to prevent division by 0)
+        it = 20*cs_count/(cs_time + 0.01); // == 20/(cs_time/cs_count)
+
         // fire clock event
-        sim._fireStatusEvent("clock");
-        // ajust m to keep loop within 30ms
-        m += Math.max(1, Math.floor((30 - td) * 0.8 / (td/m)));
-      }, 10);
-      this._fireStatusEvent("start");
+        this._fireStatusEvent('clock');
+      }, 20);
+      this._fireStatusEvent('start');
     }
   }
 

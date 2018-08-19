@@ -102,7 +102,7 @@ export class CPU {
         return v;
       }
     }
-    throw new Error("BUS read error");
+    throw new Error('BUS read error');
   }
 
   _writeMemory(addr, val) {
@@ -112,7 +112,7 @@ export class CPU {
         return;
       }
     }
-    throw new Error("BUS write error");
+    throw new Error('BUS write error');
   }
 
   _alu(a, b, cula, c) {
@@ -127,14 +127,14 @@ export class CPU {
     // never fire.
     if (a !== (a & 0xffffffff) || b !== (b & 0xffffffff)) {
       // Integers please.
-      throw new Error("ALU error, invalid operand (not integer)");
+      throw new Error('ALU error, invalid operand (not integer)');
     }
     let t = (a & 0xffff8000) ^ (b & 0xffff8000);
-    if (t != 0 && (t ^ 0xffff8000) != 0) {
+    if (t !== 0 && (t ^ 0xffff8000) !== 0) {
       // This basically checks if both operands (a, b) have all the upper
       // 16 bits equal to the 15th bit (sign).
       // Equivalent to checking if they are between -32768 and 32767.
-      throw new Error("ALU error, invalid operand (invalid number)");
+      throw new Error('ALU error, invalid operand (invalid number)');
     }
     cula &= 0x1f;
     c &= 0x1;
@@ -159,23 +159,23 @@ export class CPU {
       // arithmetic unit
       case 0:
       case 2:
-        result = a + b + (cula == 2 && c ? 1 : 0);
+        result = a + b + (cula === 2 && c ? 1 : 0);
         result = result << 16 >> 16;
-        if ((a & b & 0x8000) != 0 || ((a ^ b) & ~result & 0x8000) != 0) {
+        if ((a & b & 0x8000) !== 0 || ((a ^ b) & ~result & 0x8000) !== 0) {
           carry = 1;
         }
-        if ((((a ^ b) & 0x8000) == 0) && (((a ^ result) & 0x8000) != 0)) {
+        if ((((a ^ b) & 0x8000) === 0) && (((a ^ result) & 0x8000) !== 0)) {
           overflow = 1;
         }
         break;
       case 1:
       case 3:
-        result = a - b - (cula == 3 && !c ? 1 : 0);
+        result = a - b - (cula === 3 && !c ? 1 : 0);
         result = result << 16 >> 16;
-        if ((a & ~b & 0x8000) != 0 || (~(a ^ b) & ~result & 0x8000) != 0) {
+        if ((a & ~b & 0x8000) !== 0 || (~(a ^ b) & ~result & 0x8000) !== 0) {
           carry = 1;
         }
-        if ((((a ^ b) & 0x8000) != 0) && (((a ^ result) & 0x8000) != 0)) {
+        if ((((a ^ b) & 0x8000) !== 0) && (((a ^ result) & 0x8000) !== 0)) {
           overflow = 1;
         }
         break;
@@ -205,7 +205,7 @@ export class CPU {
       case 17:
         carry = a >> 15 & 0x1;
         result = a << 1;
-        if (carry != (result >> 15 & 0x1)) {
+        if (carry !== (result >> 15 & 0x1)) {
           // sign changed
           result = result << 16 >> 16;
         }
@@ -217,7 +217,7 @@ export class CPU {
       case 19:
         carry = a >> 15 & 0x1;
         result = a << 1;
-        if (carry != (result >> 15 & 0x1)) {
+        if (carry !== (result >> 15 & 0x1)) {
           // sign changed, overflow
           result = result << 16 >> 16;
           overflow = 1;
@@ -252,9 +252,9 @@ export class CPU {
         result = a;
         break;
     }
-    if (result == 0) {
+    if (result === 0) {
       zero = 1;
-    } else if ((result & 0x8000) != 0) {
+    } else if ((result & 0x8000) !== 0) {
       negative = 1;
     }
     return {
@@ -271,7 +271,7 @@ export class CPU {
     if (micro.f && micro.ls) {
       this._sbr = (this._car + 1) & 0xffff;
     }
-    if (micro.m5 == 0) {
+    if (micro.m5 === 0) {
       let c0 = 0;
       if (micro.f) {
         let c1;
@@ -302,11 +302,11 @@ export class CPU {
       } else {
         this._car = (this._car + 1) & 0xffff;
       }
-    } else if (micro.m5 == 1) {
+    } else if (micro.m5 === 1) {
       this._car = this._sbr;
-    } else if (micro.m5 == 2) {
+    } else if (micro.m5 === 2) {
       this._car = this._romA[inst.op];
-    } else if (micro.m5 == 3) {
+    } else if (micro.m5 === 3) {
       this._car = this._romB[(micro.sr2 << 3) | ((micro.sr2 ? inst.s : micro.sr1) << 2) | inst.m];
     }
     let sel_b = (micro.mrb ? micro.rb : (micro.m2 ? inst.ir2 : inst.ir1));
@@ -350,7 +350,7 @@ export class CPU {
       this._writeMemory(a, b);
     }
     // write register
-    if (micro.wr && sel_ad != 0) {
+    if (micro.wr && sel_ad !== 0) {
       this._registers[sel_ad] = result;
     }
     // write RI

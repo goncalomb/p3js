@@ -25,13 +25,13 @@ export class IOC {
   }
 
   registerReadHandler(addr, fn) {
-    if (addr >= this.constructor.IO_FIRST_ADDRESS && addr <= this.constructor.IO_LAST_ADDRESS && typeof fn == 'function') {
+    if (addr >= this.constructor.IO_FIRST_ADDRESS && addr <= this.constructor.IO_LAST_ADDRESS && typeof fn === 'function') {
       this._readHandlers[addr] = fn;
     }
   }
 
   registerWriteHandler(addr, fn) {
-    if (addr >= this.constructor.IO_FIRST_ADDRESS && addr <= this.constructor.IO_LAST_ADDRESS && typeof fn == 'function') {
+    if (addr >= this.constructor.IO_FIRST_ADDRESS && addr <= this.constructor.IO_LAST_ADDRESS && typeof fn === 'function') {
       this._writeHandlers[addr] = fn;
     }
   }

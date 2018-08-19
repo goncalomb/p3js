@@ -1,10 +1,10 @@
 import * as devices from './devices/';
 
 let timeNow = Date.now;
-if (typeof window != 'undefined' && window.performance != 'undefined') {
+if (typeof window !== 'undefined' && window.performance !== 'undefined') {
   // for web
   timeNow = window.performance.now.bind(window.performance);
-} else if (typeof require != 'undefined') {
+} else if (typeof require !== 'undefined') {
   // for node
   // XXX: this is a hack for webpack to trick it into building the web bundle
   //      by hiding the fact that are calling node's require
@@ -52,12 +52,12 @@ export class Simulator {
     this.stop();
     this._cpu.reset();
     this._resetVariables();
-    this._fireEvent("memory", [null]);
-    this._fireEvent("reset");
+    this._fireEvent('memory', [null]);
+    this._fireEvent('reset');
   }
 
   registerEventHandler(name, fn) {
-    if (typeof fn == "function") {
+    if (typeof fn === 'function') {
       if (!this._eventHandlers[name]) {
         this._eventHandlers[name] = [];
       }
@@ -69,7 +69,7 @@ export class Simulator {
     this.stop();
     this._ram.load(buffer);
     this.reset();
-    this._fireEvent("load");
+    this._fireEvent('load');
   }
 
   interrupt(i) {
@@ -95,7 +95,7 @@ export class Simulator {
       let t0 = timeNow();
       this._interval = setInterval(() => {
         // adjust number of iterations
-        let it_adjusted = it*this._speedFactor + 1;
+        let it_adjusted = it * this._speedFactor + 1;
 
         // do the work
         let t1 = timeNow();
@@ -119,24 +119,24 @@ export class Simulator {
         t0 = t2;
 
         // calculate real clock speed with 20 loop samples
-        if (ls_count == 20) {
-          ls_speed -= ls_speed/ls_count; // remove mean
+        if (ls_count === 20) {
+          ls_speed -= ls_speed / ls_count; // remove mean
         } else {
           ls_count++;
         }
-        ls_speed += it_adjusted*1000/(time_full + 0.01); // use 0.01 to prevent division by 0
-        this._speed = ls_speed/ls_count; // Hz
+        ls_speed += it_adjusted * 1000 / (time_full + 0.01); // use 0.01 to prevent division by 0
+        this._speed = ls_speed / ls_count; // Hz
 
         // calculate clock speed with 100 clock samples
         cs_count += it_adjusted;
         cs_time += time_work;
         if (cs_count > 1000) {
-          cs_time -= (cs_count - 1000)*(cs_time/cs_count); // remove mean
+          cs_time -= (cs_count - 1000) * (cs_time / cs_count); // remove mean
           cs_count = 1000;
         }
 
         // adjust iterations to keep loop close to 20ms (use 0.01 to prevent division by 0)
-        it = 20*cs_count/(cs_time + 0.01); // == 20/(cs_time/cs_count)
+        it = 20 * cs_count / (cs_time + 0.01); // === 20/(cs_time/cs_count)
 
         // fire clock event
         this._fireStatusEvent('clock');
@@ -153,7 +153,7 @@ export class Simulator {
   stepClock() {
     this.stop();
     this._cpu.clock();
-    this._fireStatusEvent("clock");
+    this._fireStatusEvent('clock');
   }
 
   isRunning() {
@@ -166,7 +166,7 @@ export class Simulator {
       this._interval = 0;
       this._oneInstruction = false;
       this._speed = 0;
-      this._fireStatusEvent("stop");
+      this._fireStatusEvent('stop');
     }
   }
 }

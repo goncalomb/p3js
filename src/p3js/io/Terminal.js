@@ -11,7 +11,7 @@ export class Terminal {
   }
 
   static _charFromCode(code) {
-    if (code < 0x20 || (code >= 0x7f && code <= 0xa0) || code == 0xad || code > 0xff) {
+    if (code < 0x20 || (code >= 0x7f && code <= 0xa0) || code === 0xad || code > 0xff) {
       return this.REPLACEMENT_CHAR;
     } else {
       return String.fromCharCode(code);
@@ -19,12 +19,12 @@ export class Terminal {
   }
 
   _control(v) {
-    if (v == 0xffff) {
+    if (v === 0xffff) {
       this._cursorMode = true;
       this._x = 0;
       this._y = 0;
-      let empty_line = Array(80 + 1).join(" ");
-      this._buffer = Array.apply(null, new Array(24)).map(() => { return empty_line; });
+      let empty_line = ' '.repeat(80);
+      this._buffer = Array(24).fill(empty_line);
       if (this._onClear) this._onClear(this._buffer, this._cursorMode);
     } else {
       this._x = v & 0xff;
@@ -34,13 +34,13 @@ export class Terminal {
 
   _write(v) {
     if (!this._cursorMode) {
-      if (this._buffer.length == 0) {
-        this._buffer.push("");
+      if (this._buffer.length === 0) {
+        this._buffer.push('');
       }
       let lf = false;
       let val = this._buffer[this._buffer.length - 1];
-      if (v == 10) { // LF
-        this._buffer.push("");
+      if (v === 10) { // LF
+        this._buffer.push('');
         lf = true;
       } else if (val.length >= 80) {
         val = this.constructor._charFromCode(v);
@@ -53,7 +53,7 @@ export class Terminal {
       if (this._buffer.length > 64) {
         this._buffer.shift();
       }
-      if (this._onTextChange) this._onTextChange(this._buffer, this._cursorMode, -1, -1, 0, "\u0000", lf);
+      if (this._onTextChange) this._onTextChange(this._buffer, this._cursorMode, -1, -1, 0, '\u0000', lf);
     } else if (this._x < 80 && this._y < 24) {
       let c = this.constructor._charFromCode(v);
       let val = this._buffer[this._y];

@@ -10,11 +10,11 @@ export class LCD {
   }
 
   _control(v) {
-    if ((v & 0x20) != 0) {
+    if ((v & 0x20) !== 0) {
       this._text = null;
       if (this._onStateChange) this._onStateChange(this._text, this._active);
     }
-    if ((v & 0x8000) == 0) {
+    if ((v & 0x8000) === 0) {
       if (this._active) {
         this._active = false;
         if (this._onStateChange) this._onStateChange(this._text, this._active);
@@ -30,8 +30,8 @@ export class LCD {
   _write(v) {
     if (!this._text) {
       this._text = [
-        Array(16 + 1).join(" "),
-        Array(16 + 1).join(" "),
+        Array(16 + 1).join(' '),
+        Array(16 + 1).join(' '),
       ];
     }
     let str = this._text[this._y];

@@ -1,16 +1,16 @@
-const webpack = require("webpack");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const path = require("path");
+const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
-const copyright = "Copyright (c) 2016, 2017 Gonçalo Baltazar <me@goncalomb.com>\n\n"
-  + "Source Code on GitHub: https://github.com/goncalomb/p3js\n\n"
-  + "P3JS is released under the terms of the MIT License.\n"
-  + "See LICENSE.txt for details.";
+const copyright = 'Copyright (c) 2016, 2017 Gonçalo Baltazar <me@goncalomb.com>\n\n'
+  + 'Source Code on GitHub: https://github.com/goncalomb/p3js\n\n'
+  + 'P3JS is released under the terms of the MIT License.\n'
+  + 'See LICENSE.txt for details.';
 
 
 function createBundleConfig(entry, filename, library, plugins) {
   const output = {
-    path: path.join(__dirname, "www"),
+    path: path.join(__dirname, 'www'),
     filename: `static/p3js/${filename}`,
   };
   if (library) {
@@ -54,7 +54,7 @@ module.exports = [
       `P3JS-DOM Bundle\n\nDOM components for P3JS (p3js.dom).\n\n${copyright}`,
     ),
     new CopyWebpackPlugin([
-      { from: "src/p3js-dom/main.css", to: "static/p3js/p3js-dom.css" },
+      { from: 'src/p3js-dom/main.css', to: 'static/p3js/p3js-dom.css' },
     ]),
   ]),
   createBundleConfig('./src/p3js-web/', 'p3js-web-bundle.js', null, [

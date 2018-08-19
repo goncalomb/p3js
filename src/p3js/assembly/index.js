@@ -29,11 +29,11 @@ export const INST_TYPE_JUMP_REL = 'jr';       // relative jump
 export const INST_TYPE_JUMP_REL_COND = 'jrc'; // conditional relative jump
 
 export const pseudoInstructions = {
-  ORIG: { type: "0c", requiresLabel: false },
-  EQU: { type: "0c", requiresLabel: true },
-  WORD: { type: "0c", requiresLabel: true },
-  STR: { type: "s", requiresLabel: true },
-  TAB: { type: "0c", requiresLabel: true },
+  ORIG: { type: '0c', requiresLabel: false },
+  EQU: { type: '0c', requiresLabel: true },
+  WORD: { type: '0c', requiresLabel: true },
+  STR: { type: 's', requiresLabel: true },
+  TAB: { type: '0c', requiresLabel: true },
 };
 
 export const instructions = {};
@@ -120,12 +120,12 @@ export const conditions = {
 };
 
 export function getNumOperands(type) {
-  if (type == "0") return 0;
-  if (type == "0c") return 1;
-  if (type == "1") return 1;
-  if (type == "1c") return 2;
-  if (type == "2") return 2;
-  if (type.charAt(0) == "j") return 1;
+  if (type === '0') return 0;
+  if (type === '0c') return 1;
+  if (type === '1') return 1;
+  if (type === '1c') return 2;
+  if (type === '2') return 2;
+  if (type.charAt(0) === 'j') return 1;
   return null;
 }
 
@@ -172,7 +172,7 @@ export function registerInstructionList(text) {
   let lines = text.split('\n');
   for (let i = 0, l = lines.length; i < l; i++) {
     let line = lines[i].trim();
-    if (line.length == 0 || line[0] == "#") continue;
+    if (line.length === 0 || line[0] === '#') continue;
     let matches = line.match(regex);
     if (matches) {
       let type = 'INST_TYPE_' + matches[3];
@@ -186,7 +186,7 @@ export function registerInstructionList(text) {
         throw new Error("Invalid type '" + type + "', on line " + (i + 1));
       }
     } else {
-      throw new Error("Syntax error, on line " + (i + 1));
+      throw new Error('Syntax error, on line ' + (i + 1));
     }
   }
   clearInstructions();

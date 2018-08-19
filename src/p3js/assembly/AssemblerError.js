@@ -8,7 +8,7 @@ export class AssemblerError {
     this.instruction = this.constructor._instruction;
     this.result = this.constructor._result;
     if (this.instruction) {
-      this.message = this.message.replace("{name}", this.instruction.name);
+      this.message = this.message.replace('{name}', this.instruction.name);
       if (this.instruction.debug && this.line === null) {
         this.line = this.instruction.debug.line;
       }
@@ -26,13 +26,13 @@ export class AssemblerError {
 
   getFullMessage() {
     if (this.line) {
-      return this.message + ", on line " + this.line;
+      return this.message + ', on line ' + this.line;
     }
     return this.message;
   }
 
   toString() {
-    return "AssemblerError: " + this.message;
+    return 'AssemblerError: ' + this.message;
   }
 }
 

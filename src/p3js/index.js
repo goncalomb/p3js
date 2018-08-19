@@ -14,4 +14,6 @@ export * from './ROMReaderWriter.js';
 export * from './Simulator.js';
 export * from './SimulatorWithIO.js';
 
-export { assembly, devices, io, program };
+export {
+  assembly, devices, io, program,
+};

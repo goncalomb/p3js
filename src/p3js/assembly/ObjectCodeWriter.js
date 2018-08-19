@@ -10,14 +10,14 @@ export class ObjectCodeWriter {
 
   getPosition() {
     if (this._position >= RAM.MEMORY_SIZE) {
-      throw new Error("Internal Error: invalid memory position");
+      throw new Error('Internal Error: invalid memory position');
     }
     return this._position;
   }
 
   setPosition(pos) {
     if (pos >= RAM.MEMORY_SIZE) {
-      throw new Error("Internal Error: invalid memory position");
+      throw new Error('Internal Error: invalid memory position');
     }
     this._position = pos;
   }
@@ -28,10 +28,10 @@ export class ObjectCodeWriter {
 
   write(value, t) {
     if (this._position >= RAM.MEMORY_SIZE) {
-      throw new AssemblerError("End of memory reached");
+      throw new AssemblerError('End of memory reached');
     }
     if (this._result.usedAddresses[this._position]) {
-      throw new AssemblerError("Overlapping memory");
+      throw new AssemblerError('Overlapping memory');
     }
     this._view.setInt16(this._position * 2, value, true);
     this._result.usedAddresses[this._position] = (t || 1);
@@ -54,11 +54,11 @@ export class ObjectCodeWriter {
     c &= 0x0f; // 4 bits
     m &= 0x03; // 2 bits
     r &= 0x0f; // 4 bits
-    if (m == 2) {
+    if (m === 2) {
       r = 0;
     }
     this.write((op << 10) | (c << 6) | (m << 4) | r);
-    if (m == 2 || m == 3) {
+    if (m === 2 || m === 3) {
       this.write(w);
     }
   }

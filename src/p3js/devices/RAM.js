@@ -12,11 +12,11 @@ export class RAM {
   }
 
   readFromAddress(addr, iak) {
-    return this._memoryView.getInt16(addr*2, true);
+    return this._memoryView.getInt16(addr * 2, true);
   }
 
   writeToAddress(addr, val) {
-    this._memoryView.setInt16(addr*2, val, true);
+    this._memoryView.setInt16(addr * 2, val, true);
     this._sim._fireEvent('memory', [addr]);
     return true;
   }

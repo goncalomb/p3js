@@ -25,7 +25,8 @@
   "scripts": {
     "start": "webpack-dev-server --content-base www/ --open",
     "install": "webpack -p",
-    "lint": "eslint --ignore-path .gitignore ./"
+    "lint": "eslint --ignore-path .gitignore ./",
+    "lint-fix": "eslint --fix --ignore-path .gitignore ./"
   },
   "repository": {
     "type": "git",

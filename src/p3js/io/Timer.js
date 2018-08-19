@@ -17,11 +17,11 @@ export class Timer {
   }
 
   _control(v) {
-    if ((v & 0x1) == 0) {
+    if ((v & 0x1) === 0) {
       clearInterval(this._interval);
       this._state = 0;
       this._interval = 0;
-    } else if (this._state == 0) {
+    } else if (this._state === 0) {
       this._state = 1;
       this._interval = setInterval(this._timerFn, 100);
     }

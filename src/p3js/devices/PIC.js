@@ -5,7 +5,7 @@ export class PIC {
   }
 
   reset() {
-    this._intPending = Array.apply(null, Array(this.constructor.INTERRUPT_COUNT)).map(Boolean.prototype.valueOf, false);
+    this._intPending = Array(this.constructor.INTERRUPT_COUNT).fill(false);
     this._intMask = 0;
   }
 
@@ -30,13 +30,13 @@ export class PIC {
         throw new Error('PIC error, no interruption pending');
       }
       return int_number;
-    } else if (addr == this.constructor.INTERRUPT_MASK_ADDRESS) {
+    } else if (addr === this.constructor.INTERRUPT_MASK_ADDRESS) {
       return this._intMask << 16 >> 16;
     }
   }
 
   writeToAddress(addr, val) {
-    if (addr == this.constructor.INTERRUPT_MASK_ADDRESS) {
+    if (addr === this.constructor.INTERRUPT_MASK_ADDRESS) {
       this._intMask = val & 0xffff;
       for (let i = 0; i < this.constructor.INTERRUPT_COUNT; i++) {
         if (this._intPending[i] && (i >= 16 || this._intMask >> i & 0x1)) {

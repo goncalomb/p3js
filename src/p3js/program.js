@@ -16,33 +16,33 @@ export function writeProgram(memory, oldFormat, usedAddresses) {
   }
   for (let i = 0, l = memory.byteLength; i < l; i += 2) {
     if (usedAddresses) {
-      if (!usedAddresses[i/2]) {
+      if (!usedAddresses[i / 2]) {
         continue;
       }
-    } else if (view_mem.getInt16(i, true) == 0) {
+    } else if (view_mem.getInt16(i, true) === 0) {
       continue;
     }
     let length_pos = p;
     p += 2;
     // write address of block
-    view.setInt16(p, i/2, true);
+    view.setInt16(p, i / 2, true);
     p += 2;
     // write data
     let j = i;
     for (; j < l; j += 2) {
       let v = view_mem.getInt16(j, true);
       if (usedAddresses) {
-        if (!usedAddresses[j/2]) {
+        if (!usedAddresses[j / 2]) {
           break;
         }
-      } else if (v == 0) {
+      } else if (v === 0) {
         break;
       }
       view.setInt16(p, v, true);
       p += 2;
     }
     // write length of block
-    view.setInt16(length_pos, (j - i)/2, true);
+    view.setInt16(length_pos, (j - i) / 2, true);
     i = j;
   }
   view.setInt16(p, 0, true);

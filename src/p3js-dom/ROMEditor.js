@@ -18,6 +18,6 @@ export class ROMEditor {
       return;
     }
     this._dump();
-    alert("Done.");
+    alert('Done.');
   }
 }

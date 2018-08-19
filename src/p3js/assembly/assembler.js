@@ -4,23 +4,23 @@ import { AssemblerError } from './AssemblerError.js';
 export function DEFAULT_VALIDATOR(instruction) {
   let name = instruction.name;
   switch (instruction.getType()) {
-    case "1":
-      if (instruction.operands[0].type == assembly.OPRD_TYPE_IMMEDIATE && (
-        name == "NEG" || name == "INC" || name == "DEC" || name == "COM" || name == "POP"
+    case '1':
+      if (instruction.operands[0].type === assembly.OPRD_TYPE_IMMEDIATE && (
+        name === 'NEG' || name === 'INC' || name === 'DEC' || name === 'COM' || name === 'POP'
       )) {
-        throw new AssemblerError(name + " cannot have immediate operand");
+        throw new AssemblerError(name + ' cannot have immediate operand');
       }
       break;
-    case "1c":
-      if (instruction.operands[0].type == assembly.OPRD_TYPE_IMMEDIATE) {
-        throw new AssemblerError(name + " cannot have immediate operand");
+    case '1c':
+      if (instruction.operands[0].type === assembly.OPRD_TYPE_IMMEDIATE) {
+        throw new AssemblerError(name + ' cannot have immediate operand');
       }
       break;
-    case "2":
-      if (instruction.operands[1].type == assembly.OPRD_TYPE_IMMEDIATE && (
-        name == "MUL" || name == "DIV" || name == "XCH"
+    case '2':
+      if (instruction.operands[1].type === assembly.OPRD_TYPE_IMMEDIATE && (
+        name === 'MUL' || name === 'DIV' || name === 'XCH'
       )) {
-        throw new AssemblerError(name + " cannot have immediate operand");
+        throw new AssemblerError(name + ' cannot have immediate operand');
       }
       break;
   }
@@ -37,7 +37,7 @@ export function assembleData(data, validator) {
 
   function set_label(label, value) {
     if (labels[label] !== undefined) {
-      throw new AssemblerError("Label " + label + " already defined");
+      throw new AssemblerError('Label ' + label + ' already defined');
     }
     labels[label] = value;
     result.labelCount++;
@@ -59,20 +59,20 @@ export function assembleData(data, validator) {
       case assembly.OPRD_TYPE_BASED:
         return 3;
     }
-    throw new AssemblerError("Invalid operand for {name}");
+    throw new AssemblerError('Invalid operand for {name}');
   }
 
   function has_w(operand) {
     let m = get_m(operand);
-    return (m == 2 || m == 3);
+    return (m === 2 || m === 3);
   }
 
   function get_w(operand) {
     if (has_w(operand)) {
-      if (typeof operand.w == "string") {
+      if (typeof operand.w === 'string') {
         if (labels[operand.w] === undefined) {
-          throw new AssemblerError("Undefined label " + operand.w);
-        } if (operand.s == "-") {
+          throw new AssemblerError('Undefined label ' + operand.w);
+        } if (operand.s === '-') {
           return -labels[operand.w];
         } else {
           return labels[operand.w];
@@ -85,7 +85,7 @@ export function assembleData(data, validator) {
 
   // call get_r after a successful get_m
   function get_r(operand) {
-    if (operand.type == assembly.OPRD_TYPE_IMMEDIATE || operand.type == assembly.OPRD_TYPE_DIRECT) {
+    if (operand.type === assembly.OPRD_TYPE_IMMEDIATE || operand.type === assembly.OPRD_TYPE_DIRECT) {
       return assembly.REGISTER_0;
     }
     return operand.r;
@@ -97,7 +97,7 @@ export function assembleData(data, validator) {
     AssemblerError.prepare(instruction, result);
 
     if (!instruction.isPseudoInstruction() && !instruction.isInstruction()) {
-      throw new Error("Internal Error: unknown instruction");
+      throw new Error('Internal Error: unknown instruction');
     }
 
     // instruction.operands        = array of operands (may be empty)
@@ -108,44 +108,44 @@ export function assembleData(data, validator) {
 
     let num_operands = instruction.getNumOperands();
     if (num_operands === null && instruction.operands.length < 1) {
-      throw new AssemblerError("{name} expects at least 1 operand");
-    } else if (num_operands !== null && num_operands != instruction.operands.length) {
-      throw new AssemblerError("{name} expects " + num_operands + " operand(s)");
+      throw new AssemblerError('{name} expects at least 1 operand');
+    } else if (num_operands !== null && num_operands !== instruction.operands.length) {
+      throw new AssemblerError('{name} expects ' + num_operands + ' operand(s)');
     }
 
     // process pseudo-instructions
-    if ((instruction.name == "ORIG" || instruction.name == "EQU" || instruction.name == "WORD" || instruction.name == "TAB") && instruction.operands[0].type != assembly.OPRD_TYPE_IMMEDIATE) {
-      throw new AssemblerError("Invalid operand for {name} (expects constant)");
+    if ((instruction.name === 'ORIG' || instruction.name === 'EQU' || instruction.name === 'WORD' || instruction.name === 'TAB') && instruction.operands[0].type !== assembly.OPRD_TYPE_IMMEDIATE) {
+      throw new AssemblerError('Invalid operand for {name} (expects constant)');
     }
 
-    if ((instruction.name == "ORIG" || instruction.name == "EQU") && typeof instruction.operands[0].w == "string") {
-      throw new AssemblerError("Invalid operand for {name} (cannot be a label)");
+    if ((instruction.name === 'ORIG' || instruction.name === 'EQU') && typeof instruction.operands[0].w === 'string') {
+      throw new AssemblerError('Invalid operand for {name} (cannot be a label)');
     }
 
     switch (instruction.name) {
-      case "ORIG":
+      case 'ORIG':
         writer.setPosition(instruction.operands[0].w);
         continue;
-      case "EQU":
+      case 'EQU':
         set_label(instruction.label, instruction.operands[0].w);
         continue;
-      case "WORD":
+      case 'WORD':
         set_label(instruction.label, writer.getPosition());
         writer.movePosition(1);
         continue;
-      case "STR":
+      case 'STR':
         set_label(instruction.label, writer.getPosition());
         instruction.operands.forEach((o) => {
-          if (o.type == assembly.OPRD_TYPE_STRING) {
+          if (o.type === assembly.OPRD_TYPE_STRING) {
             writer.movePosition(o.w.length);
-          } else if (o.type == assembly.OPRD_TYPE_IMMEDIATE) {
+          } else if (o.type === assembly.OPRD_TYPE_IMMEDIATE) {
             writer.movePosition(1);
           } else {
-            throw new AssemblerError("Invalid operand for STR");
+            throw new AssemblerError('Invalid operand for STR');
           }
         });
         continue;
-      case "TAB":
+      case 'TAB':
         set_label(instruction.label, writer.getPosition());
         writer.movePosition(instruction.operands[0].w);
         continue;
@@ -189,29 +189,29 @@ export function assembleData(data, validator) {
     // process pseudo-instructions
     result.pseudoCount++;
     switch (instruction.name) {
-      case "ORIG":
+      case 'ORIG':
         writer.setPosition(instruction.operands[0].w);
         continue;
-      case "EQU":
+      case 'EQU':
         // done on first pass
         continue;
-      case "WORD":
+      case 'WORD':
         writer.write(get_w(instruction.operands[0]), 2);
         continue;
-      case "STR":
+      case 'STR':
         instruction.operands.forEach((o) => {
-          if (o.type == assembly.OPRD_TYPE_STRING) {
+          if (o.type === assembly.OPRD_TYPE_STRING) {
             for (let j = 0, l = o.w.length; j < l; j++) {
               writer.write(o.w.charCodeAt(j), 3);
             }
-          } else if (o.type == assembly.OPRD_TYPE_IMMEDIATE) {
+          } else if (o.type === assembly.OPRD_TYPE_IMMEDIATE) {
             writer.write(get_w(o), 3);
           } else {
-            throw new AssemblerError("Invalid operand for STR");
+            throw new AssemblerError('Invalid operand for STR');
           }
         });
         continue;
-      case "TAB":
+      case 'TAB':
         for (let j = 0; j < get_w(instruction.operands[0]); j++) {
           writer.write(0, 4);
         }
@@ -221,9 +221,9 @@ export function assembleData(data, validator) {
 
     // check if the labels are correctly placed
     if (instruction.label) {
-      if (labels[instruction.label] === undefined || labels[instruction.label] != writer.getPosition()) {
+      if (labels[instruction.label] === undefined || labels[instruction.label] !== writer.getPosition()) {
         // should not happen
-        throw new Error("Internal Error: first pass failed");
+        throw new Error('Internal Error: first pass failed');
       }
     }
 
@@ -237,12 +237,12 @@ export function assembleData(data, validator) {
         writer.writeInstZero(instruction.getOpcode());
         break;
       case assembly.INST_TYPE_ZERO_CONST: {
-        if (operand_0.type != assembly.OPRD_TYPE_IMMEDIATE) {
-          throw new AssemblerError("Operand must be immediate");
+        if (operand_0.type !== assembly.OPRD_TYPE_IMMEDIATE) {
+          throw new AssemblerError('Operand must be immediate');
         }
         let w = get_w(operand_0);
         if (w < 0 || w > 1023) {
-          throw new AssemblerError("Constant must be between 0 and 1023");
+          throw new AssemblerError('Constant must be between 0 and 1023');
         }
         writer.writeInstConstant(instruction.getOpcode(), w);
         break;
@@ -257,12 +257,12 @@ export function assembleData(data, validator) {
       }
       case assembly.INST_TYPE_ONE_CONST: {
         let m = get_m(operand_0);
-        if (operand_1.type != assembly.OPRD_TYPE_IMMEDIATE) {
-          throw new AssemblerError("Second operand must be a constant");
+        if (operand_1.type !== assembly.OPRD_TYPE_IMMEDIATE) {
+          throw new AssemblerError('Second operand must be a constant');
         }
         let c = get_w(operand_1);
         if (c < 0 || c > 15) {
-          throw new AssemblerError("Constant must be between 0 and 15");
+          throw new AssemblerError('Constant must be between 0 and 15');
         }
         let r = get_r(operand_0);
         let w = get_w(operand_0);
@@ -270,22 +270,22 @@ export function assembleData(data, validator) {
         break;
       }
       case assembly.INST_TYPE_TWO: {
-        if (operand_0.type == assembly.OPRD_TYPE_IMMEDIATE) {
-          throw new AssemblerError("First operand cannot be immediate");
+        if (operand_0.type === assembly.OPRD_TYPE_IMMEDIATE) {
+          throw new AssemblerError('First operand cannot be immediate');
         }
         let s;
         let reg;
         let other_operand;
-        if (operand_0.type == assembly.OPRD_TYPE_REGISTER) {
+        if (operand_0.type === assembly.OPRD_TYPE_REGISTER) {
           s = 1;
           reg = operand_0.r;
           other_operand = operand_1;
-        } else if (operand_1.type == assembly.OPRD_TYPE_REGISTER) {
+        } else if (operand_1.type === assembly.OPRD_TYPE_REGISTER) {
           s = 0;
           reg = operand_1.r;
           other_operand = operand_0;
         } else {
-          throw new AssemblerError("One of the operands must be a register");
+          throw new AssemblerError('One of the operands must be a register');
         }
         let m = get_m(other_operand);
         let r = get_r(other_operand);
@@ -303,14 +303,14 @@ export function assembleData(data, validator) {
       }
       case assembly.INST_TYPE_JUMP_REL:
       case assembly.INST_TYPE_JUMP_REL_COND: {
-        if (operand_0.type != assembly.OPRD_TYPE_IMMEDIATE) {
-          throw new AssemblerError("Invalid operand for {name}");
+        if (operand_0.type !== assembly.OPRD_TYPE_IMMEDIATE) {
+          throw new AssemblerError('Invalid operand for {name}');
         }
         let d = get_w(operand_0) - writer.getPosition() - 1;
         if (d < -32 || d > 31) {
-          throw new AssemblerError("Target too far for branch jump");
+          throw new AssemblerError('Target too far for branch jump');
         }
-        if (instruction.getType() == "jr") {
+        if (instruction.getType() === 'jr') {
           writer.writeJumpR(instruction.getOpcode(), d);
         } else {
           let c = instruction.getConditionCode();
@@ -320,7 +320,7 @@ export function assembleData(data, validator) {
       }
       default:
         // should not happen
-        throw new Error("Internal Error: unknown instruction type");
+        throw new Error('Internal Error: unknown instruction type');
     }
 
     // call the validator

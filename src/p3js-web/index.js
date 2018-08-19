@@ -12,13 +12,13 @@ import tab_settings from './tab-settings.js';
 import tab_simulator from './tab-simulator.js';
 
 export function downloadBuffer(buffer, name) {
-  let blob = new Blob([buffer], { type: "application/octet-stream" });
+  let blob = new Blob([buffer], { type: 'application/octet-stream' });
   let url = URL.createObjectURL(blob);
-  let a = document.createElement("a");
-  if ("download" in a) {
+  let a = document.createElement('a');
+  if ('download' in a) {
     a.href = url;
-    a.download = (name || "file");
-    a.dispatchEvent(new MouseEvent("click"));
+    a.download = (name || 'file');
+    a.dispatchEvent(new MouseEvent('click'));
   } else {
     window.location = url;
   }
@@ -28,12 +28,12 @@ export function downloadBuffer(buffer, name) {
 }
 
 export function createDraggableElement($element) {
-  let $handle = $("<div>").prependTo($element);
-  $("<i>").addClass("fa fa-arrows").appendTo($handle);
-  $(document.createTextNode(" Drag Me")).appendTo($handle);
+  let $handle = $('<div>').prependTo($element);
+  $('<i>').addClass('fa fa-arrows').appendTo($handle);
+  $(document.createTextNode(' Drag Me')).appendTo($handle);
   function bring_to_top() {
-    $(".ui-draggable").css("z-index", 0);
-    $element.css("z-index", 50);
+    $('.ui-draggable').css('z-index', 0);
+    $element.css('z-index', 50);
   }
   $element.click(bring_to_top);
   $element.draggable({
@@ -66,58 +66,58 @@ $(window).ready(() => {
     if (fn) fn.apply(document);
   }
   function fullscreen_toogle() {
-    if ($body.hasClass("fullscreen")) {
+    if ($body.hasClass('fullscreen')) {
       exit_fullscreen();
     } else {
       request_fullscreen(document.documentElement);
     }
   }
-  $(document).on("webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange", () => {
-    if ($body.hasClass("fullscreen")) {
-      $body.removeClass("fullscreen");
-      $document.trigger("fullscreenoff");
+  $(document).on('webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange', () => {
+    if ($body.hasClass('fullscreen')) {
+      $body.removeClass('fullscreen');
+      $document.trigger('fullscreenoff');
     } else {
-      $body.addClass("fullscreen");
-      $document.trigger("fullscreenon");
+      $body.addClass('fullscreen');
+      $document.trigger('fullscreenon');
     }
   });
   // event for fullscreen button
-  $("#fullscr").click(() => {
+  $('#fullscr').click(() => {
     fullscreen_toogle();
     return false;
   });
   // F11 doesn't trigger fullscreenchange, so we hijack the key
-  $(document).on("keydown", (e) => {
-    if (e.which == 122) {
+  $(document).on('keydown', (e) => {
+    if (e.which === 122) {
       fullscreen_toogle();
       return false;
     }
   });
 
   // tabs
-  let $all_tab_lis = $(".nav-tabs li");
-  let $all_tabs = $(".tab-page");
-  $(window).on("load hashchange", () => {
+  let $all_tab_lis = $('.nav-tabs li');
+  let $all_tabs = $('.tab-page');
+  $(window).on('load hashchange', () => {
     let hash = window.location.hash.substr(1);
-    if (hash == "assembler") {
+    if (hash === 'assembler') {
       if (window.history.replaceState !== undefined) {
         window.history.replaceState({ }, document.title, window.location.pathname);
       } else {
-        window.location.hash = "";
+        window.location.hash = '';
         return;
       }
-    } else if (hash == "") {
-      hash = "assembler";
-    } else if (hash == "io" && $(document.body).hasClass("sim-io-visible")) {
+    } else if (hash === '') {
+      hash = 'assembler';
+    } else if (hash === 'io' && $(document.body).hasClass('sim-io-visible')) {
       return;
     }
-    let $tab = $(".tab-page-" + hash);
+    let $tab = $('.tab-page-' + hash);
     if ($tab.length > 0) {
-      $all_tabs.addClass("hidden");
-      $tab.removeClass("hidden");
-      $all_tab_lis.removeClass("active");
-      $("a[href=\"#" + hash + "\"]", $all_tab_lis).parent().addClass("active");
-      $(document).trigger("p3js-tab-change", hash);
+      $all_tabs.addClass('hidden');
+      $tab.removeClass('hidden');
+      $all_tab_lis.removeClass('active');
+      $('a[href="#' + hash + '"]', $all_tab_lis).parent().addClass('active');
+      $(document).trigger('p3js-tab-change', hash);
     }
   });
 

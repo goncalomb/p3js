@@ -34,7 +34,6 @@
         "BinaryExpression": true
       }
     }],
-    "no-throw-literal": 1,
     "no-unused-vars": [2, {
       "args": "none"
     }],

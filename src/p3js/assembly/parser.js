@@ -116,7 +116,7 @@ function process_line(text, n) {
     throw new AssemblerError("Syntax error", n);
   } else if (!matches[3]) {
     // should not happen
-    throw "Internal Error: invalid regex result";
+    throw new Error("Internal Error: invalid regex result");
   }
 
   let instruction = new assembly.Instruction(true);

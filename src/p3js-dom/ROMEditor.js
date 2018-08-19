@@ -14,12 +14,8 @@ export class ROMEditor {
     try {
       this._rw.overwriteROMContents(this._$changes.val());
     } catch (e) {
-      if (typeof e == "string") {
-        alert("Error: " + e);
-        return;
-      } else {
-        throw e;
-      }
+      alert(e.message);
+      return;
     }
     this._dump();
     alert("Done.");

@@ -1,4 +1,5 @@
 import { RAM } from '../devices/RAM.js';
+import { AssemblerError } from './AssemblerError.js';
 
 export class ObjectCodeWriter {
   constructor(result) {
@@ -9,14 +10,14 @@ export class ObjectCodeWriter {
 
   getPosition() {
     if (this._position >= RAM.MEMORY_SIZE) {
-      throw "Internal Error: invalid memory position";
+      throw new Error("Internal Error: invalid memory position");
     }
     return this._position;
   }
 
   setPosition(pos) {
     if (pos >= RAM.MEMORY_SIZE) {
-      throw "Internal Error: invalid memory position";
+      throw new Error("Internal Error: invalid memory position");
     }
     this._position = pos;
   }
@@ -27,10 +28,10 @@ export class ObjectCodeWriter {
 
   write(value, t) {
     if (this._position >= RAM.MEMORY_SIZE) {
-      throw "Assembling Error: end of memory reached";
+      throw new AssemblerError("End of memory reached");
     }
     if (this._result.usedAddresses[this._position]) {
-      throw "Assembling Error: overlapping memory";
+      throw new AssemblerError("Overlapping memory");
     }
     this._view.setInt16(this._position * 2, value, true);
     this._result.usedAddresses[this._position] = (t || 1);

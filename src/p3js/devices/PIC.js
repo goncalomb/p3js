@@ -27,7 +27,7 @@ export class PIC {
       }
       if (int_number === null) {
         // this should never fire
-        throw 'PIC error, no interruption pending';
+        throw new Error('PIC error, no interruption pending');
       }
       return int_number;
     } else if (addr == this.constructor.INTERRUPT_MASK_ADDRESS) {

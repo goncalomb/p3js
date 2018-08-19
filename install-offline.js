@@ -58,7 +58,7 @@ function push_file(parent_file, file_url, ext, rel) {
     return null;
   } else if (file_url.protocol !== "http:" && file_url.protocol !== "https:") {
     console.log(file_url);
-    throw "unknown protocol " + file_url.protocol;
+    throw new Error("unknown protocol " + file_url.protocol);
   }
 
   let f = {
@@ -107,7 +107,7 @@ function download_next_file() {
       // continue downloading the next file
       setTimeout(download_next_file);
     } else if (!error) {
-      throw "Error: response.statusCode == " + response.statusCode;
+      throw new Error("response.statusCode == " + response.statusCode);
     } else {
       throw error.toString();
     }

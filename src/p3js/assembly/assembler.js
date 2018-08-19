@@ -8,19 +8,19 @@ export function DEFAULT_VALIDATOR(instruction) {
       if (instruction.operands[0].type == assembly.OPRD_TYPE_IMMEDIATE && (
         name == "NEG" || name == "INC" || name == "DEC" || name == "COM" || name == "POP"
       )) {
-        throw name + " cannot have immediate operand";
+        throw new AssemblerError(name + " cannot have immediate operand");
       }
       break;
     case "1c":
       if (instruction.operands[0].type == assembly.OPRD_TYPE_IMMEDIATE) {
-        throw name + " cannot have immediate operand";
+        throw new AssemblerError(name + " cannot have immediate operand");
       }
       break;
     case "2":
       if (instruction.operands[1].type == assembly.OPRD_TYPE_IMMEDIATE && (
         name == "MUL" || name == "DIV" || name == "XCH"
       )) {
-        throw name + " cannot have immediate operand";
+        throw new AssemblerError(name + " cannot have immediate operand");
       }
       break;
   }
@@ -97,7 +97,7 @@ export function assembleData(data, validator) {
     AssemblerError.prepare(instruction, result);
 
     if (!instruction.isPseudoInstruction() && !instruction.isInstruction()) {
-      throw "Internal Error: unknown instruction";
+      throw new Error("Internal Error: unknown instruction");
     }
 
     // instruction.operands        = array of operands (may be empty)
@@ -223,7 +223,7 @@ export function assembleData(data, validator) {
     if (instruction.label) {
       if (labels[instruction.label] === undefined || labels[instruction.label] != writer.getPosition()) {
         // should not happen
-        throw "Internal Error: first pass failed";
+        throw new Error("Internal Error: first pass failed");
       }
     }
 
@@ -320,18 +320,12 @@ export function assembleData(data, validator) {
       }
       default:
         // should not happen
-        throw "Internal Error: unknown instruction type";
+        throw new Error("Internal Error: unknown instruction type");
     }
 
     // call the validator
     if (validator) {
-      try {
-        validator(instruction);
-      } catch (e) {
-        if (typeof e == "string") {
-          throw e + ", on line " + instruction.debug.line;
-        }
-      }
+      validator(instruction);
     }
   }
 

@@ -102,7 +102,7 @@ export class CPU {
         return v;
       }
     }
-    throw "BUS read error";
+    throw new Error("BUS read error");
   }
 
   _writeMemory(addr, val) {
@@ -112,7 +112,7 @@ export class CPU {
         return;
       }
     }
-    throw "BUS write error";
+    throw new Error("BUS write error");
   }
 
   _alu(a, b, cula, c) {
@@ -127,14 +127,14 @@ export class CPU {
     // never fire.
     if (a !== (a & 0xffffffff) || b !== (b & 0xffffffff)) {
       // Integers please.
-      throw "ALU error, invalid operand (not integer)";
+      throw new Error("ALU error, invalid operand (not integer)");
     }
     let t = (a & 0xffff8000) ^ (b & 0xffff8000);
     if (t != 0 && (t ^ 0xffff8000) != 0) {
       // This basically checks if both operands (a, b) have all the upper
       // 16 bits equal to the 15th bit (sign).
       // Equivalent to checking if they are between -32768 and 32767.
-      throw "ALU error, invalid operand (invalid number)";
+      throw new Error("ALU error, invalid operand (invalid number)");
     }
     cula &= 0x1f;
     c &= 0x1;

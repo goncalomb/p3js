@@ -1,5 +1,19 @@
 import * as devices from './devices/';
 
+let timeNow = Date.now;
+if (typeof window != 'undefined' && window.performance != 'undefined') {
+  // for web
+  timeNow = window.performance.now.bind(window.performance);
+} else if (typeof require != 'undefined') {
+  // for node
+  // XXX: this is a hack for webpack to trick it into building the web bundle
+  //      by hiding the fact that are calling node's require
+  //      this is needed because these classes are also used for the node programs
+  //      maybe we should just use Date.now everywhere?!
+  let foo = { bar: require };
+  timeNow = foo.bar('perf_hooks').performance.now;
+}
+
 export class Simulator {
   constructor() {
     this._eventHandlers = { };
@@ -78,13 +92,13 @@ export class Simulator {
       // iterations to perform
       let it = 1;
 
-      let t0 = window.performance.now();
+      let t0 = timeNow();
       this._interval = setInterval(() => {
         // adjust number of iterations
         let it_adjusted = it*this._speedFactor + 1;
 
         // do the work
-        let t1 = window.performance.now();
+        let t1 = timeNow();
         try {
           for (let i = 0; i < it_adjusted; i++) {
             if (this._cpu.clock() && this._oneInstruction) {
@@ -98,7 +112,7 @@ export class Simulator {
           this.stop();
           throw e;
         }
-        let t2 = window.performance.now();
+        let t2 = timeNow();
 
         let time_full = t2 - t0; // loop duration
         let time_work = t2 - t1; // work duration

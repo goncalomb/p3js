@@ -4,12 +4,26 @@ export default function (p3sim) {
   let $sim_memory0 = $('#sim-memory0');
   let $sim_memory1 = $('#sim-memory1');
   let $sim_start = $('#sim-start');
+  let $sim_disassembler = $('#sim-disassembler');
 
   new p3js.dom.InfoPanel(p3sim, $('#sim-status'));
   let debugPanel = new p3js.dom.DebugPanel(p3sim, $('#sim-debug-main'), $('#sim-debug-control'));
 
   let memoryPanel0 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory0, 32768, 32768 + 256);
   let memoryPanel1 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory1, 64768, 64768 + 256);
+
+  let disassembler = new p3js.assembly.Disassembler(p3sim);
+
+  function disassembleMemoryArea() {
+    let addr = 0x0000;
+    let len = 0x0100;
+    let result = disassembler.disassembleMemoryArea(addr, len);
+    let text = [];
+    for (let i = 0; i < len; i++, addr++) {
+      text.push(addr.toString(16).padStart(4, '0') + ' : ' + result[i]);
+    }
+    $sim_disassembler.val(text.join('\n'));
+  }
 
   $('#sim-memory0-edit').click(() => {
     memoryPanel0.promptRange();
@@ -64,15 +78,22 @@ export default function (p3sim) {
     }
   });
 
+  p3sim.registerEventHandler('load', () => {
+    disassembleMemoryArea();
+  });
+
   p3sim.registerEventHandler('start', () => {
     $body.addClass('sim-running');
     $sim_start.text('Stop');
+    disassembleMemoryArea();
     setTimeout(() => {
       $sim_memory1[0].scrollTop = $sim_memory1[0].scrollHeight;
     }, 10);
   });
+
   p3sim.registerEventHandler('stop', () => {
     $body.removeClass('sim-running');
     $sim_start.text('Start');
+    disassembleMemoryArea();
   });
 }

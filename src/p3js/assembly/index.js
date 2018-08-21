@@ -39,7 +39,7 @@ export const pseudoInstructions = {
 export const instructions = {};
 
 export function registerInstruction(name, opcode, type) {
-  instructions[name.toUpperCase()] = { opcode, type };
+  instructions[name] = { name, opcode, type };
 }
 
 export function resetInstructions() {
@@ -131,6 +131,7 @@ export function getNumOperands(type) {
 
 export * from './AssemblerError.js';
 export * from './AssemblerResult.js';
+export * from './Disassembler.js';
 export * from './Instruction.js';
 export * from './ObjectCodeWriter.js';
 export { assembler, parser };
@@ -178,7 +179,7 @@ export function registerInstructionList(text) {
       let type = 'INST_TYPE_' + matches[3];
       if (this[type] !== undefined) {
         if (newInstructions[matches[1]] === undefined) {
-          newInstructions[matches[1]] = { opcode: parseInt(matches[2], 2), type: this[type] };
+          newInstructions[matches[1]] = { name: matches[1], opcode: parseInt(matches[2], 2), type: this[type] };
         } else {
           throw new Error("Duplicate instruction '" + matches[1] + "', on line " + (i + 1));
         }

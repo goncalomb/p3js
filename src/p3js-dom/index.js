@@ -10,6 +10,7 @@ export * from './DebugPanel.js';
 export * from './InfoPanel.js';
 export * from './IOBoard.js';
 export * from './IOTextAreaTerminal.js';
+export * from './MemoryDisassemblePanel.js';
 export * from './MemoryFootprintChart.js';
 export * from './MemoryViewPanel.js';
 export * from './ROMEditor.js';

@@ -1,3 +1,11 @@
+.p3js-dom-address-gutter {
+	width: 35px;
+}
+
+.p3js-dom-breakpoint-gutter {
+	width: 12px;
+}
+
 .p3js-io-terminal, .p3js-io-board {
 	display: table;
 	margin: 5px auto;

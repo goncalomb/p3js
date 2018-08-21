@@ -57,6 +57,7 @@ export class Disassembler {
     for (let addr = address, i = 0; i < length; addr++, i++) {
       valueNext = this._simulator._ram.readFromAddress((addr + 1) & 0xffff) & 0xffff;
       let opcode = (value >> 10) & 0x3f;
+      let inst = '';
       if (!valueNextIsW && typeof opcodes[opcode] !== 'undefined') {
         let name = opcodes[opcode].name;
         let c;
@@ -64,45 +65,45 @@ export class Disassembler {
         // decode instruction by type
         switch (opcodes[opcode].type) {
           case assembly.INST_TYPE_ZERO:
-            result.push(name);
+            inst = name;
             break;
           case assembly.INST_TYPE_ZERO_CONST:
             c = value & 0x3ff;
-            result.push(name + ' ' + c);
+            inst = name + ' ' + c;
             break;
           case assembly.INST_TYPE_ONE:
-            result.push(name + ' ' + getOperand(value, valueNext));
+            inst = name + ' ' + getOperand(value, valueNext);
             break;
           case assembly.INST_TYPE_ONE_CONST:
             c = (value >> 6) & 0x0f;
-            result.push(name + ' ' + getOperand(value, valueNext) + ', ' + c);
+            inst = name + ' ' + getOperand(value, valueNext) + ', ' + c;
             break;
           case assembly.INST_TYPE_TWO:
-            result.push(name + ' ' + getTwoOperands(value, valueNext));
+            inst = name + ' ' + getTwoOperands(value, valueNext);
             break;
           case assembly.INST_TYPE_JUMP:
-            result.push(name + ' ' + getOperand(value, valueNext));
+            inst = name + ' ' + getOperand(value, valueNext);
             break;
           case assembly.INST_TYPE_JUMP_COND:
             c = (value >> 6) & 0x0f;
-            result.push(name + conditions[c] + ' ' + getOperand(value, valueNext));
+            inst = name + conditions[c] + ' ' + getOperand(value, valueNext);
             break;
           case assembly.INST_TYPE_JUMP_REL:
             d = (value & 0x3f) << 26 >> 26; // expand sign bit
             d = (addr + d + 1) & 0xffff;
-            result.push(name + ' ' + d.toString(16).padStart(4, '0') + 'h');
+            inst = name + ' ' + d.toString(16).padStart(4, '0') + 'h';
             break;
           case assembly.INST_TYPE_JUMP_REL_COND:
             c = (value >> 6) & 0x0f;
             d = (value & 0x3f) << 26 >> 26; // expand sign bit
             d = (addr + d + 1) & 0xffff;
-            result.push(name + conditions[c] + ' ' + d.toString(16).padStart(4, '0') + 'h');
+            inst = name + conditions[c] + ' ' + d.toString(16).padStart(4, '0') + 'h';
             break;
         }
       } else {
-        result.push('[' + value.toString(16).padStart(4, '0') + 'h]');
         valueNextIsW = false;
       }
+      result.push({ addr, value, inst });
       value = valueNext;
     }
     return result;

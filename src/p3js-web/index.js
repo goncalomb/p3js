@@ -32,8 +32,8 @@ export function createDraggableElement($element) {
   $('<i>').addClass('fa fa-arrows').appendTo($handle);
   $(document.createTextNode(' Drag Me')).appendTo($handle);
   function bring_to_top() {
-    $('.ui-draggable').css('z-index', 0);
-    $element.css('z-index', 50);
+    $('.ui-draggable').css('z-index', 10);
+    $element.css('z-index', 11);
   }
   $element.click(bring_to_top);
   $element.draggable({

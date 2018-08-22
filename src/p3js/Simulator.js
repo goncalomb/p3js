@@ -26,6 +26,7 @@ export class Simulator {
     this._busDevices.push(this._ioc);
     this._busDevices.push(this._ram);
     this._speedFactor = 1;
+    this._breakpoints = new Set();
     this._resetVariables();
   }
 
@@ -80,6 +81,22 @@ export class Simulator {
     this._speedFactor = factor;
   }
 
+  setBreakpoint(addr, set = true) {
+    if (set) {
+      this._breakpoints.add(addr & 0xffff);
+    } else {
+      this._breakpoints.delete(addr & 0xffff);
+    }
+  }
+
+  hasBreakpoint(addr) {
+    return this._breakpoints.has(addr & 0xffff);
+  }
+
+  clearBreakpoints() {
+    this._breakpoints.clear();
+  }
+
   start() {
     if (!this._interval) {
       // clock sample variables
@@ -101,8 +118,8 @@ export class Simulator {
         let t1 = timeNow();
         try {
           for (let i = 0; i < it_adjusted; i++) {
-            if (this._cpu.clock() && this._oneInstruction) {
-              // stop simulation if just running one instruction
+            if (this._cpu.clock() && (this._oneInstruction || this.hasBreakpoint(this._cpu._registers[15]))) {
+              // stop simulation if just running one instruction or at breakpoint
               this._fireStatusEvent('clock');
               this.stop();
               return;

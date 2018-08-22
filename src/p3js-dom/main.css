@@ -6,6 +6,10 @@
 	width: 12px;
 }
 
+.p3js-dom-mark-pc {
+	background-color: rgba(195, 0, 255, 0.4);
+}
+
 .p3js-io-terminal, .p3js-io-board {
 	display: table;
 	margin: 5px auto;

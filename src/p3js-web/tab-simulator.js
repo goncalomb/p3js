@@ -68,13 +68,17 @@ export default function (p3sim) {
   });
 
   p3sim.registerEventHandler('load', () => {
-    disassemblePanel.update();
+    disassemblePanel.update(true, false);
+  });
+
+  p3sim.registerEventHandler('reset', () => {
+    disassemblePanel.update(true, false);
   });
 
   p3sim.registerEventHandler('start', () => {
     $body.addClass('sim-running');
     $sim_start.text('Stop');
-    disassemblePanel.update();
+    disassemblePanel.update(false, false);
     setTimeout(() => {
       $sim_memory1[0].scrollTop = $sim_memory1[0].scrollHeight;
     }, 10);

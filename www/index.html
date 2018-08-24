@@ -107,16 +107,17 @@ See LICENSE.txt for details.
 			<div class="col-md-9">
 				<table>
 					<tr>
-						<td><textarea id="sim-debug-main" rows="15" readonly></textarea></td>
-						<td class="ctrl-elem"><textarea id="sim-debug-control" rows="15" readonly></textarea></td>
+						<td><textarea id="sim-debug" rows="14" readonly></textarea></td>
 						<td>
-							<textarea id="sim-memory0" readonly></textarea>
-							<textarea id="sim-memory1" readonly></textarea>
+							<textarea id="sim-memory0" rows="14" readonly></textarea>
+							<textarea id="sim-memory1" rows="14" readonly></textarea>
 							<p>
-								<button id="sim-memory0-edit" class="btn btn-link btn-xs">Edit Main Memory Zone</button>
-								<button id="sim-memory1-edit" class="btn btn-link btn-xs">Edit Stack Memory Zone</button>
+								<button id="sim-memory0-edit" class="btn btn-default btn-xs">Edit Main Memory Zone</button>
+								<button id="sim-memory1-edit" class="btn btn-default btn-xs">Edit Stack Memory Zone</button>
+								<button id="sim-disassemble-edit" class="btn btn-default btn-xs">Edit Disassemble Zone</button>
 							</p>
 						</td>
+						<td id="sim-disassemble-container">
 					</tr>
 				</table>
 			</div>
@@ -131,7 +132,7 @@ See LICENSE.txt for details.
 				<button id="sim-step-c" class="btn btn-primary btn-sm btn-block ctrl-elem">Step (Clock)</button>
 				<button id="sim-reset" class="btn btn-primary btn-sm btn-block">Reset</button>
 				<div class="checkbox"><label><input id="sim-show-ctrl" type="checkbox">Show Control Unit</label></div>
-				<div class="checkbox"><label><input id="sim-show-io" type="checkbox">Show IO</label></div>
+				<div class="checkbox"><label><input id="sim-show-io" type="checkbox">Show I/O</label></div>
 			</div>
 		</div>
 		<div class="row tab-page tab-page-io hidden">

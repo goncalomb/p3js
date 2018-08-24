@@ -1,9 +1,7 @@
 export class DebugPanel {
-  constructor(simulator, $textarea0, $textarea1) {
+  constructor(simulator, textarea) {
     this._simulator = simulator;
-    this._$textarea0 = $textarea0;
-    this._$textarea1 = $textarea1;
-    this._showCtrl = false;
+    this._textarea = textarea;
 
     this._simulator.registerEventHandler('clock', () => {
       this.update();
@@ -12,39 +10,47 @@ export class DebugPanel {
       this.update();
     });
 
-    this.update();
+    this.showCtrl(false);
   }
 
-  showCtrl(v) {
-    this._showCtrl = !!v;
+  showCtrl(show) {
+    this._showCtrl = !!show;
+    this._textarea.rows = (this._showCtrl ? 26 : 14);
     this.update();
   }
 
   update() {
     let cpu = this._simulator._cpu;
-    function hex(n) {
-      return ('000' + (n & 0xffff).toString(16)).substr(-4);
-    }
     let text = [];
+
     for (let i = 0; i < 8; i++) {
-      text.push('R' + i + ':  ' + hex(cpu._registers[i]));
+      text.push('R' + i + ':  ' + cpu.getRegister(i).toString(16).padStart(4, '0'));
     }
-    text.push('', 'SP:  ' + hex(cpu._registers[14]));
-    text.push('PC:  ' + hex(cpu._registers[15]));
-    text.push('', 'Flags:', 'E Z C N O');
-    text.push(('000000' + (cpu._re & 0x1f).toString(2)).substr(-5).split('').join(' '));
-    this._$textarea0.val(text.join('\n'));
+    text.push('');
+
     if (this._showCtrl) {
-      let text = [];
-      for (let i = 8; i < 16; i++) {
-        text.push('R' + i + ': ' + (i < 10 ? ' ' : '') + hex(cpu._registers[i]));
+      for (let i = 8; i < 14; i++) {
+        text.push('R' + i + ': ' + (i < 10 ? ' ' : '') + cpu.getRegister(i).toString(16).padStart(4, '0'));
       }
-      text.push('', 'CAR: ' + hex(cpu._car));
-      text.push('SBR: ' + hex(cpu._sbr));
-      text.push('RI:  ' + hex(cpu._ri));
-      text.push('', 'INT: ' + cpu._int);
-      text.push('z: ' + (cpu._re >> 6 & 0x1) + ' c: ' + (cpu._re >> 5 & 0x1));
-      this._$textarea1.val(text.join('\n'));
     }
+    text.push('SP:  ' + cpu.SP.toString(16).padStart(4, '0'));
+    text.push('PC:  ' + cpu.PC.toString(16).padStart(4, '0'));
+    text.push('');
+
+    if (this._showCtrl) {
+      text.push('CAR: ' + cpu.CAR.toString(16).padStart(4, '0'));
+      text.push('SBR: ' + cpu.SBR.toString(16).padStart(4, '0'));
+      text.push('RI:  ' + cpu.RI.toString(16).padStart(4, '0'));
+      text.push('INT: ' + cpu.INT);
+      text.push('IAK: ' + cpu.IAK);
+      text.push('');
+      text.push(' zcEZCNO');
+      text.push(' ' + cpu.RE.toString(2).padStart(7, '0'));
+    } else {
+      text.push('  EZCNO');
+      text.push('  ' + (cpu.RE & 0x1f).toString(2).padStart(5, '0'));
+    }
+
+    this._textarea.value = text.join('\n');
   }
 }

@@ -4,7 +4,7 @@ body {
 }
 
 .container-fluid {
-	max-width: 1060px;
+	max-width: 1200px;
 }
 
 div > *:first-child {
@@ -103,13 +103,16 @@ textarea {
 	vertical-align: top;
 }
 
-.tab-page-simulator table td:last-child {
+.tab-page-simulator table td:nth-child(2) {
 	width: auto;
+}
+
+.tab-page-simulator table td:last-child {
+	width: 300px;
 }
 
 #sim-memory0, #sim-memory1 {
 	resize: vertical;
-	height: 200px;
 }
 
 .tab-page-simulator.ctrl-hide .ctrl-elem {

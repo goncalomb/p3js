@@ -1,18 +1,15 @@
 export default function (p3sim) {
   let $body = $(document.body);
 
-  let $sim_memory0 = $('#sim-memory0');
-  let $sim_memory1 = $('#sim-memory1');
   let $sim_start = $('#sim-start');
 
-  new p3js.dom.InfoPanel(p3sim, $('#sim-status'));
-  let debugPanel = new p3js.dom.DebugPanel(p3sim, $('#sim-debug-main'), $('#sim-debug-control'));
+  new p3js.dom.InfoPanel(p3sim, document.getElementById('sim-status'));
+  let debugPanel = new p3js.dom.DebugPanel(p3sim, document.getElementById('sim-debug'));
+  let memoryPanel0 = new p3js.dom.MemoryViewPanel(p3sim, document.getElementById('sim-memory0'), 0x8000, 0x80ff);
+  let memoryPanel1 = new p3js.dom.MemoryViewPanel(p3sim, document.getElementById('sim-memory1'), 0xfd00, 0xfdff);
+  let disassemblePanel = new p3js.dom.MemoryDisassemblePanel(p3sim, document.getElementById('sim-disassemble-container'));
 
-  let memoryPanel0 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory0, 32768, 32768 + 256);
-  let memoryPanel1 = new p3js.dom.MemoryViewPanel(p3sim, $sim_memory1, 64768, 64768 + 256);
-
-  let disassemblePanel = new p3js.dom.MemoryDisassemblePanel(p3sim, $('.tab-page-simulator table tr td:last-child')[0]);
-  disassemblePanel.setRange(0x0000, 0x00ff);
+  disassemblePanel.update();
 
   $('#sim-memory0-edit').click(() => {
     memoryPanel0.promptRange();
@@ -20,6 +17,10 @@ export default function (p3sim) {
 
   $('#sim-memory1-edit').click(() => {
     memoryPanel1.promptRange();
+  });
+
+  $('#sim-disassemble-edit').click(() => {
+    disassemblePanel.promptRange();
   });
 
   $('#sim-speed-factor').on('input', (e) => {
@@ -40,6 +41,7 @@ export default function (p3sim) {
 
   $('#sim-step-c').click(() => {
     p3sim.stepClock();
+    disassemblePanel.update();
   });
 
   $('#sim-reset').click(() => {
@@ -67,6 +69,14 @@ export default function (p3sim) {
     }
   });
 
+  $(document).on('p3js-tab-change', (e, tab) => {
+    if (tab === 'simulator') {
+      setTimeout(() => {
+        disassemblePanel.update(false, !p3sim.isRunning());
+      });
+    }
+  });
+
   p3sim.registerEventHandler('load', () => {
     disassemblePanel.update(true, false);
   });
@@ -80,7 +90,8 @@ export default function (p3sim) {
     $sim_start.text('Stop');
     disassemblePanel.update(false, false);
     setTimeout(() => {
-      $sim_memory1[0].scrollTop = $sim_memory1[0].scrollHeight;
+      memoryPanel0.scrollToStart();
+      memoryPanel1.scrollToEnd();
     }, 10);
   });
 

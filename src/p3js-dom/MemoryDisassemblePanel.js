@@ -1,9 +1,10 @@
-export class MemoryDisassemblePanel {
+import { MemoryRangePanel } from './MemoryRangePanel.js';
+
+export class MemoryDisassemblePanel extends MemoryRangePanel {
   constructor(simulator, element) {
+    super(0x0000, 0x00ff);
     this._simulator = simulator;
     this._disassembler = new p3js.assembly.Disassembler(simulator);
-    this._begin = 0x0000;
-    this._end = 0x00ff;
     this._disResult = [];
 
     this._codeMirror = CodeMirror(element, {
@@ -34,19 +35,6 @@ export class MemoryDisassemblePanel {
     marker.style.color = '#999';
     marker.innerText = addr.toString(16).padStart(4, '0');
     return marker;
-  }
-
-  setRange(begin, end) {
-    begin &= 0xffff;
-    end &= 0xffff;
-    if (end > begin) {
-      this._begin = begin;
-      this._end = end;
-    }
-  }
-
-  getRange() {
-    return [this._begin, this._end];
   }
 
   update(disassemble = true, highlightPC = true) {

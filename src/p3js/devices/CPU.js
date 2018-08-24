@@ -38,6 +38,42 @@ export class CPU {
     this._instructionCount = 0;
   }
 
+  getRegister(r) {
+    return this._registers[r] & 0xffff;
+  }
+
+  get SP() {
+    return this._registers[14] & 0xffff;
+  }
+
+  get PC() {
+    return this._registers[15] & 0xffff;
+  }
+
+  get RI() {
+    return this._ri & 0xffff;
+  }
+
+  get RE() {
+    return this._re & 0x7f;
+  }
+
+  get CAR() {
+    return this._car & 0xffff;
+  }
+
+  get SBR() {
+    return this._sbr & 0xffff;
+  }
+
+  get INT() {
+    return this._int & 1;
+  }
+
+  get IAK() {
+    return this._iak & 1;
+  }
+
   _unpackIntruction(i) {
     return {
       op:  (i >> 10 & 0x3f),

@@ -1,7 +1,7 @@
 export class InfoPanel {
-  constructor(simulator, $textarea) {
+  constructor(simulator, element) {
     this._simulator = simulator;
-    this._$textarea = $textarea;
+    this._element = element;
 
     simulator.registerEventHandler('stop', (c, i, s) => {
       this._update(c, i, s);
@@ -25,10 +25,8 @@ export class InfoPanel {
     } else {
       s_str = Math.round(s * 10) / 10 + ' Hz';
     }
-    this._$textarea.html(
-      'Speed: ' + s_str + '\n'
+    this._element.innerHTML = 'Speed: ' + s_str + '\n'
       + 'Clock: ' + c.toLocaleString() + '\n'
-      + 'Instructions: ' + i.toLocaleString() + '\n',
-    );
+      + 'Instructions: ' + i.toLocaleString() + '\n';
   }
 }

@@ -49,19 +49,11 @@ To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also asse
 * `INT`: use the keys 0-9 and A-F to trigger interrupts;
 * `SWT`: use the keys 0-7 toggle the switches;
 
-## The Future (what needs to be done) ##
+## Roadmap ##
 
-* **Assembler API** (src/p3js/assembly/\*):
+* **P3JS** (src/p3js/):
     * Cleanup and modularize the parser and assembler;
-    * Implement API to allow custom instructions (and opcodes);
-    * Implement disassembler;
-* **Simulator API** (src/p3js/\*):
-    * Implement breakpoint API;
     * Implement Web Worker API (simulator/cpu) to take advantage of multiple threads (maybe?), make some performance tests first;
-* **Web Simulator** (src/p3js-web/\*):
-    * Modularize the code;
-    * Create UI for the disassembler and breakpoints (requires API code first);
-    * Create UI to allow custom instructions (requires API code first);
 * **Local Assembler** (p3as.js):
     * Cleanup the code;
     * Add option to output references to a file;
@@ -69,7 +61,7 @@ To run a program on the simulator: `node p3sim.js YOUR_PROGRAM.as` (it also asse
     * Add option to allow custom instructions (requires API code first);
 * **Local Simulator** (p3sim.js):
     * Cleanup the code;
-    * Add option to auto-assemble code;
+    * Add option to load memory;
     * Add option to set custom ROMs;
     * Add help screen;
 

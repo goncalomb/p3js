@@ -27,7 +27,7 @@ footer p{
 	font-size: 25px;
 }
 
-.fullscreen header p, .fullscreen footer {
+.fullscreen header p, .fullscreen header div, .fullscreen footer {
 	display: none;
 }
 

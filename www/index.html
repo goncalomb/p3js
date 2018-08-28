@@ -39,6 +39,30 @@ See LICENSE.txt for details.
 		<header class="row">
 			<h1>P3JS Assembler and Simulator</h1>
 			<p>A JavaScript assembler and simulator for the P3 educational CPU. <a href="#about">More Information</a>.</p>
+			<div id="info" class="well text-left" style="display: none;">
+				<p><strong>New features, August 2018.</strong><a class="pull-right" href="javascript:void(0);" onclick="closeInfo()"><strong><i class="fa fa-times"></i> Close Information</strong></a></p>
+				<ul>
+					<li>New Settings tab (replaces old ROMs tab) with support to edit/add new assembly instructions in addition to custom ROMs, for complete control over the CPU functionality.</li>
+					<li>New disassembler panel on the Simulator tab shows the program loaded in memory for easy debugging. It's also possible to create breakpoints (by clicking an address on the disassembler panel), the simulator stops automatically on all the breakpoints.</li>
+					<li>New simulation speed control slider (Simulator tab).</li>
+					<li>Behind the scenes, the code was refactored using the latest constructs to improve performance and readability.</li>
+				</ul>
+				<p style="margin-bottom: 0;">If you find any issues contact me on GitHub or using Email (see About P3JS).</p>
+			</div>
+			<script>
+			(function() {
+				let info = document.getElementById('info');
+				let infoLevel = 1;
+				window.closeInfo = () => {
+					info.style.display = 'none';
+					window.localStorage.setItem('p3js-info-closed', infoLevel);
+				};
+				let infoClosed = window.localStorage.getItem('p3js-info-closed');
+				if (!infoClosed || infoClosed < infoLevel) {
+					info.style.display = null;
+				}
+			})()
+			</script>
 		</header>
 		<ul class="nav nav-tabs" style="margin-bottom: 20px;">
 			<li><a href="#assembler"><i class="fa fa-code"></i> Assembler</a></li>

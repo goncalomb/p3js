@@ -11,6 +11,9 @@ import tab_program from './tab-program.js';
 import tab_settings from './tab-settings.js';
 import tab_simulator from './tab-simulator.js';
 
+export function clearProgramInfo() { }
+export function buildProgramInfo() { }
+
 export function downloadBuffer(buffer, name) {
   let blob = new Blob([buffer], { type: 'application/octet-stream' });
   let url = URL.createObjectURL(blob);

@@ -1,6 +1,6 @@
-import * as p3js_web from './';
+import { downloadBuffer } from './utils';
 
-export default function (p3sim) {
+export default function (p3sim, share) {
   let $asm_editor_files = $('#asm-editor-files');
   let $asm_editor_new = $('#asm-editor-new');
   let $asm_editor_save = $('#asm-editor-save');
@@ -97,7 +97,7 @@ export default function (p3sim) {
   $asm_editor_download.click(() => {
     let code = editor.getValue();
     if (code) {
-      p3js_web.downloadBuffer(code, editor.getFileName());
+      downloadBuffer(code, editor.getFileName());
     }
   });
 
@@ -117,13 +117,13 @@ export default function (p3sim) {
           asm_info_add(null);
           asm_info_add('Assembling finished (' + (Date.now() - t) + ' ms).', 'text-success');
           asm_info_add('Program loaded on simulator.', 'text-info small');
-          p3js_web.buildProgramInfo(result);
+          share.buildProgramInfo(result);
           p3sim.loadMemory(result.buffer);
           if (callback) {
             callback(result);
           }
         } catch (e) {
-          p3js_web.clearProgramInfo();
+          share.clearProgramInfo();
           asm_info_add(null);
           if (e instanceof p3js.assembly.AssemblerError) {
             asm_info_add(e.getFullMessage(), 'text-danger');
@@ -151,7 +151,7 @@ export default function (p3sim) {
 
   $assemble_dl.click(() => {
     assemble_program((result) => {
-      p3js_web.downloadBuffer(result.buildProgramCode(), editor.getFileName('exe'));
+      downloadBuffer(result.buildProgramCode(), editor.getFileName('exe'));
       asm_info_add('Download requested (p3as format).', 'text-info small');
     });
   });

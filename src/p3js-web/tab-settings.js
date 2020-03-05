@@ -1,4 +1,4 @@
-export default function (p3sim) {
+export default function (p3sim, share) {
   let instEditorTextArea = $('#inst-editor-textarea');
   instEditorTextArea.val(p3js.assembly.dumpInstructionsList());
   $('#inst-editor-btn').click(() => {

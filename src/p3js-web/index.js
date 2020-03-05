@@ -5,47 +5,17 @@
  * See LICENSE.txt for details.
  */
 
-import tab_assembler from './tab-assembler.js';
-import tab_io from './tab-io.js';
-import tab_program from './tab-program.js';
-import tab_settings from './tab-settings.js';
-import tab_simulator from './tab-simulator.js';
+import { requestFullscreen, exitFullscreen } from './utils';
 
-export function clearProgramInfo() { }
-export function buildProgramInfo() { }
-
-export function downloadBuffer(buffer, name) {
-  let blob = new Blob([buffer], { type: 'application/octet-stream' });
-  let url = URL.createObjectURL(blob);
-  let a = document.createElement('a');
-  if ('download' in a) {
-    a.href = url;
-    a.download = (name || 'file');
-    a.dispatchEvent(new MouseEvent('click'));
-  } else {
-    window.location = url;
-  }
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  });
-}
-
-export function createDraggableElement($element) {
-  let $handle = $('<div>').prependTo($element);
-  $('<i>').addClass('fa fa-arrows').appendTo($handle);
-  $(document.createTextNode(' Drag Me')).appendTo($handle);
-  function bring_to_top() {
-    $('.ui-draggable').css('z-index', 10);
-    $element.css('z-index', 11);
-  }
-  $element.click(bring_to_top);
-  $element.draggable({
-    handle: $handle,
-    start: bring_to_top,
-  });
-}
+import tab_assembler from './tab-assembler';
+import tab_io from './tab-io';
+import tab_program from './tab-program';
+import tab_settings from './tab-settings';
+import tab_simulator from './tab-simulator';
 
 $(window).ready(() => {
+  const share = {};
+
   let $document = $(document);
   let $body = $(document.body);
 
@@ -54,25 +24,11 @@ $(window).ready(() => {
   window.p3sim = p3sim;
 
   // fullscreen
-  function request_fullscreen(elem) {
-    let fn = (
-      elem.requestFullscreen || elem.msRequestFullscreen
-      || elem.mozRequestFullScreen || elem.webkitRequestFullscreen
-    );
-    if (fn) fn.apply(elem);
-  }
-  function exit_fullscreen() {
-    let fn = (
-      document.exitFullscreen || document.msExitFullscreen
-      || document.mozCancelFullScreen || document.webkitExitFullscreen
-    );
-    if (fn) fn.apply(document);
-  }
   function fullscreen_toogle() {
     if ($body.hasClass('fullscreen')) {
-      exit_fullscreen();
+      exitFullscreen();
     } else {
-      request_fullscreen(document.documentElement);
+      requestFullscreen(document.documentElement);
     }
   }
   $(document).on('webkitfullscreenchange mozfullscreenchange msfullscreenchange fullscreenchange', () => {
@@ -124,9 +80,9 @@ $(window).ready(() => {
     }
   });
 
-  tab_assembler(p3sim);
-  tab_io(p3sim);
-  tab_program(p3sim);
-  tab_settings(p3sim);
-  tab_simulator(p3sim);
+  tab_assembler(p3sim, share);
+  tab_io(p3sim, share);
+  tab_program(p3sim, share);
+  tab_settings(p3sim, share);
+  tab_simulator(p3sim, share);
 });

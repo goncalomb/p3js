@@ -1,4 +1,4 @@
-export default function (p3sim) {
+export default function (p3sim, share) {
   let $body = $(document.body);
 
   let $sim_start = $('#sim-start');

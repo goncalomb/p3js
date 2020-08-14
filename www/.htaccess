@@ -6,7 +6,3 @@ RewriteEngine On
 Options -MultiViews -Indexes -Includes -ExecCGI +FollowSymLinks
 
 AddCharset UTF-8 .html .js .css .as
-
-RewriteCond %{HTTP_HOST} =p3js.goncalomb.com
-RewriteCond %{HTTPS} =off
-RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]

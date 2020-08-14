@@ -10,6 +10,14 @@ This repository contains an API and 2 implementations (web and terminal).
 
 If you just want to use the assembler and simulator NOW, go to [p3js.goncalomb.com](http://p3js.goncalomb.com/).
 
+## Local Using Docker ##
+
+Build and run with Docker:
+
+    docker build -t p3js . && docker run -p 8080:80 p3js
+
+Visit http://localhost:8000/.
+
 ## Local Installation and Usage ##
 
 * Install [Node.js](https://nodejs.org/).
